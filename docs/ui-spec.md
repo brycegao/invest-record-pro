@@ -399,22 +399,29 @@
 抽屉标题：买入
 宽度：520px
 
+── 核心字段（必须填写，表单顶部） ──
+
 选择标的 *                [n-select 远程搜索]
 价格 *                    [n-input-number precision=2 step=0.01]  元
 数量 *                    [n-input-number precision=3 min=0.001]  手/份
-手续费 *                  [n-input-number precision=2 min=0]       元
-总金额（自动计算）        [n-statistic readonly]                   元
-                          公式：(price × quantity + fee)
 
+总金额（自动计算，只读）  ¥x,xxx.xx
+                          公式：price × quantity
+
+── 可选字段（默认折叠，点击「更多选项」展开） ──
+
+手续费                    [n-input-number precision=2 min=0 default=0]  元
 大盘点位                  [n-input-number precision=2]             点
 操作原因                  [n-input type="textarea" rows=2]
-是否遵守计划              [n-switch]
+是否遵守计划              [n-switch default=是]
 关联计划（遵守时显示）     [n-select 筛选该标的的 buy 类型计划]
-情绪状态                  [n-select: calm/anxious/greedy/fearful/hesitant/other/unknown]
+情绪状态                  [n-select default=calm]
 备注                      [n-input type="textarea" rows=2]
 
 底部按钮：[取消]  [确认买入]
 ```
+
+**极简录入原则**：用户只需填写 3 个字段即可提交（标的、价格、数量）。其余字段全部有合理默认值（手续费=0、遵守计划=是、情绪=平静），并可稍后通过「编辑」补全。
 
 **自动计算**：price 或 quantity 变化时，自动重算 total_amount。
 **存储转换**：提交时 price/total_amount/fee ×100 → INTEGER，quantity ×1000 → INTEGER。
@@ -425,6 +432,8 @@
 抽屉标题：卖出
 宽度：520px
 
+── 核心字段（必须填写） ──
+
 选择标的 *                [n-select 远程搜索]
                           选择后显示当前持仓信息：
                           「当前持仓：xxx 手，成本价 ¥x.xx，可用 xxx 手」
@@ -432,20 +441,23 @@
 卖出数量 *                [n-input-number precision=3 max=当前持仓]
                           max 动态绑定当前持仓量，超出时 n-form-item 报错
 价格 *                    [n-input-number precision=2 step=0.01]  元
-手续费 *                  [n-input-number precision=2 min=0]       元
-预计收入（自动计算）      [n-statistic readonly]                   元
-预计盈亏（自动计算）      [n-statistic readonly]                   元（红/绿）
-                          公式：(sell_price - avg_cost) × sell_qty - fee
 
-是否遵守计划              [n-switch]
+预计盈亏（自动计算，只读）  ±¥x,xxx.xx（红/绿）
+                          公式：(sell_price - avg_cost) × sell_qty - fee(default=0)
+
+── 可选字段（默认折叠） ──
+
+手续费                    [n-input-number precision=2 min=0 default=0]  元
+是否遵守计划              [n-switch default=是]
 关联计划                  [n-select 筛选该标的的 sell 类型计划]
-情绪状态                  [n-select]
+情绪状态                  [n-select default=calm]
 备注                      [n-input type="textarea" rows=2]
 
 底部按钮：[取消]  [确认卖出]
 ```
 
 **卖出校验**：卖出数量不得超过当前持仓。选择标的后实时查询持仓。
+**极简录入**：同买入，核心 3 字段（标的、数量、价格）即可提交。
 
 ### 关联数据
 
@@ -745,19 +757,58 @@ AI 驱动的月度投资复盘
 
 ```
 用户点击 [生成本月报告]
-  → n-button loading 状态
-  → n-spin 全屏遮罩「正在生成 AI 月报...」
-  → 调用 MonthlyAggregationService 聚合当月数据
-  → 调用 PromptTemplateService 生成 prompt
-  → 调用 Ollama localhost:11434
-  → 渲染结果到月报页面
-  → 用户可编辑
-  → 保存时更新 user_edited_summary
+  → 检测 Ollama 是否可用（GET /api/tags）
+  → 可用：
+    → n-button loading 状态
+    → n-spin 全屏遮罩「正在生成 AI 月报...」
+    → 调用 MonthlyAggregationService 聚合当月数据
+    → 调用 PromptTemplateService 生成 prompt
+    → 调用 Ollama localhost:11434
+    → 渲染结果到月报页面
+    → 用户可编辑
+    → 保存时更新 user_edited_summary
+  → 不可用：
+    → 降级为规则引擎统计（见下方）
 ```
 
+### AI 降级策略（Ollama 不可用时）
+
+**核心原则：即使没有 AI，月报页面的「一~四」部分仍用规则引擎自动生成，保证基础价值。**
+
+降级流程：
+
+```
+用户点击 [生成本月报告]
+  → Ollama 不可用
+  → n-message.info("Ollama 未运行，已生成统计数据月报（无 AI 分析）")
+  → MonthlyAggregationService 正常聚合数据
+  → 规则引擎自动填充以下区域：
+
+  一、当月概况     → 交易次数、买入/卖出总金额（规则计算，无 AI）
+  二、交易统计     → 买入/卖出次数、金额汇总（规则计算，无 AI）
+  三、纪律执行情况 → 计划执行率、遵守/偏离次数 + n-progress 进度条（规则计算，无 AI）
+  四、情绪分析     → 情绪分布统计 + n-tag（规则计算，无 AI）
+
+  五、优势与问题   → 显示引导提示：「安装 Ollama 后可自动生成 AI 分析」
+  六、下月改进计划 → 显示引导提示：「安装 Ollama 后可自动生成 AI 改进建议」
+
+  → 用户仍可手动填写五、六部分
+  → 保存为普通月报（ai_summary 为空，仅有统计数据）
+```
+
+**规则引擎计算的统计项（不依赖 AI）**：
+- 月度买入次数 / 总买入金额
+- 月度卖出次数 / 总卖出金额
+- 月度已实现盈亏（纯数值汇总）
+- 计划执行率 = (遵守次数 + 0.5 × 部分遵守次数) / 已评估交易数
+- 情绪分布：各情绪状态出现次数
+- 活跃计划数 / 完成计划数
+
+这些统计项由 `MonthlyAggregationService` 提供，不走 Ollama，是纯数据聚合。
+
 **异常处理**：
-- Ollama 不可用时：`n-message.error("Ollama 未运行，请先启动 Ollama 或在设置中配置")`
-- 生成超时（> 120s）：`n-message.warning("AI 生成超时，请检查模型配置")`
+- Ollama 不可用时：降级为规则引擎统计（不报错，不阻断）
+- 生成超时（> 120s）：`n-message.warning("AI 生成超时，已回退为统计数据月报")`
 - 返回格式异常：`n-message.error("AI 返回格式异常，请重试")`
 
 ---

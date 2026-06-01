@@ -220,6 +220,25 @@ Create asset
 - Do not build a WeChat mini program.
 - Do not build a cloud/server-based version.
 
+## Product Positioning
+
+invest-record-pro is a niche, professional, high-value, high-threshold, high-loyalty tool for serious investors.
+
+**Who it is for:**
+- Investors who value trading discipline and systematic review.
+- Users willing to manually record trades and investment decisions.
+- Users who prioritize data privacy over convenience.
+- Desktop-first users comfortable with local software.
+- Users willing to set up local AI (Ollama) for enhanced analysis.
+
+**Who it is NOT for:**
+- Casual stock watchers or market data consumers.
+- Users who expect automatic real-time data feeds.
+- Users who want a simple bookkeeping app.
+
+**Key retention principle:**
+Manual data entry is the biggest retention risk. Every design decision should minimize the friction of recording a trade. v1.0 targets a 3-field minimum for trade entry (asset, price, quantity), with all other fields defaulting to sensible values. v1.1 must support broker CSV import to eliminate manual entry entirely.
+
 ## Pending Decisions
 
 - ~~First MVP screen structure.~~ Resolved: see `docs/ui-spec.md` for 9-page layout.
