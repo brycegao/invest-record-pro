@@ -15,8 +15,10 @@
 | [technical-solution.md](technical-solution.md) | 技术方案。MVP 技术栈、架构概览、层职责定义、SQLite 规划、Ollama 集成、模块边界规则、跨模块调用链示例、测试策略、开发顺序。技术决策的细化执行文档。 | 全栈工程师 |
 | [tech-decision.md](tech-decision.md) | 技术选型决策。最终栈选择理由（Tauri/Naive UI/SQLite/Ollama）、非目标清单、AI 边界、Ollama 健康检查与超时策略、已知风险。回答"为什么选这些技术"。 | 技术负责人 |
 | [acceptance-criteria-v1.md](acceptance-criteria-v1.md) | v1 验收标准。分 MVP Core Gate 和 v1 Release Gate 两阶段，覆盖定位合规、架构、每个功能模块、AI、数据库、工程化。可逐项打勾的 pass/fail 清单。 | QA、产品负责人 |
-| [go-to-market.md](go-to-market.md) | 上市计划。3 个月用户增长目标（500-1000 种子用户）、推广渠道（GitHub/知乎/V2EX/HN）、内容策略、转化留存、文案模板。 | 产品负责人 |
+| [go-to-market.md](go-to-market.md) | 上市计划。产品定位、双语标语、GitHub 双仓策略、国内外社区运营、内容边界、3 个月排期、风险红线、商业化路线。 | 产品负责人 |
 | [market-analysis.md](market-analysis.md) | 市场分析。市场需求、用户痛点、竞争格局（券商/记账/交易日记工具）、核心差异化（隐私/闭环/AI/本土化）、风险、商业化可能。战略参考。 | 产品负责人 |
+| [platform-posting-templates.md](platform-posting-templates.md) | 各平台发帖文案合集。知乎、V2EX、掘金、雪球、B 站、Reddit、HN、Indie Hackers 的标准模板 + 排期建议。 | 运营、产品负责人 |
+| [landing/index.html](landing/index.html) | 官网单页 HTML 模板。GitHub Pages 直接部署，包含 Hero、功能特性、对比表、FAQ。 | 产品负责人 |
 
 ## 文档关系
 

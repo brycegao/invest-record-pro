@@ -15,6 +15,13 @@ invest-record-pro
 架构设计见 `docs/architecture.md`。
 验收标准见 `docs/acceptance-criteria-v1.md`。
 业务规则见 `docs/business-rules-v1.md`。
+数据库模型与存储设计见 `docs/database-schema.md`。
+技术决策说明见 `docs/tech-decision.md`。
+具体实现方案见 `docs/technical-solution.md`。
+界面与交互规范见 `docs/ui-spec.md`。
+发布与平台文案模板见 `docs/platform-posting-templates.md`。
+付费插件授权设计见 `docs/premium-auth-solution.md`。
+文档目录与说明见 `docs/README.md`。
 
 ## 用户背景与意图
 

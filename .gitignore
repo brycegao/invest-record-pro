@@ -1,2 +1,75 @@
-# Project planning and documentation notes
+# ============================================
+# Invest Record Pro — .gitignore
+# Public repo: ignore all premium plugin sources
+# ============================================
 
+# ---------- Premium plugin sources (NEVER commit) ----------
+plugins/
+premium/
+pro-plugins/
+*_premium*
+*_pro_plugin*
+
+# ---------- License & auth secrets ----------
+*.key
+*.pem
+*.p12
+license/
+licenses/
+auth/
+activation/
+serial/
+.env
+.env.*
+!.env.example
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---------- Node.js ----------
+node_modules/
+dist/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Tauri / Rust ----------
+src-tauri/target/
+src-tauri/Cargo.lock
+src-tauri/*.log
+
+# ---------- IDE / Editor ----------
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# ---------- Build artifacts ----------
+*.exe
+*.dmg
+*.deb
+*.AppImage
+*.msi
+*.nsis
+*.upx
+
+# ---------- Sensitive data ----------
+*.csv
+*.xlsx
+*.xls
+!docs/assets/sample.*
+
+# ---------- Backup files ----------
+*.bak
+*.tmp
+*.backup

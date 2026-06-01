@@ -15,6 +15,13 @@ Go-to-market and early growth notes are saved in `docs/go-to-market.md`.
 Architecture notes are saved in `docs/architecture.md`.
 Acceptance criteria are saved in `docs/acceptance-criteria-v1.md`.
 Business rules are saved in `docs/business-rules-v1.md`.
+Database model and storage notes are saved in `docs/database-schema.md`.
+Technical decision rationale is saved in `docs/tech-decision.md`.
+Concrete implementation and architecture guidance is saved in `docs/technical-solution.md`.
+UI layout and screen specifications are saved in `docs/ui-spec.md`.
+Release and posting template notes are saved in `docs/platform-posting-templates.md`.
+Premium plugin authorization design is saved in `docs/premium-auth-solution.md`.
+Docs folder overview and metadata are saved in `docs/README.md`.
 
 ## User Background And Intent
 
