@@ -9,11 +9,45 @@
 |------|----------|------|
 | 金额 | INTEGER（分） | 价格 ×100、金额 ×100，避免浮点错误 |
 | 数量 | INTEGER（千分之一） | ×1000 存储（支持三位小数） |
-| 百分比 | INTEGER（百分之一） | ×100 存储（如 30% → 3000） |
+| 百分比 | INTEGER | 百分比数值 ×100 存储（如 30% → 3000，即百分比数字 30 × 100 = 3000） |
 | 指数点位 | INTEGER（百分之一） | ×100 存储 |
 | 日期时间 | TEXT (ISO 8601) | 精确到毫秒，如 `2026-06-01T10:30:00.000+08:00` |
 
 **禁止使用 `REAL` / `FLOAT`。所有金额、价格、数量、百分比、指数点位一律使用 INTEGER 存储。**
+
+## 精度与转换示例
+
+```text
+显示值              → 存储值（INTEGER）    → 转换公式
+─────────────────────────────────────────────────────────
+价格 ¥3.50          → 350                  → 3.50 × 100
+数量 1000 手        → 1000000              → 1000 × 1000
+金额 ¥3,500.00      → 350000               → 3500.00 × 100
+手续费 ¥5.00        → 500                  → 5.00 × 100
+百分比 30%          → 3000                 → 30 × 100
+百分比 12.5%        → 1250                 → 12.5 × 100
+指数 3900.50        → 390050               → 3900.50 × 100
+```
+
+## 总金额计算（含单位转换）
+
+```text
+// 错误：直接相乘会得到错误的单位
+total_amount_wrong = price_int × quantity_int  // 350 × 1000000 = 350000000（单位错误）
+
+// 正确：先除以数量标度再相乘
+total_amount_fen = price_fen × (quantity_int / 1000)
+// 即：total_amount_fen = price_fen × display_quantity
+
+// 示例：
+// price = ¥3.50 → price_fen = 350
+// quantity = 1000 手 → quantity_int = 1000000
+// total_amount_fen = 350 × (1000000 / 1000) = 350 × 1000 = 350000
+// 显示：350000 / 100 = ¥3,500.00 ✓
+
+// 注意：除法需使用整数除法（quantity_int 保证是 1000 的倍数）
+// 或在前端展示层计算：display_amount = (price_fen / 100) × (quantity_int / 1000)
+```
 
 ## 通用约定
 
@@ -125,7 +159,7 @@ CREATE TABLE trades (
   trade_type TEXT NOT NULL,              -- buy / sell
   quantity INTEGER NOT NULL,             -- 数量 ×1000 存储（三位小数）
   price INTEGER NOT NULL,                -- 价格 ×100 存储
-  total_amount INTEGER NOT NULL,         -- 总金额 = price × quantity
+  total_amount INTEGER NOT NULL,         -- 总金额（分）= price_fen × (quantity_int / 1000)，见顶部精度示例
   fee INTEGER NOT NULL,                  -- 手续费（分）
   index_point INTEGER,                   -- 大盘点位 ×100 存储
   reason TEXT,                           -- 操作原因

@@ -222,7 +222,10 @@ Create asset
 
 ## Pending Decisions
 
-- First MVP screen structure.
+- ~~First MVP screen structure.~~ Resolved: see `docs/ui-spec.md` for 9-page layout.
+- v1 batch operation scope: selection column default off, export-only in MVP (no batch delete).
+- v1 import scope: CSV trade import deferred to v1.1; v1 only supports CSV export.
+- Auto-update strategy: deferred to post-v1; must be opt-in per `docs/acceptance-criteria-v1.md`.
 
 ## v1 Decisions
 

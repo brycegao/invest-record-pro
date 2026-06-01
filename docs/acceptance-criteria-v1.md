@@ -42,6 +42,12 @@ http://localhost:11434
 - [ ] The app does not upload data to any third party.
 - [ ] The app has no analytics, telemetry, tracking, or push notification.
 
+**Allowed network exceptions（仅限用户主动触发）**:
+
+- [ ] Ollama local API（`http://localhost:11434/*`）：用户触发 AI 生成或连接测试时。
+- [ ] GitHub Releases：用户手动点击「检查更新」时（需 opt-in，非自动后台）。
+- [ ] 以上请求均为用户主动行为，应用不会在后台自动发起任何网络请求。
+
 ### 1.3 Privacy
 
 - [ ] The app shows the local database file path to the user.
@@ -132,7 +138,7 @@ Create asset
 - [ ] Supports status flow:
 
 ```text
-pending -> partially_executed -> completed -> cancelled
+pending -> partial -> completed -> canceled
 ```
 
 - [ ] Stores plan rules structurally in `plan_rules`.

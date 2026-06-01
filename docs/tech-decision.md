@@ -227,7 +227,22 @@ The app should detect whether Ollama is available at:
 http://localhost:11434
 ```
 
-If Ollama is unavailable, AI features should be disabled gracefully and the app should show setup guidance.
+Health check endpoint:
+
+```text
+GET http://localhost:11434/api/tags
+```
+
+- Success: HTTP 200 with `models` array in response body.
+- Failure: Connection refused or timeout (5s) → treat as unavailable.
+- AI features should be disabled gracefully and the app should show setup guidance.
+
+**Timeout and failure handling:**
+
+- AI generation timeout: 120 seconds (configurable in settings).
+- On timeout: show warning message, allow retry, do not block main workflow.
+- On model unavailable: show error with model name, suggest user pull the model first.
+- All AI errors should be logged locally (no external upload).
 
 The first version should not bundle model files.
 

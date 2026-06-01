@@ -344,14 +344,14 @@ SQLite raw data
 
 ```text
 month
-generated_at
 input_snapshot_json
 ai_summary
 user_edited_summary
-model_runtime
 model_name
 prompt_version
-status
+generation_duration_ms
+created_at
+updated_at
 ```
 
 ## Module Boundary Rules
@@ -387,6 +387,62 @@ features/plans
 features/reviews
 features/positions
 ```
+
+### Cross-Module Data Access Example
+
+When `monthly-reports` needs trades, plans, reviews, and positions data, the call chain looks like:
+
+```text
+pages/monthly-reports/
+  → features/monthly-reports/stores/useMonthlyReportsStore.ts
+    → services/monthly-report-service/index.ts
+      → infrastructure/repositories/TradeRepository.ts   // direct SQL
+      → infrastructure/repositories/PlanRepository.ts     // direct SQL
+      → infrastructure/repositories/ReviewRepository.ts  // direct SQL
+      → infrastructure/repositories/PositionRepository.ts // direct SQL
+        → platform/tauri/sqlite-commands.ts              // Tauri invoke
+```
+
+`monthly-report-service` example interface:
+
+```ts
+// services/monthly-report-service/types.ts
+interface MonthlyReportInput {
+  month: string                     // "2026-05"
+  trades: AggregatedTrade[]         // from TradeRepository
+  plans: AggregatedPlan[]           // from PlanRepository
+  reviews: AggregatedReview[]       // from ReviewRepository
+  positions: AggregatedPosition[]   // from PositionRepository
+  marketObservations: MarketObservation[] // from MarketObservationRepository
+}
+
+// services/monthly-report-service/index.ts
+export async function generateMonthlyReport(
+  month: string
+): Promise<MonthlyReportInput> {
+  const [trades, plans, reviews, positions, observations] = await Promise.all([
+    tradeRepo.findByMonth(month),
+    planRepo.findByMonth(month),
+    reviewRepo.findByMonth(month),
+    positionRepo.findByMonth(month),
+    marketObsRepo.findByMonth(month),
+  ])
+
+  return {
+    month,
+    trades: aggregateTrades(trades),
+    plans: aggregatePlans(plans),
+    reviews,
+    positions,
+    marketObservations: observations,
+  }
+}
+```
+
+This pattern ensures:
+- No feature module imports another feature module.
+- Cross-module data flows through services → repositories → platform.
+- Each repository encapsulates its own SQL queries.
 
 ## MVP Development Order
 

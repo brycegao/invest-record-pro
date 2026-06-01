@@ -447,6 +447,47 @@ features/plans
 features/reviews
 ```
 
+### Detailed Example: Monthly Report Data Aggregation
+
+When `monthly-reports` needs data from trades, plans, reviews, positions, and market observations, the full call chain is:
+
+```text
+pages/monthly-reports/
+  → features/monthly-reports/stores/useMonthlyReportsStore.ts
+    → services/monthly-report-service/index.ts
+      → infrastructure/repositories/TradeRepository.ts
+      → infrastructure/repositories/PlanRepository.ts
+      → infrastructure/repositories/ReviewRepository.ts
+      → infrastructure/repositories/PositionRepository.ts
+      → infrastructure/repositories/MarketObservationRepository.ts
+        → platform/tauri/sqlite-commands.ts
+```
+
+Service layer pseudocode:
+
+```ts
+// services/monthly-report-service/index.ts
+export async function aggregateMonthlyData(month: string) {
+  const [trades, plans, reviews, positions, observations] =
+    await Promise.all([
+      tradeRepo.findByMonth(month),       // SELECT ... WHERE date BETWEEN ...
+      planRepo.findByMonth(month),
+      reviewRepo.findByMonth(month),
+      positionRepo.findByMonth(month),
+      marketObsRepo.findByMonth(month),
+    ])
+
+  return { month, trades, plans, reviews, positions, observations }
+}
+```
+
+Key rules demonstrated:
+- `pages` may call `features` and `services`.
+- `features` may call `services` but not other `features`.
+- `services` may call `infrastructure/repositories` and `domain`.
+- `repositories` encapsulate SQL and call `platform/tauri` for SQLite access.
+- No horizontal imports between feature modules at any point in the chain.
+
 ## Recommended Dependency Direction
 
 ```text

@@ -28,17 +28,19 @@ Financial calculations must avoid binary floating-point errors.
 
 Rules:
 
-- Amounts are stored as decimal strings or integer minor units.
-- Quantity can use decimal string if fractional units are needed.
-- Display formatting is separate from stored values.
-- Calculation utilities must use decimal-safe logic.
+- All monetary values, prices, quantities, percentages, and index points are stored as INTEGER in SQLite. No REAL/FLOAT.
+- Display formatting is separate from stored values. All display conversions are done by the presentation layer.
+- Calculation utilities must use integer-safe logic with explicit scale factors.
+- See `database-schema.md` for the authoritative scale table.
 
 Recommended precision:
 
-- Price: 4 decimal places by default.
-- Amount: 2 decimal places by default.
-- Quantity: 4 decimal places by default.
-- Ratio: 4 decimal places internally, percentage display can use 2 decimal places.
+- Price: stored as ×100 (cents), display 2 decimal places.
+- Amount: stored as ×100 (cents), display 2 decimal places.
+- Quantity: stored as ×1000 (thousandths), display 3 decimal places.
+- Percentage: stored as ×100 (of the percentage value), display 2 decimal places.
+  - Example: 30% → stored as 3000, 12.5% → stored as 1250.
+- Index points: stored as ×100 (hundredths), display 2 decimal places.
 - All displayed money amounts use 2 decimal places.
 
 ## 3. Asset Rules
