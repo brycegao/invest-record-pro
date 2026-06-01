@@ -81,18 +81,18 @@ Supported statuses:
 
 ```text
 pending
-partially_executed
+partial
 completed
-cancelled
+canceled
 ```
 
 Status rules:
 
 - New plans start as `pending`.
-- A plan becomes `partially_executed` when at least one linked trade is executed but not all planned rules are completed.
+- A plan becomes `partial` when at least one linked trade is executed but not all planned rules are completed.
 - A plan becomes `completed` when the user marks it completed or all planned staged rules are fulfilled.
-- A plan becomes `cancelled` only through explicit user action.
-- A `cancelled` plan should not be treated as executable.
+- A plan becomes `canceled` only through explicit user action.
+- A `canceled` plan should not be treated as executable.
 
 ### 4.3 Plan Rules
 

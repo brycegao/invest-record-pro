@@ -227,6 +227,7 @@ CREATE TABLE monthly_reports (
   user_edited_summary TEXT,              -- 用户编辑后内容
   model_name TEXT,                       -- 使用的模型名称
   prompt_version TEXT,                   -- prompt 模板版本
+  generation_duration_ms INTEGER NOT NULL DEFAULT 0, -- AI 生成耗时（毫秒）
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   UNIQUE(month)
