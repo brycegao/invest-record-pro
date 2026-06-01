@@ -6,6 +6,12 @@ invest-record-pro is a pure端侧, privacy-first, serverless, local-AI investmen
 
 The product is designed for personal investment planning, execution tracking, position review, and AI-assisted investment discipline analysis.
 
+## Document Purpose
+
+This document records the key technology decisions for the project and explains why the selected stack, architecture direction, and product boundaries are appropriate. It is intended for architecture review and team alignment.
+
+For implementation details, directory structure, module boundaries, and cross-module data flow, see `docs/technical-solution.md`.
+
 ## Final Stack Decision
 
 The chosen stack is:

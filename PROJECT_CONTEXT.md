@@ -66,7 +66,7 @@ The product should help answer:
 - Related index point.
 - Related ETF price.
 - Effective period.
-- Status: pending, partially executed, completed, cancelled.
+- Status: pending, partial, completed, canceled.
 - Market view and risk note.
 
 ### Sell Plan

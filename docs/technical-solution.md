@@ -10,6 +10,12 @@ pure端侧 + privacy-first + serverless + local AI + investment decision records
 
 The product is not a stock recommendation tool or a market data terminal. It helps individual investors complete the full decision loop:
 
+## Document Purpose
+
+This document explains how to implement the chosen architecture and key technical decisions. It focuses on directory structure, feature boundaries, data flow, and concrete implementation guidance.
+
+For the high-level stack rationale and technology choice justification, see `docs/tech-decision.md`.
+
 ```text
 Asset management
 -> Investment plan

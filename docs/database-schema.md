@@ -13,6 +13,8 @@
 | 指数点位 | INTEGER（百分之一） | ×100 存储 |
 | 日期时间 | TEXT (ISO 8601) | 精确到毫秒，如 `2026-06-01T10:30:00.000+08:00` |
 
+> Note: Derived financial fields such as `total_amount` and `market_value` also use the cents storage unit. When computing derived values from stored fields, convert each source field to its integer storage unit first.
+
 **禁止使用 `REAL` / `FLOAT`。所有金额、价格、数量、百分比、指数点位一律使用 INTEGER 存储。**
 
 ## 精度与转换示例
