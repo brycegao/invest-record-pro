@@ -2,6 +2,14 @@
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
+## 定位说明
+
+**本文件是所有业务模块的公共类型层（`src/domain/types/`），必须在 Batch 3-8 的任何模块生成之前完成。**
+
+- 所有后续模块（Assets、Plans、Trades、Positions、Reviews、MarketObservations、MonthlyReports）的 Repository / Store / UI 均从此目录导入类型
+- 此处只定义**数据结构和纯工具函数**，不包含任何业务逻辑、Tauri invoke 调用或 Vue 组件
+- 类型定义与数据库 schema（Batch 1）一一对应，字段名采用 TypeScript camelCase，存储值单位与 schema 保持一致（金额用分、数量用 ×1000、百分比用 ×100）
+
 ## 任务
 
 为所有 8 个业务模块生成 TypeScript 类型定义和金融数值转换工具函数。
