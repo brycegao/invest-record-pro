@@ -1,4 +1,4 @@
-# Batch 10：Settings + 导出 + 收尾
+# Batch 11：Settings + 导出 + 收尾
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
@@ -50,6 +50,7 @@
 8. **export_trades_csv(db: State) → Result<String, String>**
    - 生成 UTF-8 BOM CSV 字符串
    - 表头：成交时间,标的,类型,价格,数量,总金额,手续费,情绪,遵守计划
+   - 成交时间必须使用 `trades.trade_at`，不要使用 `created_at`
 
 更新 main.rs 注册所有命令。
 
@@ -100,6 +101,8 @@ Ollama 地址
 ```
 
 - 地址输入框 change 时调用 `ollamaService.setBaseUrl()`
+- 地址必须校验为本机地址：hostname 只允许 `localhost`、`127.0.0.1`、`::1`。拒绝任何远程 URL、HTTPS 云端 API、OpenAI API 或局域网 IP。
+- 用户输入非法地址时显示错误提示，不保存到 settings 表，不调用测试连接。
 - `[测试连接]`：loading 状态 → 调用 `store.checkOllama()` → 成功/失败提示
 
 #### 卡片 3：显示设置

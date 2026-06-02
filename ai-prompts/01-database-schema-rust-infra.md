@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS trades (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   asset_id INTEGER NOT NULL,
   plan_id INTEGER,
+  trade_at TEXT NOT NULL,
   trade_type TEXT NOT NULL,
   quantity INTEGER NOT NULL,
   price INTEGER NOT NULL,
@@ -164,6 +165,7 @@ CREATE TABLE IF NOT EXISTS trades (
 );
 CREATE INDEX IF NOT EXISTS idx_trades_asset_id ON trades(asset_id);
 CREATE INDEX IF NOT EXISTS idx_trades_plan_id ON trades(plan_id);
+CREATE INDEX IF NOT EXISTS idx_trades_trade_at ON trades(trade_at);
 CREATE INDEX IF NOT EXISTS idx_trades_created_at ON trades(created_at);
 
 -- 5. 仓位快照
@@ -214,9 +216,13 @@ CREATE INDEX IF NOT EXISTS idx_reviews_trade_id ON reviews(trade_id);
 CREATE TABLE IF NOT EXISTS market_observations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   observe_at TEXT NOT NULL,
-  index_level INTEGER,
+  shanghai_index INTEGER,
+  sse_50_index INTEGER,
+  csi_300_index INTEGER,
+  market_turnover INTEGER,
   sentiment TEXT,
-  event TEXT,
+  policy_event TEXT,
+  macro_note TEXT,
   personal_view TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL

@@ -1,4 +1,4 @@
-# Batch 9b：Monthly Reports — Rust 命令 + 前端 UI
+# Batch 10b：Monthly Reports — Rust 命令 + 前端 UI
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 

@@ -1,4 +1,4 @@
-# Batch 7b：Market Observations 模块 — Rust Tauri 命令
+# Batch 8a：Market Observations 模块 — Rust Tauri 命令
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
@@ -22,9 +22,13 @@
 pub struct MarketObservation {
     pub id: i64,
     pub observe_at: String,
-    pub index_level: Option<i64>,    // ×100 存储
+    pub shanghai_index: Option<i64>,  // 上证指数，×100 存储
+    pub sse_50_index: Option<i64>,    // 上证 50 指数，×100 存储
+    pub csi_300_index: Option<i64>,   // 沪深 300 指数，×100 存储
+    pub market_turnover: Option<i64>, // 市场成交额，分
     pub sentiment: Option<String>,
-    pub event: Option<String>,
+    pub policy_event: Option<String>,
+    pub macro_note: Option<String>,
     pub personal_view: Option<String>,
     pub created_at: String,
     pub updated_at: String,
@@ -34,9 +38,13 @@ pub struct MarketObservation {
 #[serde(rename_all = "camelCase")]
 pub struct CreateMarketObservationPayload {
     pub observe_at: String,
-    pub index_level: Option<i64>,
+    pub shanghai_index: Option<i64>,
+    pub sse_50_index: Option<i64>,
+    pub csi_300_index: Option<i64>,
+    pub market_turnover: Option<i64>,
     pub sentiment: Option<String>,
-    pub event: Option<String>,
+    pub policy_event: Option<String>,
+    pub macro_note: Option<String>,
     pub personal_view: Option<String>,
 }
 
@@ -45,9 +53,13 @@ pub struct CreateMarketObservationPayload {
 pub struct UpdateMarketObservationPayload {
     pub id: i64,
     pub observe_at: String,
-    pub index_level: Option<i64>,
+    pub shanghai_index: Option<i64>,
+    pub sse_50_index: Option<i64>,
+    pub csi_300_index: Option<i64>,
+    pub market_turnover: Option<i64>,
     pub sentiment: Option<String>,
-    pub event: Option<String>,
+    pub policy_event: Option<String>,
+    pub macro_note: Option<String>,
     pub personal_view: Option<String>,
 }
 ```

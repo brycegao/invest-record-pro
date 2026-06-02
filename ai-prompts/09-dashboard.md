@@ -1,4 +1,4 @@
-# Batch 8：Dashboard（仪表盘）页面
+# Batch 9：Dashboard（仪表盘）页面
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
@@ -60,10 +60,12 @@ type PositionDistItem = {
 - **totalUnrealizedPnl**：从最新 position 快照获取 unrealized_pnl
 - **holdingAssetCount**：从 trade_summary 获取 currentQuantity > 0 的标的数量
 - **planExecutionRate**：(已完成的计划数 + 0.5 × 部分完成的) / (非 canceled 的计划总数) × 100
-- **monthlyPnlTrend**：按月聚合 trades 的 total_amount（需要区分 buy/sell）
+- **monthlyPnlTrend**：不能用 `trades.total_amount` 直接当盈亏。已实现盈亏必须来自后端按加权平均成本法计算的卖出盈亏；未实现盈亏来自对应月份最新 position snapshot。
 - **positionDistribution**：从最新 position_items 聚合，按 asset type 分组
 
-此服务通过 `src/services/trade-query.service.ts` 获取跨模块数据。
+此服务通过 `src/services/trade-query.service.ts` 或 Rust 查询 DTO 获取跨模块数据。若某月份缺少 position snapshot，则该月未实现盈亏显示为 unavailable 或 0，并在 UI 上区分“无快照”。
+
+严禁把买入金额、卖出金额、资金流入流出直接展示为盈亏。
 
 ### 2. `src/shared/components/StatCard.vue`
 

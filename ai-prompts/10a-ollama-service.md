@@ -1,4 +1,4 @@
-# Batch 9a：Ollama 服务基础 + AI 集成框架
+# Batch 10a：Ollama 服务基础 + AI 集成框架
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
@@ -76,6 +76,12 @@ type OllamaResponse = {
 ```
 
 **实现要点**：
+- `baseUrl` 必须校验为本机地址，仅允许：
+  - `http://localhost:11434`
+  - `http://127.0.0.1:11434`
+  - `http://[::1]:11434`
+  - 端口可由用户配置，但 hostname 必须是 localhost / 127.0.0.1 / ::1
+- `setBaseUrl` 对非本机 URL 必须抛出中文错误，不允许保存或调用远程 Ollama / OpenAI / 其他云端 API。
 - `checkAvailable`：使用 `AbortController` 设置 5 秒超时，请求 `GET /api/tags`
 - `generate`：POST `/api/generate`，`stream: false`，设置 120 秒超时
 - 错误处理：网络错误、超时、Ollama 返回错误都转为用户友好中文提示
@@ -118,13 +124,19 @@ export const PROMPT_VERSION = 'v1'
 **月度复盘 System Prompt**：
 
 ```
-你是一个资深投资顾问。根据以下投资者在 {month} 的交易数据，生成简洁的月度复盘报告。
+你是一个投资纪律复盘助手，只根据以下投资者在 {month} 的交易记录、计划执行和情绪数据，生成简洁的月度复盘报告。
+
+边界：
+- 不提供买入、卖出、持有建议。
+- 不预测行情、指数点位或个股走势。
+- 不评价具体标的是否值得投资。
+- 只分析执行纪律、情绪模式、规则遵守情况和复盘改进方向。
 
 请生成以下内容（每部分 50-100 字）：
 1. 执行评价：是否按计划交易？计划执行率如何？
 2. 情绪分析：发现了什么情绪驱动的交易？
 3. 行为模式：识别的过度交易、追涨杀跌等模式？
-4. 改进建议：针对下月的 3 个改进点
+4. 规则改进：针对记录习惯、计划清晰度、仓位纪律的 3 个改进点
 
 输出格式：Markdown
 ```
@@ -175,10 +187,11 @@ useSettingsStore（Setup Store 风格）：
 
 - State：settings (key-value map), loading, error, ollamaAvailable, ollamaUrl, ollamaModel
 - Actions：loadSettings, upsertSetting, checkOllama, setOllamaUrl, setOllamaModel
+- `setOllamaUrl`：必须调用与 OllamaService 相同的 localhost 校验，拒绝远程 URL。
 - `checkOllama`：调用 `ollamaService.checkAvailable()`
 
 ## 代码风格
 
 - 禁止 any 类型
-- 禁止任何 fetch/axios 调用非 localhost 的 URL
+- 禁止任何 fetch/axios 调用非本机 loopback 地址的 URL
 - 使用 `@/` 路径别名

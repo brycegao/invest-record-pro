@@ -238,6 +238,7 @@ export type Trade = {
   id: number
   assetId: number
   planId: number | null
+  tradeAt: string
   tradeType: TradeType
   quantity: number       // ×1000 存储
   price: number         // ×100 存储（分）
@@ -380,9 +381,13 @@ import type { Sentiment } from './constants'
 export type MarketObservation = {
   id: number
   observeAt: string
-  indexLevel: number | null   // ×100 存储
+  shanghaiIndex: number | null  // 上证指数，×100 存储
+  sse50Index: number | null     // 上证 50 指数，×100 存储
+  csi300Index: number | null    // 沪深 300 指数，×100 存储
+  marketTurnover: number | null // 市场成交额，分
   sentiment: Sentiment | null
-  event: string | null
+  policyEvent: string | null
+  macroNote: string | null
   personalView: string | null
   createdAt: string
   updatedAt: string

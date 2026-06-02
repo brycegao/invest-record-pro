@@ -25,6 +25,7 @@ pub struct Trade {
     pub id: i64,
     pub asset_id: i64,
     pub plan_id: Option<i64>,
+    pub trade_at: String,        // 实际成交时间；不要用 created_at 代替
     pub trade_type: String,
     pub quantity: i64,           // ×1000 存储
     pub price: i64,             // ×100 存储（分）
@@ -44,6 +45,7 @@ pub struct Trade {
 pub struct CreateTradePayload {
     pub asset_id: i64,
     pub plan_id: Option<i64>,
+    pub trade_at: String,
     pub trade_type: String,
     pub quantity: i64,           // ×1000
     pub price: i64,             // ×100（分）
@@ -62,6 +64,7 @@ pub struct UpdateTradePayload {
     pub id: i64,
     pub asset_id: i64,
     pub plan_id: Option<i64>,
+    pub trade_at: String,
     pub trade_type: String,
     pub quantity: i64,
     pub price: i64,
@@ -80,14 +83,16 @@ pub struct UpdateTradePayload {
 实现以下命令：
 
 **1. get_trades(db: State) → Result<Vec<Trade>, String>**
-- `SELECT * FROM trades ORDER BY created_at DESC`
+- `SELECT * FROM trades ORDER BY trade_at DESC, created_at DESC`
 - 返回的 Trade 需要附带 asset 信息，所以 JOIN assets 获取 `asset_code` 和 `asset_name`
-- Trade struct 增加可选字段：`asset_code: Option<String>`, `asset_name: Option<String>`, `plan_status: Option<String>`
+- Trade struct 增加可选 DTO 字段：`asset_code: Option<String>`, `asset_name: Option<String>`, `plan_status: Option<String>`, `realized_pnl: Option<i64>`
+- `realized_pnl` 不是数据库字段，只能由查询命令按交易顺序计算后填充。买入为 `None`，卖出为 `Some(value)`。
 
 **2. create_trade(db: State, payload: CreateTradePayload) → Result<Trade, String>**
 - INSERT INTO trades(...)
 - 默认值：follow_plan 默认 true (1)，fee 默认 0
-- 自动填充 created_at, updated_at
+- `trade_at` 来自用户输入，必填；创建新交易时前端可默认填当前时间。不要在后端用 `created_at` 代替。
+- 自动填充 created_at, updated_at。`created_at` 只表示记录创建时间，不能当作成交时间。
 
 **3. update_trade(db: State, payload: UpdateTradePayload) → Result<Trade, String>**
 - UPDATE trades SET ... WHERE id = ?
@@ -101,8 +106,8 @@ pub struct UpdateTradePayload {
 参数：
 - keyword: Option<String> — 模糊匹配 asset code/name
 - trade_type: Option<String>
-- start_date: Option<String>
-- end_date: Option<String>
+- start_date: Option<String> — 过滤 `trade_at`
+- end_date: Option<String> — 过滤 `trade_at`
 - follow_plan: Option<bool> — 注意 Rust 中是 Option<bool>
 - mood: Option<String>
 
@@ -121,15 +126,33 @@ pub struct TradeSummary {
     pub total_sell_quantity: i64,    // 累计卖出数量（×1000）
     pub current_quantity: i64,       // 当前持仓 = 买入 - 卖出
     pub avg_cost: i64,               // 加权平均成本（×100，分）
-    pub total_buy_amount: i64,        // 累计买入金额（分）
-    pub total_sell_amount: i64,       // 累计卖出金额（分）
+    pub remaining_cost: i64,         // 剩余持仓成本（分）
+    pub realized_pnl: i64,           // 累计已实现盈亏（分）
+    pub total_buy_amount: i64,       // 累计买入成交额（不含手续费，分）
+    pub total_sell_amount: i64,      // 累计卖出成交额（不含手续费，分）
 }
 ```
 
 计算逻辑：
-- `current_quantity = total_buy_quantity - total_sell_quantity`
-- `avg_cost` = 加权平均成本 = `total_buy_amount / display_quantity`（即 total_buy_amount_fen / (total_buy_quantity / 1000)）
-- 注意：使用整数运算，避免浮点
+- 必须按 `trade_at ASC, created_at ASC, id ASC` 重放该标的所有交易，不能用“累计买入金额 / 累计买入数量”的简化公式。
+- 买入：
+  - `gross_amount = price_fen * quantity_int / 1000`
+  - `remaining_cost += gross_amount + fee`
+  - `current_quantity += quantity`
+  - `avg_cost = remaining_cost * 1000 / current_quantity`
+- 卖出：
+  - 若 `sell_quantity > current_quantity`，返回错误，v1 不支持做空。
+  - `cost_of_sold = avg_cost * sell_quantity / 1000`
+  - `sell_proceeds = price_fen * sell_quantity / 1000`
+  - `trade_realized_pnl = sell_proceeds - cost_of_sold - fee`
+  - `realized_pnl += trade_realized_pnl`
+  - `current_quantity -= sell_quantity`
+  - `remaining_cost -= cost_of_sold`
+- 清仓：
+  - 当 `current_quantity == 0` 时，`remaining_cost = 0`，`avg_cost = 0`。
+  - 再次买入时从新的买入记录重新计算加权平均成本。
+- 所有计算使用整数运算，避免浮点。
+- `get_trades` / `query_trades` 返回列表时，也要用同一套重放算法为每笔卖出 DTO 填充 `realized_pnl`。
 
 ### 更新模块文件
 
@@ -140,7 +163,9 @@ pub struct TradeSummary {
 ## 精度要求
 
 - total_amount 的计算：`price_fen × (quantity_int / 1000)` — 使用整数除法
-- avg_cost 的计算：`total_buy_amount_fen / (total_buy_quantity / 1000)` — 使用整数除法
+- avg_cost 的计算：`remaining_cost_fen * 1000 / current_quantity_int` — 使用整数除法
+- 已实现盈亏：`sell_price_fen * sell_quantity_int / 1000 - avg_cost_fen * sell_quantity_int / 1000 - sell_fee_fen`
+- 买入手续费计入持仓成本，卖出手续费扣减已实现盈亏。
 - 所有返回的金额/价格都是分（×100），数量都是 ×1000
 
 ## 代码风格

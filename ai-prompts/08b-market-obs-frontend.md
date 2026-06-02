@@ -1,4 +1,4 @@
-# Batch 7d：Market Observations 模块 — 前端全套
+# Batch 8b：Market Observations 模块 — 前端全套
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 
@@ -35,9 +35,13 @@ useMarketObservationsStore（Setup Store 风格）
 | 列 | 字段 | 对齐 | 宽度 |
 |----|------|------|------|
 | 观察时间 | observeAt | left | 170 |
-| 指数点位 | indexLevel（formatIndexPoint） | right | 120 |
+| 上证指数 | shanghaiIndex（formatIndexPoint） | right | 110 |
+| 上证50 | sse50Index（formatIndexPoint） | right | 110 |
+| 沪深300 | csi300Index（formatIndexPoint） | right | 110 |
+| 成交额 | marketTurnover（formatMoney） | right | 120 |
 | 市场情绪 | sentiment (tag) | center | 90 |
-| 重大事件 | event（超 40 字截断） | left | flex |
+| 政策事件 | policyEvent（超 40 字截断） | left | flex |
+| 宏观备注 | macroNote（超 40 字截断） | left | flex |
 | 个人观点 | personalView（超 40 字截断） | left | flex |
 | 操作 | — | center | 100 |
 
@@ -52,9 +56,13 @@ Drawer 表单，width=520px
 | 字段 | 组件 | 必填 | 备注 |
 |------|------|------|------|
 | observeAt | n-date-picker type="datetime" | 是 | 默认当前时间 |
-| indexLevel | n-input-number precision=2 | 否 | 后缀"点" |
+| shanghaiIndex | n-input-number precision=2 | 否 | 上证指数，后缀"点" |
+| sse50Index | n-input-number precision=2 | 否 | 上证 50 指数，后缀"点" |
+| csi300Index | n-input-number precision=2 | 否 | 沪深 300 指数，后缀"点" |
+| marketTurnover | n-input-number precision=2 | 否 | 市场成交额，后缀"元" |
 | sentiment | n-select | 否 | 极低/低/中/高/极高 |
-| event | n-input textarea rows=3 | 否 | |
+| policyEvent | n-input textarea rows=3 | 否 | 政策、监管、行业事件 |
+| macroNote | n-input textarea rows=3 | 否 | 宏观、流动性、汇率等备注 |
 | personalView | n-input textarea rows=4 | 否 | |
 
 ### 5. `src/pages/market-observations/MarketObservationsPage.vue`

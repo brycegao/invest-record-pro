@@ -9,7 +9,7 @@
 - 金融工具函数在 `src/domain/types/financial.ts`：formatMoney, fenToYuan, yuanToFen, storeQuantity, displayQuantity, formatQuantity, formatSignedMoney, getMoneyColor, calculateTotalAmount
 - Assets 和 Plans 模块已完整实现，参考 `src/features/assets/` 代码风格
 - Rust 后端已实现：get_trades, create_trade, update_trade, delete_trade, query_trades, get_trade_summary
-- Trade struct 已在 Rust 中包含 asset_code, asset_name, plan_status 可选字段
+- Trade DTO 已在 Rust 中包含 asset_code, asset_name, plan_status, realized_pnl 可选字段；realized_pnl 由 Rust 按交易顺序计算，不是数据库字段
 
 ## 任务
 
@@ -30,6 +30,7 @@ export async function getTradeSummary(assetId: number): Promise<TradeSummary>
 
 **关键精度转换**：
 - `createTrade` 的 payload 中 price 是分（yuanToFen），quantity 是 ×1000（storeQuantity）
+- `tradeAt` 是实际成交时间，必须由表单提交；不要用 `createdAt` 代替成交时间
 - 前端输入的是元/显示量，调用 repository 前必须转换
 - 建议在 repository 层做转换，或者由调用方（表单组件）转换后传入
 
@@ -48,7 +49,7 @@ useTradeStore（Setup Store 风格）：
 
 | 列 | 字段 | 对齐 | 排序 | 宽度 |
 |----|------|------|------|------|
-| 成交时间 | createdAt | left | ✓ | 170 |
+| 成交时间 | tradeAt | left | ✓ | 170 |
 | 标的 | assetCode + assetName | left | — | 120 |
 | 类型 | tradeType (tag) | center | ✓ | 60 |
 | 价格 | price（fenToYuan） | right | ✓ | 100 |
@@ -65,7 +66,9 @@ useTradeStore（Setup Store 风格）：
 
 **已实现盈亏计算规则**：
 - 买入交易：显示 `—`（灰色，使用 `n-text depth="3"`）
-- 卖出交易：需调用 `getTradeSummary(assetId)` 获取 avg_cost，然后计算 `(sell_price - avg_cost) × sell_quantity - fee`。为简化，**已实现盈亏可在 Rust 端计算后返回一个 `realized_pnl` 可选字段**，或在 Trade struct 中增加。建议在 Trade struct 中增加 `realized_pnl: Option<i64>` 字段（仅卖出交易有值）。
+- 卖出交易：优先显示 Rust 返回的 `realizedPnl` DTO 字段。
+- 不要在前端表格里用当前 `getTradeSummary(assetId)` 反推历史卖出盈亏，因为历史卖出必须按交易发生时点的加权平均成本计算。
+- `realizedPnl` 不是数据库字段；不要修改 schema 只为了表格显示。若 Rust 未返回该字段，表格显示 `—` 并在后端修复。
 
 **金额列格式**：使用 `formatMoney(fen)`，千分位 + 2 位小数，右对齐。
 **数量列格式**：使用 `formatQuantity(qty)`。
@@ -91,6 +94,7 @@ Props 增加 `hiddenColumns: string[]`，内部管理列显示状态。
 
 | 字段 | 组件 | 必填 | 备注 |
 |------|------|------|------|
+| tradeAt | n-date-picker type="datetime" | 是 | 实际成交时间，默认当前时间 |
 | assetId | n-select | 是 | 远程搜索 assets |
 | price | n-input-number | 是 | precision=2, step=0.01, 后缀"元" |
 | quantity | n-input-number | 是 | precision=3, min=0.001, 后缀"手/份" |
@@ -136,6 +140,7 @@ Props 增加 `hiddenColumns: string[]`，内部管理列显示状态。
 
 | 字段 | 组件 | 必填 | 备注 |
 |------|------|------|------|
+| tradeAt | n-date-picker type="datetime" | 是 | 实际成交时间，默认当前时间 |
 | assetId | n-select | 是 | 远程搜索 assets，选择后查询持仓 |
 | quantity | n-input-number | 是 | precision=3, max=当前持仓量 |
 | price | n-input-number | 是 | precision=2, step=0.01, 后缀"元" |
@@ -160,6 +165,8 @@ Props 增加 `hiddenColumns: string[]`，内部管理列显示状态。
 ```
 
 使用 `getMoneyColor` 设置颜色。
+
+注意：这是提交前的即时预估，使用当前持仓摘要的 avgCost；最终已实现盈亏以后端按完整交易序列计算结果为准。
 
 **可选字段区**：同买入，但不显示 planId 关联的 buy 类型计划，而是筛选 sell 类型计划。
 
