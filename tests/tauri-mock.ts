@@ -269,6 +269,13 @@ export const defaultMockStore: Record<string, unknown> = {
   create_market_observation: mockMarketObservations[0],
   update_market_observation: mockMarketObservations[0],
   delete_market_observation: undefined,
+
+  // Settings
+  get_settings: [
+    { id: 1, key: 'ollama_url', value: 'http://localhost:11434', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
+    { id: 2, key: 'ollama_model', value: 'qwen2.5:7b', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
+  ],
+  upsert_setting: undefined,
 }
 
 // ─── Script Generator ─────────────────────────────────────────────────────
