@@ -104,20 +104,9 @@ function handleCancel() {
 }
 ```
 
-### dirty 状态检测
+### dirty 状态检测（统一快照对比）
 
-监听 formData 变化，对比初始值：
-
-```ts
-const isDirty = computed(() => {
-  if (isEditMode.value && props.asset) {
-    return JSON.stringify(formData.value) !== JSON.stringify(defaultFormForAsset(props.asset))
-  }
-  return Object.values(formData.value).some(v => v !== '' && v !== 3 && v !== 'CN' && v !== null && v !== undefined)
-})
-```
-
-### 数据初始化
+无论新建还是编辑模式，都在表单数据初始化时拍快照，dirty 只需对比当前值与快照是否一致：
 
 ```ts
 const defaultFormData: AssetCreatePayload = {
@@ -132,24 +121,42 @@ const defaultFormData: AssetCreatePayload = {
 }
 
 const formData = ref<AssetCreatePayload>({ ...defaultFormData })
+const initialSnapshot = ref<string>('')
 
-watch(() => props.asset, (newAsset) => {
-  if (newAsset) {
-    formData.value = {
-      code: newAsset.code,
-      name: newAsset.name,
-      type: newAsset.type,
-      market: newAsset.market,
-      riskLevel: newAsset.riskLevel,
-      indexReference: newAsset.indexReference,
-      logic: newAsset.logic,
-      notes: newAsset.notes,
+watch(
+  () => props.asset,
+  (newAsset) => {
+    if (newAsset) {
+      formData.value = {
+        code: newAsset.code,
+        name: newAsset.name,
+        type: newAsset.type,
+        market: newAsset.market,
+        riskLevel: newAsset.riskLevel,
+        indexReference: newAsset.indexReference,
+        logic: newAsset.logic,
+        notes: newAsset.notes,
+      }
+    } else {
+      formData.value = { ...defaultFormData }
     }
-  } else {
-    formData.value = { ...defaultFormData }
-  }
-}, { immediate: true })
+    // 统一：初始化完成后立即拍快照
+    nextTick(() => {
+      initialSnapshot.value = JSON.stringify(formData.value)
+    })
+  },
+  { immediate: true },
+)
+
+// 统一：新建/编辑都用同一套对比逻辑
+const isDirty = computed(() => {
+  return JSON.stringify(formData.value) !== initialSnapshot.value
+})
 ```
+
+### 数据初始化
+
+数据初始化已包含在上方的 watch 中，无需单独重复定义。
 
 ### 底部按钮
 
