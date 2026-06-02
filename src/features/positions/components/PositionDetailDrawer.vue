@@ -51,7 +51,6 @@ import {
   NDrawerContent,
   NEmpty,
 } from 'naive-ui'
-import type { DataTableColumns } from 'naive-ui'
 import type { Position, PositionItem } from '@/domain/types'
 import { fenToYuan, formatMoney, formatQuantity, formatSignedMoney } from '@/domain/types/financial'
 

@@ -1,8 +1,8 @@
-import { test, expect } from './fixtures'
+import { test, expect, gotoAndWait } from './fixtures'
 
 test.describe('冒烟测试 — 应用基本可用', () => {
   test('首页加载成功，侧边栏导航可见', async ({ page }) => {
-    await page.goto('/')
+    await gotoAndWait(page, '/')
 
     // 应重定向到 /dashboard
     await expect(page).toHaveURL('/dashboard')
@@ -20,7 +20,7 @@ test.describe('冒烟测试 — 应用基本可用', () => {
       if (msg.type() === 'error') errors.push(msg.text())
     })
 
-    await page.goto('/dashboard')
+    await gotoAndWait(page, '/dashboard')
 
     // 验证 mock 注入日志
     const mockLogs = []
@@ -35,7 +35,7 @@ test.describe('冒烟测试 — 应用基本可用', () => {
   })
 
   test('点击侧边栏可导航到各页面', async ({ page }) => {
-    await page.goto('/dashboard')
+    await gotoAndWait(page, '/dashboard')
 
     // 点击"投资标的"
     await page.getByRole('menu').getByText('投资标的', { exact: true }).click()

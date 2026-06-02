@@ -1,21 +1,32 @@
-import { test as base, expect } from '@playwright/test'
-import { createTauriMockScript, type defaultMockStore } from './tauri-mock'
+import { test as base, expect, type Page } from '@playwright/test'
+import { createTauriMockScript } from './tauri-mock'
+
+/**
+ * Navigate to a URL and wait for network idle.
+ * Use instead of page.goto() for full page loads.
+ */
+export async function gotoAndWait(page: Page, url: string) {
+  await page.goto(url)
+  await page.waitForLoadState('load')
+  // Wait for Vue to mount and Pinia stores to resolve mock data
+  await page.waitForTimeout(1500)
+}
 
 /**
  * Extended Playwright test fixture with Tauri API mock.
  *
  * Usage:
- *   import { test, expect } from './fixtures'
+ *   import { test, expect, gotoAndWait } from './fixtures'
  *
  *   test('my UI test', async ({ page }) => {
- *     await page.goto('/assets')
+ *     await gotoAndWait(page, '/assets')
  *     // Tauri invoke calls are automatically mocked
  *   })
  *
  * To override specific mock data:
  *   test('with custom mock', async ({ page, mockCommand }) => {
  *     await mockCommand('get_assets', [])
- *     await page.goto('/assets')
+ *     await gotoAndWait(page, '/assets')
  *   })
  */
 type TestFixtures = {

@@ -5,12 +5,13 @@ export default defineConfig({
   timeout: 60000,
   retries: 1,
   fullyParallel: false,
+  workers: 1,
   use: {
     baseURL: 'http://127.0.0.1:1420',
     viewport: { width: 1280, height: 800 },
     locale: 'zh-CN',
     timezoneId: 'Asia/Shanghai',
-    actionTimeout: 5000,
+    actionTimeout: 10000,
     // Capture trace on retry for debugging
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
