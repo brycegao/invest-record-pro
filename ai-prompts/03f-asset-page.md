@@ -171,19 +171,19 @@ function handleReset() {
 <template>
   <n-card>
     <!-- 标题区 -->
-    <div class="mb-4">
-      <h2 class="text-lg font-semibold">投资标的</h2>
-      <p class="text-sm text-gray-500 mt-1">管理你关注和持有的投资标的</p>
+    <div style="margin-bottom: 16px">
+      <h2 style="font-size: 18px; font-weight: 600">投资标的</h2>
+      <p style="font-size: 14px; color: #6b7280; margin-top: 4px">管理你关注和持有的投资标的</p>
     </div>
 
     <!-- 操作按钮 -->
-    <div class="mb-4 flex gap-2">
+    <n-space style="margin-bottom: 16px">
       <n-button type="primary" @click="handleCreate">+ 新增标的</n-button>
       <n-button disabled>导出</n-button>
-    </div>
+    </n-space>
 
     <!-- 筛选区 -->
-    <div class="mb-4 flex items-end gap-3">
+    <n-space align="end" style="margin-bottom: 16px">
       <n-input
         v-model:value="filterKeyword"
         placeholder="搜索代码或名称"
@@ -207,7 +207,7 @@ function handleReset() {
       />
       <n-button type="primary" @click="handleSearch">搜索</n-button>
       <n-button @click="handleReset">重置</n-button>
-    </div>
+    </n-space>
 
     <!-- 表格 -->
     <AssetTable

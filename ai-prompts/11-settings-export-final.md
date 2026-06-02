@@ -73,60 +73,91 @@ export async function exportTradesCsv(): Promise<string>
 
 **4 张独立卡片（垂直排列）**：
 
-#### 卡片 1：数据库
+模板结构（使用 `NSpace vertical` 排列卡片）：
 
+```vue
+<template>
+  <n-space vertical size="large">
+    <!-- 卡片 1：数据库 -->
+    <n-card title="数据库">
+      <n-space vertical size="small">
+        <p style="font-size: 14px; color: #6b7280; word-break: break-all">{{ dbPath }}</p>
+        <n-space>
+          <n-button @click="handleOpenFolder">打开文件夹</n-button>
+          <n-button @click="handleBackup">备份数据库</n-button>
+          <n-popconfirm @positive-click="handleRestore">
+            <template #trigger>
+              <n-button type="warning">恢复数据库</n-button>
+            </template>
+            恢复将覆盖当前数据，此操作不可撤销
+          </n-popconfirm>
+        </n-space>
+      </n-space>
+    </n-card>
+
+    <!-- 卡片 2：AI 设置 -->
+    <n-card title="AI 设置">
+      <n-space vertical size="medium">
+        <n-form-item label="Ollama 地址">
+          <n-input v-model:value="ollamaUrl" placeholder="http://localhost:11434" />
+        </n-form-item>
+        <n-form-item label="模型名称">
+          <n-input v-model:value="ollamaModel" placeholder="如 qwen2.5:7b" />
+        </n-form-item>
+        <n-space align="center">
+          <n-button type="primary" :loading="testingConnection" @click="handleTestConnection">测试连接</n-button>
+          <n-text :type="ollamaAvailable ? 'success' : 'error'">
+            {{ ollamaAvailable ? '✓ 已连接' : '✗ 未连接' }}
+          </n-text>
+        </n-space>
+      </n-space>
+    </n-card>
+
+    <!-- 卡片 3：显示设置 -->
+    <n-card title="显示设置">
+      <n-space vertical size="medium">
+        <n-form-item label="主题">
+          <n-radio-group v-model:value="theme" @update:value="handleThemeChange">
+            <n-radio value="light">浅色</n-radio>
+            <n-radio value="dark">深色</n-radio>
+            <n-radio value="system">跟随系统</n-radio>
+          </n-radio-group>
+        </n-form-item>
+        <n-form-item label="语言">
+          <n-select value="zh-CN" disabled :options="[{ label: '简体中文', value: 'zh-CN' }]" style="width: 200px" />
+        </n-form-item>
+      </n-space>
+    </n-card>
+
+    <!-- 卡片 4：关于 -->
+    <n-card title="关于">
+      <n-space vertical size="small">
+        <p><strong>Invest Record Pro</strong></p>
+        <p style="font-size: 14px; color: #6b7280">版本：1.0.0</p>
+        <p style="font-size: 14px; color: #6b7280">许可证：MIT</p>
+      </n-space>
+    </n-card>
+  </n-space>
+</template>
 ```
-数据库路径
-/Users/xxx/Library/Application Support/invest-record-pro/data.db
 
-[打开文件夹]  [备份数据库]  [恢复数据库]
-```
+#### 功能说明
 
+**卡片 1 — 数据库**：
 - `[打开文件夹]`：调用 Tauri shell open 命令打开文件所在目录
 - `[备份数据库]`：弹出文件保存选择器（`@tauri-apps/plugin-dialog` 的 save），选择路径后调用 `backupDatabase`
 - `[恢复数据库]`：弹出文件选择器（`@tauri-apps/plugin-dialog` 的 open）+ `n-popconfirm` 警告"恢复将覆盖当前数据，此操作不可撤销"，确认后调用 `restoreDatabase`
 
-#### 卡片 2：AI 设置
-
-```
-Ollama 地址
-[n-input default="http://localhost:11434"]
-
-模型名称
-[n-input placeholder="如 qwen2.5:7b"]
-
-[测试连接]
-
-连接状态：✓ 已连接 / ✗ 未连接
-```
-
+**卡片 2 — AI 设置**：
 - 地址输入框 change 时调用 `ollamaService.setBaseUrl()`
 - 地址必须校验为本机地址：hostname 只允许 `localhost`、`127.0.0.1`、`::1`。拒绝任何远程 URL、HTTPS 云端 API、OpenAI API 或局域网 IP。
 - 用户输入非法地址时显示错误提示，不保存到 settings 表，不调用测试连接。
 - `[测试连接]`：loading 状态 → 调用 `store.checkOllama()` → 成功/失败提示
 
-#### 卡片 3：显示设置
-
-```
-主题  [n-radio-group: 浅色 / 深色 / 跟随系统]
-语言  [n-select: 简体中文(disabled) / English(disabled)]
-```
-
-v1 语言固定中文，English 灰显。
-
-主题切换逻辑：
-- 调用 `NaiveUI` 的 `useOsTheme` + `darkTheme`
-- 通过 `NConfigProvider` 的 `theme` prop 切换
+**卡片 3 — 显示设置**：
+- v1 语言固定中文，English 灰显
+- 主题切换逻辑：调用 `NaiveUI` 的 `useOsTheme` + `darkTheme`，通过 `NConfigProvider` 的 `theme` prop 切换
 - 用户选择保存到 settings 表（key=theme, value=light/dark/system）
-
-#### 卡片 4：关于
-
-```
-Invest Record Pro
-版本：1.0.0
-开源地址：[GitHub]
-许可证：MIT
-```
 
 ### 4. 导出功能集成
 

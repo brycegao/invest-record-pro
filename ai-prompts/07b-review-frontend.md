@@ -72,6 +72,11 @@ Drawer 表单，width=520px，标题："新增复盘" / "编辑复盘"
 - 表格：ReviewTable
 - 表单：ReviewForm
 
+**布局规范**：
+- 页面结构与 `src/pages/assets/AssetsPage.vue` 一致
+- 使用 `NSpace` 组件做水平排列（按钮行、筛选行）
+- 使用 inline style 控制间距，**禁止使用 Tailwind CSS 类**（项目未安装 Tailwind）
+
 ### 6. 模块导出文件
 
 ## 代码风格

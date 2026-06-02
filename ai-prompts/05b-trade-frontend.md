@@ -181,6 +181,13 @@ Props 增加 `hiddenColumns: string[]`，内部管理列显示状态。
 - 买入 Drawer：BuyTradeForm
 - 卖出 Drawer：SellTradeForm
 
+**布局规范**：
+- 页面结构与 `src/pages/assets/AssetsPage.vue` 一致
+- 使用 `NSpace` 组件做水平排列（按钮行、筛选行），通过 `align` prop 控制对齐
+- 使用 `style="margin-bottom: 16px"` 等内联样式控制垂直间距
+- **禁止使用 Tailwind CSS 类**（项目未安装 Tailwind）
+- 标题区参考 03f AssetsPage 的写法（h2 + p，内联 style 控制字号和间距）
+
 `[+ 买入]` 打开 BuyTradeForm，`[+ 卖出]` 打开 SellTradeForm。
 
 ### 7. 模块导出文件

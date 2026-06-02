@@ -103,7 +103,47 @@ useDashboardStore（Setup Store 风格）：
 | 持仓标的数 | holdingAssetCount | "x 个" |
 | 计划执行率 | planExecutionRate | formatPercent |
 
+模板示例：
+
+```vue
+<n-grid cols="4" x-gap="16" y-gap="16" style="margin-bottom: 16px">
+  <n-grid-item>
+    <StatCard label="累计已实现盈亏" :value="formatSignedMoney(data.totalRealizedPnl)" />
+  </n-grid-item>
+  <n-grid-item>
+    <StatCard label="浮动盈亏" :value="formatSignedMoney(data.totalUnrealizedPnl)" />
+  </n-grid-item>
+  <n-grid-item>
+    <StatCard label="持仓标的数" :value="`${data.holdingAssetCount} 个`" />
+  </n-grid-item>
+  <n-grid-item>
+    <StatCard label="计划执行率" :value="formatPercent(data.planExecutionRate)" />
+  </n-grid-item>
+</n-grid>
+```
+
 **中部：2 张 ECharts 图表（n-grid cols=2, 高度 280px）**
+
+模板示例：
+
+```vue
+<n-grid cols="2" x-gap="16" y-gap="16" style="margin-bottom: 16px">
+  <n-grid-item>
+    <n-card title="近 6 个月盈亏趋势">
+      <div style="height: 280px">
+        <v-chart :option="pnlTrendOption" autoresize />
+      </div>
+    </n-card>
+  </n-grid-item>
+  <n-grid-item>
+    <n-card title="当前仓位分布">
+      <div style="height: 280px">
+        <v-chart :option="positionDistOption" autoresize />
+      </div>
+    </n-card>
+  </n-grid-item>
+</n-grid>
+```
 
 1. **近 6 个月盈亏趋势折线图**
    - X 轴：月份
@@ -118,6 +158,25 @@ useDashboardStore（Setup Store 风格）：
 ECharts 集成方式：使用 `vue-echarts` 库或手动创建 chart 实例。
 
 **底部：2 张列表（n-grid cols=2）**
+
+模板示例：
+
+```vue
+<n-grid cols="2" x-gap="16" y-gap="16">
+  <n-grid-item>
+    <n-card title="最近交易">
+      <n-data-table :columns="recentTradeColumns" :data="data.recentTrades" :pagination="false" size="small" />
+    </n-card>
+  </n-grid-item>
+  <n-grid-item>
+    <n-card title="活跃计划">
+      <n-data-table :columns="activePlanColumns" :data="data.activePlans" :pagination="false" size="small" />
+    </n-card>
+  </n-grid-item>
+</n-grid>
+```
+
+列表内容：
 
 1. **最近 10 条交易记录**（简化 n-data-table）
    - 列：时间、标的、类型、金额

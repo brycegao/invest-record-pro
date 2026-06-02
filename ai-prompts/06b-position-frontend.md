@@ -93,7 +93,32 @@ export async function getTradeSummaryByAsset(assetId: number): Promise<TradeSumm
 | 浮动盈亏 | 最新快照 unrealizedPnl | formatSignedMoney + getMoneyColor |
 | 已实现盈亏 | 最新快照 realizedPnl | formatSignedMoney + getMoneyColor |
 
-使用 n-statistic + n-card。
+使用 n-statistic + n-card。模板示例：
+
+```vue
+<n-grid cols="4" x-gap="16" y-gap="16" style="margin-bottom: 16px">
+  <n-grid-item>
+    <n-card>
+      <n-statistic label="总资产" :value="formatMoney(latestSnapshot.totalAssets)" />
+    </n-card>
+  </n-grid-item>
+  <n-grid-item>
+    <n-card>
+      <n-statistic label="现金" :value="formatMoney(latestSnapshot.cash)" />
+    </n-card>
+  </n-grid-item>
+  <n-grid-item>
+    <n-card>
+      <n-statistic label="浮动盈亏" :value="formatSignedMoney(latestSnapshot.unrealizedPnl)" />
+    </n-card>
+  </n-grid-item>
+  <n-grid-item>
+    <n-card>
+      <n-statistic label="已实现盈亏" :value="formatSignedMoney(latestSnapshot.realizedPnl)" />
+    </n-card>
+  </n-grid-item>
+</n-grid>
+```
 
 **筛选区**：日期范围选择（n-date-picker type="daterange"）+ [搜索] [重置]
 

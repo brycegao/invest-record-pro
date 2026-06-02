@@ -104,12 +104,12 @@ Drawer 表单组件：
 表单下方有分隔线 `── 计划规则 ──`，然后是规则列表：
 
 ```vue
-<div v-for="(rule, index) in rules" :key="index" class="flex items-center gap-2 mb-2">
+<n-space v-for="(rule, index) in rules" :key="index" align="center" style="margin-bottom: 8px">
   <n-select v-model:value="rule.ruleType" :options="ruleTypeOptions" placeholder="类型" style="width: 100px" />
   <n-select v-model:value="rule.operator" :options="ruleOperatorOptions" placeholder="条件" style="width: 80px" />
   <n-input v-model:value="rule.value" placeholder="值" style="width: 120px" />
   <n-button text type="error" @click="removeRule(index)">删除</n-button>
-</div>
+</n-space>
 <n-button dashed @click="addRule">+ 添加规则</n-button>
 ```
 
