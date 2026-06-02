@@ -17,7 +17,7 @@
 import { h } from 'vue'
 import dayjs from 'dayjs'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { NButton, NDataTable, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import type { Plan, PlanStatus, PlanType } from '@/domain/types'
 import { PLAN_STATUS_LABELS, PLAN_TYPE_LABELS } from '@/domain/types'
 import { formatPercent } from '@/domain/types/financial'

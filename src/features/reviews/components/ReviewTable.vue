@@ -16,7 +16,7 @@
 import { h } from 'vue'
 import dayjs from 'dayjs'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { NButton, NDataTable, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import type { IssueType, Review, ReviewResult } from '@/domain/types'
 import { ISSUE_TYPE_LABELS, REVIEW_RESULT_LABELS, TRADE_TYPE_LABELS } from '@/domain/types'
 

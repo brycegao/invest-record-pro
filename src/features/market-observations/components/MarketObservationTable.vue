@@ -16,7 +16,7 @@
 import { h } from 'vue'
 import dayjs from 'dayjs'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { NButton, NDataTable, NEmpty, NPopconfirm, NSpace, NTag } from 'naive-ui'
 import type { MarketObservation, Sentiment } from '@/domain/types'
 import { SENTIMENT_LABELS } from '@/domain/types'
 import { formatIndexPoint, formatMoney } from '@/domain/types/financial'
