@@ -26,6 +26,12 @@ pub fn run() {
             commands::update_plan_status,
             commands::query_plans,
             commands::get_plan_rules,
+            commands::get_trades,
+            commands::create_trade,
+            commands::update_trade,
+            commands::delete_trade,
+            commands::query_trades,
+            commands::get_trade_summary,
         ])
         .run(tauri::generate_context!())
     {
