@@ -20,7 +20,12 @@ const routes: RouteRecordRaw[] = [
       { path: 'assets', name: 'assets', component: AssetsPage, meta: { title: '投资标的' } },
       { path: 'plans', name: 'plans', component: PlansPage, meta: { title: '交易计划' } },
       { path: 'trades', name: 'trades', component: TradesPage, meta: { title: '交易记录' } },
-      { path: 'positions', name: 'positions', component: PositionsPage, meta: { title: '仓位快照' } },
+      {
+        path: 'positions',
+        name: 'positions',
+        component: PositionsPage,
+        meta: { title: '仓位快照' },
+      },
       { path: 'reviews', name: 'reviews', component: ReviewsPage, meta: { title: '交易复盘' } },
       {
         path: 'market-observations',

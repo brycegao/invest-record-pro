@@ -25,7 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NCard, NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NSwitch } from 'naive-ui'
+import {
+  NButton,
+  NCard,
+  NLayout,
+  NLayoutContent,
+  NLayoutHeader,
+  NLayoutSider,
+  NSwitch,
+} from 'naive-ui'
 import SideNav from '@/app/layout/components/SideNav.vue'
 </script>
 
