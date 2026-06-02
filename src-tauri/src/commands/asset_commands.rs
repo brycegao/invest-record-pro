@@ -107,7 +107,7 @@ pub fn delete_asset(db: DbState<'_>, id: i64) -> Result<(), String> {
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn query_assets(
     db: DbState<'_>,
     keyword: Option<String>,
