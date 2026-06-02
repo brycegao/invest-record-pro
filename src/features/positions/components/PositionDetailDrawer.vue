@@ -5,13 +5,23 @@
         <NEmpty description="请选择一个快照查看明细" />
       </div>
       <div v-else>
-        <NDescriptions column="2" size="small" labelPlacement="left">
-          <NDescriptionsItem label="快照日期">{{ formatDate(position.snapshotAt) }}</NDescriptionsItem>
-          <NDescriptionsItem label="总资产">{{ formatMoney(position.totalAssets) }}</NDescriptionsItem>
+        <NDescriptions :column="2" size="small" labelPlacement="left">
+          <NDescriptionsItem label="快照日期">{{
+            formatDate(position.snapshotAt)
+          }}</NDescriptionsItem>
+          <NDescriptionsItem label="总资产">{{
+            formatMoney(position.totalAssets)
+          }}</NDescriptionsItem>
           <NDescriptionsItem label="现金">{{ formatMoney(position.cash) }}</NDescriptionsItem>
-          <NDescriptionsItem label="持仓市值">{{ formatMoney(position.totalAssets - position.cash) }}</NDescriptionsItem>
-          <NDescriptionsItem label="浮动盈亏">{{ formatSignedMoney(position.unrealizedPnl) }}</NDescriptionsItem>
-          <NDescriptionsItem label="已实现盈亏">{{ formatSignedMoney(position.realizedPnl) }}</NDescriptionsItem>
+          <NDescriptionsItem label="持仓市值">{{
+            formatMoney(position.totalAssets - position.cash)
+          }}</NDescriptionsItem>
+          <NDescriptionsItem label="浮动盈亏">{{
+            formatSignedMoney(position.unrealizedPnl)
+          }}</NDescriptionsItem>
+          <NDescriptionsItem label="已实现盈亏">{{
+            formatSignedMoney(position.realizedPnl)
+          }}</NDescriptionsItem>
         </NDescriptions>
 
         <div class="position-detail-drawer__table">
@@ -33,7 +43,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { h } from 'vue'
-import { NDataTable, NDescriptions, NDescriptionsItem, NDrawer, NDrawerContent, NEmpty } from 'naive-ui'
+import {
+  NDataTable,
+  NDescriptions,
+  NDescriptionsItem,
+  NDrawer,
+  NDrawerContent,
+  NEmpty,
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import type { Position, PositionItem } from '@/domain/types'
 import { fenToYuan, formatMoney, formatQuantity, formatSignedMoney } from '@/domain/types/financial'

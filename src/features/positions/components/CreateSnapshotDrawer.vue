@@ -9,9 +9,9 @@
           <NSpace align="center">
             <NInputNumber
               v-model:value="form.totalAssets"
-              precision="2"
-              min="0"
-              showButton="false"
+              :precision="2"
+              :min="0"
+              :show-button="false"
               placeholder="请输入总资产"
             />
             <span class="input-unit">元</span>
@@ -21,9 +21,9 @@
           <NSpace align="center">
             <NInputNumber
               v-model:value="form.cash"
-              precision="2"
-              min="0"
-              showButton="false"
+              :precision="2"
+              :min="0"
+              :show-button="false"
               placeholder="请输入现金"
             />
             <span class="input-unit">元</span>
@@ -48,11 +48,7 @@
             <div>市值</div>
             <div>浮动盈亏</div>
           </div>
-          <div
-            class="holding-table__row"
-            v-for="item in holdings"
-            :key="item.assetId"
-          >
+          <div class="holding-table__row" v-for="item in holdings" :key="item.assetId">
             <div class="holding-label">
               <div>{{ item.assetCode }} {{ item.assetName }}</div>
               <div class="holding-subtitle">数量 {{ formatQuantity(item.currentQuantity) }}</div>
@@ -60,9 +56,9 @@
             <div class="holding-input">
               <NInputNumber
                 v-model:value="holdingPrices[item.assetId]"
-                precision="2"
-                min="0"
-                showButton="false"
+                :precision="2"
+                :min="0"
+                :show-button="false"
                 placeholder="元"
               />
             </div>
@@ -78,9 +74,7 @@
 
       <div class="drawer-actions">
         <NButton secondary @click="handleClose">取消</NButton>
-        <NButton type="primary" :loading="submitting" @click="handleSubmit">
-          生成快照
-        </NButton>
+        <NButton type="primary" :loading="submitting" @click="handleSubmit"> 生成快照 </NButton>
       </div>
     </NDrawerContent>
   </NDrawer>
@@ -88,9 +82,26 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { NButton, NDatePicker, NDrawer, NDrawerContent, NEmpty, NForm, NFormItem, NInputNumber, NSpace } from 'naive-ui'
+import {
+  NButton,
+  NDatePicker,
+  NDrawer,
+  NDrawerContent,
+  NEmpty,
+  NForm,
+  NFormItem,
+  NInputNumber,
+  NSpace,
+} from 'naive-ui'
 import type { PositionCreatePayload } from '@/domain/types'
-import { calculateTotalAmount, fenToYuan, formatMoney, formatQuantity, formatSignedMoney, yuanToFen } from '@/domain/types/financial'
+import {
+  calculateTotalAmount,
+  fenToYuan,
+  formatMoney,
+  formatQuantity,
+  formatSignedMoney,
+  yuanToFen,
+} from '@/domain/types/financial'
 import { getAllHoldings, type HoldingInfo } from '@/services/position-calculation.service'
 
 const props = defineProps<{
@@ -103,9 +114,9 @@ const emit = defineEmits<{
 }>()
 
 const form = ref({
-  snapshotAt: new Date().toISOString().slice(0, 10),
-  totalAssets: 0,
-  cash: 0,
+  snapshotAt: null as number | null,
+  totalAssets: null as number | null,
+  cash: null as number | null,
 })
 
 const holdings = ref<HoldingInfo[]>([])
@@ -116,9 +127,9 @@ const errorMessage = ref<string | null>(null)
 
 function resetForm(): void {
   form.value = {
-    snapshotAt: new Date().toISOString().slice(0, 10),
-    totalAssets: 0,
-    cash: 0,
+    snapshotAt: null,
+    totalAssets: null,
+    cash: null,
   }
   holdings.value = []
   holdingPrices.value = {}
@@ -181,7 +192,7 @@ async function handleSubmit(): Promise<void> {
     return
   }
 
-  if (form.value.totalAssets < 0 || form.value.cash < 0) {
+  if ((form.value.totalAssets ?? 0) < 0 || (form.value.cash ?? 0) < 0) {
     errorMessage.value = '总资产和现金必须为非负数'
     return
   }
@@ -213,10 +224,11 @@ async function handleSubmit(): Promise<void> {
     return
   }
 
+  const snapshotDate = new Date(form.value.snapshotAt).toISOString().slice(0, 10)
   const payload: PositionCreatePayload = {
-    snapshotAt: form.value.snapshotAt,
-    cash: yuanToFen(form.value.cash),
-    totalAssets: yuanToFen(form.value.totalAssets),
+    snapshotAt: snapshotDate,
+    cash: yuanToFen(form.value.cash ?? 0),
+    totalAssets: yuanToFen(form.value.totalAssets ?? 0),
     unrealizedPnl: items.reduce((sum, item) => sum + item.unrealizedPnl, 0),
     realizedPnl: 0,
     items,

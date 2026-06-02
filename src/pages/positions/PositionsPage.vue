@@ -82,7 +82,19 @@ import { computed, onMounted, ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import dayjs from 'dayjs'
 import { h } from 'vue'
-import { NButton, NCard, NDataTable, NDatePicker, NEmpty, NFormItem, NGrid, NGridItem, NPopconfirm, NStatistic, NSpace } from 'naive-ui'
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NDatePicker,
+  NEmpty,
+  NFormItem,
+  NGrid,
+  NGridItem,
+  NPopconfirm,
+  NStatistic,
+  NSpace,
+} from 'naive-ui'
 import { usePositionStore } from '@/features/positions/store'
 import { CreateSnapshotDrawer, PositionDetailDrawer } from '@/features/positions/components'
 import type { Position, PositionCreatePayload } from '@/domain/types'
@@ -93,21 +105,24 @@ const store = usePositionStore()
 const detailDrawerVisible = ref(false)
 const createDrawerVisible = ref(false)
 const selectedPosition = ref<Position | null>(null)
-const dateRange = ref<(string | null)[] | null>(null)
+const dateRange = ref<[number, number] | null>(null)
 
-const latestSnapshot = computed(() => store.latestPosition ?? {
-  id: 0,
-  snapshotAt: '',
-  cash: 0,
-  totalAssets: 0,
-  unrealizedPnl: 0,
-  realizedPnl: 0,
-  createdAt: '',
-  updatedAt: '',
-})
+const latestSnapshot = computed(
+  () =>
+    store.latestPosition ?? {
+      id: 0,
+      snapshotAt: '',
+      cash: 0,
+      totalAssets: 0,
+      unrealizedPnl: 0,
+      realizedPnl: 0,
+      createdAt: '',
+      updatedAt: '',
+    },
+)
 
 const filteredPositions = computed(() => {
-  if (!dateRange.value || !dateRange.value[0] || !dateRange.value[1]) {
+  if (!dateRange.value) {
     return store.positions
   }
 
@@ -116,7 +131,10 @@ const filteredPositions = computed(() => {
 
   return store.positions.filter((position) => {
     const snapshotAt = dayjs(position.snapshotAt)
-    return snapshotAt.isBetween(start, end, undefined, '[]')
+    return (
+      (snapshotAt.isAfter(start) || snapshotAt.isSame(start)) &&
+      (snapshotAt.isBefore(end) || snapshotAt.isSame(end))
+    )
   })
 })
 
@@ -187,7 +205,7 @@ const columns = [
   {
     title: '现金',
     key: 'cash',
-    align: 'right',
+    align: 'right' as const,
     width: 120,
     render(row: Position) {
       return formatMoney(row.cash)
@@ -196,7 +214,7 @@ const columns = [
   {
     title: '总资产',
     key: 'totalAssets',
-    align: 'right',
+    align: 'right' as const,
     width: 130,
     render(row: Position) {
       return formatMoney(row.totalAssets)
@@ -205,7 +223,7 @@ const columns = [
   {
     title: '浮动盈亏',
     key: 'unrealizedPnl',
-    align: 'right',
+    align: 'right' as const,
     width: 130,
     render(row: Position) {
       return formatSignedMoney(row.unrealizedPnl)
@@ -214,7 +232,7 @@ const columns = [
   {
     title: '已实现盈亏',
     key: 'realizedPnl',
-    align: 'right',
+    align: 'right' as const,
     width: 130,
     render(row: Position) {
       return formatSignedMoney(row.realizedPnl)
@@ -223,7 +241,7 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    align: 'center',
+    align: 'center' as const,
     width: 120,
     render(row: Position) {
       return h(

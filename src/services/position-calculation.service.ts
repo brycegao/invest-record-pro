@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Asset, TradeSummary } from '@/domain/types'
+import type { Asset } from '@/domain/types'
 import { getTradeSummaryByAsset } from './trade-query.service'
 
 export type HoldingInfo = {
