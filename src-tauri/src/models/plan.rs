@@ -13,6 +13,8 @@ pub struct Plan {
     pub notes: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    pub asset_code: Option<String>,
+    pub asset_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

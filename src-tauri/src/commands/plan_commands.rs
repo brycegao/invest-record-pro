@@ -12,7 +12,10 @@ pub fn get_plans(db: DbState<'_>) -> Result<Vec<Plan>, String> {
     let connection = lock_connection(&db)?;
     select_plans(
         &connection,
-        "SELECT * FROM plans ORDER BY created_at DESC",
+        "SELECT p.*, a.code AS asset_code, a.name AS asset_name
+         FROM plans p
+         INNER JOIN assets a ON p.asset_id = a.id
+         ORDER BY p.created_at DESC",
         params![],
     )
 }
@@ -155,7 +158,7 @@ pub fn query_plans(
 
     let mut statement = connection
         .prepare(
-            "SELECT p.*
+            "SELECT p.*, a.code AS asset_code, a.name AS asset_name
              FROM plans p
              INNER JOIN assets a ON p.asset_id = a.id
              WHERE (?1 IS NULL OR a.code LIKE '%' || ?1 || '%' OR a.name LIKE '%' || ?1 || '%')
@@ -177,7 +180,7 @@ pub fn query_plans(
     collect_plans(rows)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_plan_rules(db: DbState<'_>, plan_id: i64) -> Result<Vec<PlanRule>, String> {
     let connection = lock_connection(&db)?;
     let mut statement = connection
@@ -200,7 +203,10 @@ fn lock_connection<'a>(
 fn get_plan_by_id(connection: &Connection, id: i64) -> Result<Plan, String> {
     connection
         .query_row(
-            "SELECT * FROM plans WHERE id = ?1",
+            "SELECT p.*, a.code AS asset_code, a.name AS asset_name
+             FROM plans p
+             INNER JOIN assets a ON p.asset_id = a.id
+             WHERE p.id = ?1",
             params![id],
             map_plan_row,
         )
@@ -264,6 +270,8 @@ fn map_plan_row(row: &rusqlite::Row<'_>) -> Result<Plan, rusqlite::Error> {
         notes: row.get("notes")?,
         created_at: row.get("created_at")?,
         updated_at: row.get("updated_at")?,
+        asset_code: row.get("asset_code")?,
+        asset_name: row.get("asset_name")?,
     })
 }
 

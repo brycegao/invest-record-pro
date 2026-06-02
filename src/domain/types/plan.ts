@@ -12,6 +12,8 @@ export type Plan = {
   notes: string | null
   createdAt: string
   updatedAt: string
+  assetCode?: string | null
+  assetName?: string | null
 }
 
 /** 计划规则 */
