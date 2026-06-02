@@ -37,6 +37,11 @@ pub fn run() {
             commands::get_position_items,
             commands::delete_position,
             commands::get_latest_position,
+            commands::get_reviews,
+            commands::create_review,
+            commands::update_review,
+            commands::delete_review,
+            commands::query_reviews,
         ])
         .run(tauri::generate_context!())
     {
