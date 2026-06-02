@@ -19,6 +19,13 @@ pub fn run() {
             commands::update_asset,
             commands::delete_asset,
             commands::query_assets,
+            commands::get_plans,
+            commands::create_plan,
+            commands::update_plan,
+            commands::delete_plan,
+            commands::update_plan_status,
+            commands::query_plans,
+            commands::get_plan_rules,
         ])
         .run(tauri::generate_context!())
     {
