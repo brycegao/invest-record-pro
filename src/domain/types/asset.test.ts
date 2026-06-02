@@ -127,20 +127,44 @@ describe('validateAsset', () => {
 
   describe('riskLevel validation', () => {
     it('should error when riskLevel is below 1', () => {
-      const result = validateAsset({ code: '510300', name: 'Test', type: 'etf', market: 'CN', riskLevel: 0 })
+      const result = validateAsset({
+        code: '510300',
+        name: 'Test',
+        type: 'etf',
+        market: 'CN',
+        riskLevel: 0 as unknown as 1,
+      })
       expect(result.valid).toBe(false)
       expect(result.errors.riskLevel).toContain('1 到 5')
     })
 
     it('should error when riskLevel is above 5', () => {
-      const result = validateAsset({ code: '510300', name: 'Test', type: 'etf', market: 'CN', riskLevel: 6 })
+      const result = validateAsset({
+        code: '510300',
+        name: 'Test',
+        type: 'etf',
+        market: 'CN',
+        riskLevel: 6 as unknown as 1,
+      })
       expect(result.valid).toBe(false)
       expect(result.errors.riskLevel).toContain('1 到 5')
     })
 
     it('should accept riskLevel at boundary values 1 and 5', () => {
-      const r1 = validateAsset({ code: '510300', name: 'Test', type: 'etf', market: 'CN', riskLevel: 1 })
-      const r5 = validateAsset({ code: '510300', name: 'Test', type: 'etf', market: 'CN', riskLevel: 5 })
+      const r1 = validateAsset({
+        code: '510300',
+        name: 'Test',
+        type: 'etf',
+        market: 'CN',
+        riskLevel: 1,
+      })
+      const r5 = validateAsset({
+        code: '510300',
+        name: 'Test',
+        type: 'etf',
+        market: 'CN',
+        riskLevel: 5,
+      })
       expect(r1.errors.riskLevel).toBeUndefined()
       expect(r5.errors.riskLevel).toBeUndefined()
     })

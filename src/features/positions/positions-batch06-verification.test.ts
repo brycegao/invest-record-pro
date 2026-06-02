@@ -9,7 +9,6 @@ import {
   calculateTotalAmount,
   fenToYuan,
   formatMoney,
-  formatQuantity,
   formatSignedMoney,
   getMoneyColor,
   yuanToFen,
@@ -286,7 +285,7 @@ describe('Batch 06 · 检查项 6（重点）: 市值 = 当前价 × 持仓数�
   it('场景验算: 多只持仓的市值汇总', () => {
     const holdings = [
       { code: '510300', price: 4.15, quantity: 100 }, // 沪深300 ETF
-      { code: '510500', price: 6.80, quantity: 200 }, // 中证500 ETF
+      { code: '510500', price: 6.8, quantity: 200 }, // 中证500 ETF
       { code: '159915', price: 0.85, quantity: 1000 }, // 创业板 ETF
     ]
 
