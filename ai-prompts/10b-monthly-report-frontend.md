@@ -136,7 +136,8 @@ export async function deleteMonthlyReport(id: number): Promise<void>
 
 **五~六：AI 生成区（依赖 Ollama）**
 
-- Ollama 可用且 ai_summary 有内容 → 渲染 Markdown 文本（使用 v-html 或 markdown 渲染组件）
+- Ollama 可用且 ai_summary 有内容 → 渲染 Markdown 文本（使用 `markdown-it` 解析，**禁止直接 v-html 渲染原始 AI 输出**，必须经过 DOMPurify sanitize 后再渲染）
+- 若未安装 `markdown-it` 和 `dompurify`，执行前先 `npm install markdown-it dompurify @types/dompurify`
 - Ollama 不可用 → 显示引导提示："安装 Ollama 后可自动生成 AI 分析"
 
 **用户编辑区**：

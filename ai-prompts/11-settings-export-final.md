@@ -213,7 +213,28 @@ const theme = computed(() => {
 - `@tauri-apps/plugin-fs`：文件写入
 - `@tauri-apps/plugin-shell`：打开文件夹
 
-在 `src-tauri/tauri.conf.json` 和 `Cargo.toml` 中添加对应插件依赖，在 main.rs 的 `.plugin()` 中注册。
+**执行前必须先安装依赖**（项目尚未安装这些插件）：
+
+前端（npm）：
+```bash
+npm install @tauri-apps/plugin-dialog @tauri-apps/plugin-fs @tauri-apps/plugin-shell
+```
+
+Rust（Cargo.toml 添加）：
+```toml
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+```
+
+注册（src-tauri/src/main.rs）：
+```rust
+.plugin(tauri_plugin_dialog::init())
+.plugin(tauri_plugin_fs::init())
+.plugin(tauri_plugin_shell::init())
+```
+
+权限（src-tauri/capabilities/default.json 添加对应权限声明）。
 
 ## 代码风格
 

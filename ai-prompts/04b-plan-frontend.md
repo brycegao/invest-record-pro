@@ -81,6 +81,15 @@ usePlanStore（Setup Store 风格）：
 
 **采用方案 A**：请在 Plan struct 中增加可选字段 `asset_code: Option<String>` 和 `asset_name: Option<String>`，SQL 查询时 JOIN assets 获取。
 
+**同步更新前端 TS 类型**：在 `src/domain/types/plan.ts` 的 `Plan` 类型中增加对应的可选字段：
+```ts
+export type Plan = {
+  // ...existing fields
+  assetCode?: string | null
+  assetName?: string | null
+}
+```
+
 ### 4. `src/features/plans/components/PlanForm.vue`
 
 Drawer 表单组件：

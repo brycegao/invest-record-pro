@@ -81,7 +81,7 @@ useTradeStore（Setup Store 风格）：
 Props 增加 `hiddenColumns: string[]`，内部管理列显示状态。
 
 **操作列**：`[编辑]` `[复盘]` `[删除]`
-- `[复盘]`：emit `review` 事件，父组件跳转到复盘页面（路由跳转：`router.push({ path: '/reviews', query: { tradeId: row.id } })`）
+- `[复盘]`：仅 emit `review` 事件（`emit('review', row)`），由 TradesPage 父组件处理路由跳转（`router.push({ path: '/reviews', query: { tradeId: row.id } })`）— 组件内部不应直接调用 router
 - `[删除]`：n-popconfirm 确认
 
 ### 4. `src/features/trades/components/BuyTradeForm.vue`

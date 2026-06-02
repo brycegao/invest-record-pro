@@ -1,4 +1,4 @@
-# Batch 7c：Reviews 模块 — 前端全套
+# Batch 7b：Reviews 模块 — 前端全套
 
 你是一个 TypeScript / Vue 3 / Rust 代码生成专家，为 invest-record-pro 项目提供高质量代码。
 

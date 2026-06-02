@@ -8,7 +8,7 @@
 - 数据库表 `plans` 和 `plan_rules` 已通过迁移创建
 - 数据库连接模式：`tauri::State<'_, Arc<Mutex<Connection>>>` 获取
 - Asset 模块的 Rust 命令已实现（`src-tauri/src/commands/asset_commands.rs`），请参考其代码风格
-- 辅助函数 `now_iso()` 和 `to_err_string()` 已在 asset_commands 中定义，请提取到公共位置复用
+- 公共辅助函数 `now_iso()` 和 `to_err_string()` 已在 `src-tauri/src/common.rs` 中定义，可直接引用 `crate::common::now_iso` 和 `crate::common::to_err_string`
 
 ## 任务
 
@@ -143,7 +143,7 @@ ORDER BY p.created_at DESC
 
 ### 辅助函数
 
-将 `now_iso()` 和 `to_err_string()` 提取到 `src-tauri/src/db/mod.rs` 或新建 `src-tauri/src/common.rs`，作为 `pub fn` 供所有命令模块复用。
+公共辅助函数已在 `src-tauri/src/common.rs` 中，直接通过 `crate::common::now_iso` 和 `crate::common::to_err_string` 使用即可，无需额外提取。
 
 ## 代码风格
 

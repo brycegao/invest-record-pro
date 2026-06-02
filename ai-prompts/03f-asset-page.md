@@ -99,13 +99,16 @@ const filterType = ref('')
 const filterMarket = ref('')
 
 // 筛选选项
+import type { AssetType, Market } from '@/domain/types'
+import { ASSET_TYPES, MARKETS } from '@/domain/types'
+
 const typeOptions = [
   { label: '全部', value: '' },
-  ...Object.entries(ASSET_TYPE_LABELS).map(([value, label]) => ({ label, value })),
+  ...ASSET_TYPES.map((t) => ({ label: ASSET_TYPE_LABELS[t], value: t })),
 ]
 const marketOptions = [
   { label: '全部', value: '' },
-  ...Object.entries(MARKET_LABELS).map(([value, label]) => ({ label, value })),
+  ...MARKETS.map((m) => ({ label: MARKET_LABELS[m], value: m })),
 ]
 
 onMounted(() => {
@@ -122,12 +125,22 @@ function handleEdit(row: Asset) {
   formVisible.value = true
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+  if (typeof error === 'string' && error) {
+    return error
+  }
+  return '操作失败'
+}
+
 async function handleDelete(row: Asset) {
   try {
     await store.deleteAsset(row.id)
     message.success('删除成功')
   } catch (e) {
-    message.error((e as Error).message)
+    message.error(getErrorMessage(e))
   }
 }
 
@@ -142,7 +155,7 @@ async function handleFormSubmit(data: AssetCreatePayload) {
     }
     formVisible.value = false
   } catch (e) {
-    message.error((e as Error).message)
+    message.error(getErrorMessage(e))
   }
 }
 

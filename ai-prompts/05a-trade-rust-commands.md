@@ -8,7 +8,7 @@
 - 数据库表 `trades` 已通过迁移创建
 - 金融数值存储规则：金额用分（×100），数量用千分之一（×1000），禁止 REAL/FLOAT
 - 公共辅助函数 `now_iso()` 和 `to_err_string()` 已在 `src-tauri/src/common.rs`
-- 已有 asset_commands.rs 和 plan_commands.rs 作为代码风格参考
+- 已有 asset_commands.rs 作为代码风格参考（`src-tauri/src/commands/asset_commands.rs`）
 
 ## 任务
 
