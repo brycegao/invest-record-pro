@@ -42,6 +42,11 @@ pub fn run() {
             commands::update_review,
             commands::delete_review,
             commands::query_reviews,
+            commands::get_market_observations,
+            commands::create_market_observation,
+            commands::update_market_observation,
+            commands::delete_market_observation,
+            commands::query_market_observations,
         ])
         .run(tauri::generate_context!())
     {

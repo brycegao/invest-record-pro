@@ -280,14 +280,31 @@ describe('Batch 07 · 附加: Rust 命令完整性', () => {
 
   it('Review struct 包含所有必要字段 + JOIN 扩展字段', () => {
     // Rust Review struct
-    const baseFields = ['id', 'trade_id', 'result', 'issue_type', 'summary', 'improve', 'created_at', 'updated_at']
+    const baseFields = [
+      'id',
+      'trade_id',
+      'result',
+      'issue_type',
+      'summary',
+      'improve',
+      'created_at',
+      'updated_at',
+    ]
     const joinFields = ['trade_asset_code', 'trade_asset_name', 'trade_type', 'trade_created_at']
     expect(baseFields).toHaveLength(8)
     expect(joinFields).toHaveLength(4)
   })
 
   it('Review 表格列定义完整', () => {
-    const expectedColumns = ['复盘时间', '交易信息', '交易结果', '问题类型', '总结', '改进点', '操作']
+    const expectedColumns = [
+      '复盘时间',
+      '交易信息',
+      '交易结果',
+      '问题类型',
+      '总结',
+      '改进点',
+      '操作',
+    ]
     expect(expectedColumns).toHaveLength(7)
   })
 
