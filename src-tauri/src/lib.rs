@@ -32,6 +32,11 @@ pub fn run() {
             commands::delete_trade,
             commands::query_trades,
             commands::get_trade_summary,
+            commands::get_positions,
+            commands::create_position_snapshot,
+            commands::get_position_items,
+            commands::delete_position,
+            commands::get_latest_position,
         ])
         .run(tauri::generate_context!())
     {
