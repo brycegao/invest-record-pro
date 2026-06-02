@@ -35,8 +35,12 @@
         <NSelect v-model:value="filterMarket" :options="marketOptions" placeholder="市场" />
       </NFormItem>
 
-      <NButton type="primary" :loading="store.isLoading" @click="handleSearch">搜索</NButton>
-      <NButton :disabled="store.isLoading" @click="handleReset">重置</NButton>
+      <NFormItem label=" " class="assets-page__button-item">
+        <NSpace>
+          <NButton type="primary" :loading="store.isLoading" @click="handleSearch">搜索</NButton>
+          <NButton :disabled="store.isLoading" @click="handleReset">重置</NButton>
+        </NSpace>
+      </NFormItem>
     </NSpace>
 
     <AssetTable
@@ -212,6 +216,10 @@ function handleFormVisibleUpdate(visible: boolean): void {
 
 .assets-page__select-item {
   width: 136px;
+  margin-bottom: 0;
+}
+
+.assets-page__button-item {
   margin-bottom: 0;
 }
 </style>
