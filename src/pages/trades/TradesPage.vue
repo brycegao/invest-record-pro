@@ -328,7 +328,7 @@ async function handleExport(): Promise<void> {
     exporting.value = true
     const csv = await exportTradesCsv()
     await writeTextFile(filePath, csv)
-    message.success('导出成功')
+    message.success('已导出 CSV 文件，请到“下载”目录查看')
   } catch {
     message.error('导出失败')
   } finally {
