@@ -48,6 +48,12 @@ src-tauri/*.log
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea/
+.claude/
+.codegraph/
+.cursor/
+.gemini/
+.mcp.json
+opencode.jsonc
 *.swp
 *.swo
 *~
