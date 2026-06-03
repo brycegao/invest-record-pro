@@ -11,7 +11,7 @@
  */
 
 <template>
-  <NDrawer :show="visible" placement="right" size="480px" @close="handleClose">
+  <NDrawer :show="visible" placement="right" width="520" :show-close="false" @close="handleClose">
     <NDrawerContent title="生成仓位快照">
       <NForm labelPlacement="left" labelWidth="100">
         <NFormItem label="快照日期">
@@ -288,7 +288,7 @@ async function handleSubmit(): Promise<void> {
 
 .holding-table__row {
   display: grid;
-  grid-template-columns: 180px 120px 120px 120px;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   align-items: center;
   gap: 12px;
   padding: 8px 0;

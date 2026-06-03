@@ -11,7 +11,7 @@
  */
 
 <template>
-  <NDrawer :show="visible" placement="right" size="640px" @close="handleClose">
+  <NDrawer v-model:show="innerVisible" placement="right" width="640" :show-close="true" :mask-closable="true">
     <NDrawerContent :title="drawerTitle">
       <div v-if="!position">
         <NEmpty description="请选择一个快照查看明细" />
@@ -47,13 +47,17 @@
             striped
           />
         </div>
+
+        <div class="position-detail-drawer__footer">
+          <NButton @click="handleClose">关闭</NButton>
+        </div>
       </div>
     </NDrawerContent>
   </NDrawer>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { h } from 'vue'
 import {
   NDataTable,
@@ -76,6 +80,11 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'update:visible', visible: boolean): void
 }>()
+
+const innerVisible = computed({
+  get: () => props.visible,
+  set: (val: boolean) => emit('update:visible', val),
+})
 
 const drawerTitle = computed(() => {
   if (!props.position) {
@@ -182,5 +191,11 @@ function handleClose(): void {
 <style scoped>
 .position-detail-drawer__table {
   margin-top: 24px;
+}
+
+.position-detail-drawer__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0 0;
 }
 </style>

@@ -43,7 +43,6 @@ pub struct PositionItem {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePositionPayload {
     pub snapshot_at: String,
     pub cash: i64,
@@ -54,7 +53,6 @@ pub struct CreatePositionPayload {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct CreatePositionItemPayload {
     pub asset_id: i64,
     pub quantity: i64,

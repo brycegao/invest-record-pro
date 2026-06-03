@@ -30,7 +30,6 @@ pub struct Review {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateReviewPayload {
     pub trade_id: i64,
     pub result: String,
@@ -40,7 +39,6 @@ pub struct CreateReviewPayload {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct UpdateReviewPayload {
     pub id: i64,
     pub trade_id: i64,
