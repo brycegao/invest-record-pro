@@ -47,6 +47,11 @@ pub fn run() {
             commands::update_market_observation,
             commands::delete_market_observation,
             commands::query_market_observations,
+            commands::get_monthly_reports,
+            commands::get_monthly_report,
+            commands::create_monthly_report,
+            commands::update_monthly_report,
+            commands::delete_monthly_report,
         ])
         .run(tauri::generate_context!())
     {

@@ -24,7 +24,9 @@
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
     "dayjs": "^1.11.21",
+    "dompurify": "^3.4.7",
     "echarts": "^5.5.1",
+    "markdown-it": "^14.2.0",
     "naive-ui": "^2.40.1",
     "pinia": "^2.2.6",
     "vue": "^3.5.13",
@@ -35,6 +37,8 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
     "@tauri-apps/cli": "^2.0.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/markdown-it": "^14.1.2",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/test-utils": "^2.4.10",
     "eslint": "^10.4.1",

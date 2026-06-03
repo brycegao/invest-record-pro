@@ -162,6 +162,89 @@ export const mockReviews = [
   },
 ]
 
+export const mockMonthlyReports = [
+  {
+    id: 1,
+    month: '2026-05',
+    inputSnapshotJson: JSON.stringify({
+      tradeCount: 3,
+      buyCount: 2,
+      sellCount: 1,
+      totalBuyAmount: 500000,
+      totalSellAmount: 200000,
+      realizedPnl: 50000,
+      planExecutionRate: 7500,
+      completedPlanCount: 1,
+      totalActivePlanCount: 2,
+      moodDistribution: { calm: 2, anxious: 1 },
+      recentTrades: [
+        { code: '510300', type: '买入', amount: 300000, mood: 'calm' },
+      ],
+      activePlans: [
+        { code: '510300', type: 'buy', status: 'pending' },
+      ],
+    }),
+    aiSummary: '## 2026-05 月度复盘\n\n### 执行评价\n本月执行纪律较好...\n\n### 情绪分析\n情绪整体平稳...\n\n### 行为模式\n未发现明显追涨杀跌...\n\n### 规则改进\n1. 加强计划制定 2. 控制单笔仓位 3. 记录交易理由',
+    userEditedSummary: null,
+    modelName: 'qwen2.5:7b',
+    promptVersion: 'v1',
+    generationDurationMs: 12300,
+    createdAt: '2026-05-31T22:30:00.000Z',
+    updatedAt: '2026-05-31T22:30:00.000Z',
+  },
+  {
+    id: 2,
+    month: '2026-04',
+    inputSnapshotJson: JSON.stringify({
+      tradeCount: 1,
+      buyCount: 1,
+      sellCount: 0,
+      totalBuyAmount: 184000,
+      totalSellAmount: 0,
+      realizedPnl: 0,
+      planExecutionRate: 5000,
+      completedPlanCount: 0,
+      totalActivePlanCount: 1,
+      moodDistribution: { calm: 1 },
+      recentTrades: [],
+      activePlans: [],
+    }),
+    aiSummary: '## 2026-04 月度复盘\n\n本月仅有1笔买入交易，整体操作较少。',
+    userEditedSummary: null,
+    modelName: null,
+    promptVersion: null,
+    generationDurationMs: 0,
+    createdAt: '2026-04-30T18:00:00.000Z',
+    updatedAt: '2026-04-30T18:00:00.000Z',
+  },
+]
+
+export const mockMonthlyReportCreated = {
+  id: 3,
+  month: '2026-06',
+  inputSnapshotJson: JSON.stringify({
+    tradeCount: 0,
+    buyCount: 0,
+    sellCount: 0,
+    totalBuyAmount: 0,
+    totalSellAmount: 0,
+    realizedPnl: 0,
+    planExecutionRate: 0,
+    completedPlanCount: 0,
+    totalActivePlanCount: 0,
+    moodDistribution: {},
+    recentTrades: [],
+    activePlans: [],
+  }),
+  aiSummary: '## 2026-06 月度数据概览\n\n- **交易统计**：共 0 笔（买入 0，卖出 0）\n- **买入金额**：¥0.00\n- **卖出金额**：¥0.00\n- **计划执行率**：0.0%\n\n> ⚠️ 以上为规则引擎自动生成的摘要。',
+  userEditedSummary: null,
+  modelName: null,
+  promptVersion: 'v1',
+  generationDurationMs: 0,
+  createdAt: '2026-06-03T12:00:00.000Z',
+  updatedAt: '2026-06-03T12:00:00.000Z',
+}
+
 export const mockMarketObservations = [
   {
     id: 1,
@@ -276,6 +359,13 @@ export const defaultMockStore: Record<string, unknown> = {
     { id: 2, key: 'ollama_model', value: 'qwen2.5:7b', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
   ],
   upsert_setting: undefined,
+
+  // Monthly Reports
+  get_monthly_reports: mockMonthlyReports,
+  get_monthly_report: mockMonthlyReports[0],
+  create_monthly_report: mockMonthlyReportCreated,
+  update_monthly_report: mockMonthlyReports[0],
+  delete_monthly_report: undefined,
 }
 
 // ─── Script Generator ─────────────────────────────────────────────────────
