@@ -79,3 +79,7 @@ opencode.jsonc
 *.bak
 *.tmp
 *.backup
+
+# ---------- Private docs (keep only README.md in git) ----------
+*.md
+!README.md
