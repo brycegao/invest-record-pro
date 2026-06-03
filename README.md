@@ -11,8 +11,8 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3-green?logo=vue.js)](https://vuejs.org/)
 [![Ollama](https://img.shields.io/badge/Ollama-Local%20AI-orange)](https://ollama.ai/)
 
-<!-- 截图：仪表盘 -->
-<img src="docs/images/screenshot-dashboard.png" alt="Dashboard" width="800" />
+<!-- 桌面端UI效果 -->
+![image](./UI.gif)
 
 </div>
 
