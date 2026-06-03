@@ -26,12 +26,22 @@ const INDEX_FORMATTER = new Intl.NumberFormat('zh-CN', {
 })
 
 /**
+ * 安全数值：将 NaN / undefined / null 统一转为 0。
+ */
+function safeNumber(value: number): number {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return 0
+  }
+  return value
+}
+
+/**
  * 分转元（数据库存储 → 前端显示）。
  * @param fen 数据库中的分值
  * @returns 元值
  */
 export function fenToYuan(fen: number): number {
-  return fen / 100
+  return safeNumber(fen) / 100
 }
 
 /**
@@ -40,7 +50,7 @@ export function fenToYuan(fen: number): number {
  * @returns 分值
  */
 export function yuanToFen(yuan: number): number {
-  return Math.round(yuan * 100)
+  return Math.round(safeNumber(yuan) * 100)
 }
 
 /**
@@ -67,7 +77,7 @@ export function storeQuantity(display: number): number {
  * @returns 格式化后的金额字符串
  */
 export function formatMoney(fen: number): string {
-  return `¥${MONEY_FORMATTER.format(fenToYuan(fen))}`
+  return `¥${MONEY_FORMATTER.format(fenToYuan(safeNumber(fen)))}`
 }
 
 /**
@@ -76,12 +86,13 @@ export function formatMoney(fen: number): string {
  * @returns 带符号的金额字符串
  */
 export function formatSignedMoney(fen: number): string {
-  if (fen > 0) {
-    return `+${formatMoney(fen)}`
+  const value = safeNumber(fen)
+  if (value > 0) {
+    return `+${formatMoney(value)}`
   }
 
-  if (fen < 0) {
-    return `-${formatMoney(Math.abs(fen))}`
+  if (value < 0) {
+    return `-${formatMoney(Math.abs(value))}`
   }
 
   return formatMoney(0)
@@ -93,7 +104,7 @@ export function formatSignedMoney(fen: number): string {
  * @returns 格式化后的百分比字符串
  */
 export function formatPercent(stored: number): string {
-  return `${(stored / 100).toFixed(1)}%`
+  return `${(safeNumber(stored) / 100).toFixed(1)}%`
 }
 
 /**
@@ -102,7 +113,7 @@ export function formatPercent(stored: number): string {
  * @returns 显示数量字符串
  */
 export function formatQuantity(stored: number): string {
-  return QUANTITY_FORMATTER.format(displayQuantity(stored))
+  return QUANTITY_FORMATTER.format(displayQuantity(safeNumber(stored)))
 }
 
 /**
@@ -111,7 +122,7 @@ export function formatQuantity(stored: number): string {
  * @returns 显示值字符串
  */
 export function formatIndexPoint(stored: number): string {
-  return INDEX_FORMATTER.format(stored / 100)
+  return INDEX_FORMATTER.format(safeNumber(stored) / 100)
 }
 
 /**
@@ -121,7 +132,7 @@ export function formatIndexPoint(stored: number): string {
  * @returns 总金额（分）
  */
 export function calculateTotalAmount(priceFen: number, quantityInt: number): number {
-  return Math.round((priceFen * quantityInt) / 1000)
+  return Math.round((safeNumber(priceFen) * safeNumber(quantityInt)) / 1000)
 }
 
 /**
@@ -130,11 +141,12 @@ export function calculateTotalAmount(priceFen: number, quantityInt: number): num
  * @returns 颜色类名
  */
 export function getMoneyColor(fen: number): string {
-  if (fen > 0) {
+  const value = safeNumber(fen)
+  if (value > 0) {
     return 'money-positive'
   }
 
-  if (fen < 0) {
+  if (value < 0) {
     return 'money-negative'
   }
 
