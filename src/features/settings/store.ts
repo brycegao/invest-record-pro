@@ -1,9 +1,16 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { invoke } from '@tauri-apps/api/core'
-import type { Setting, SettingUpsertPayload } from '@/domain/types'
+import type { Setting, SettingUpsertPayload, ThemeOption } from '@/domain/types'
 import { SETTING_KEYS } from '@/domain/types'
 import { ollamaService } from '@/services/ollama.service'
+import {
+  getSetting,
+  upsertSetting as upsertSettingRepo,
+  getAllSettingsFull,
+  getDbPath,
+  backupDatabase,
+  restoreDatabase,
+} from './repository'
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message) {
@@ -24,24 +31,6 @@ function createServiceError(message: string, cause: unknown): Error {
   return Object.assign(new Error(msg), { cause })
 }
 
-// ---- Repository ----
-
-async function getAllSettings(): Promise<Setting[]> {
-  try {
-    return await invoke<Setting[]>('get_settings')
-  } catch (error) {
-    throw createServiceError('获取设置列表失败', error)
-  }
-}
-
-async function upsertSetting(payload: SettingUpsertPayload): Promise<void> {
-  try {
-    await invoke('upsert_setting', { payload })
-  } catch (error) {
-    throw createServiceError('保存设置失败', error)
-  }
-}
-
 // ---- Store ----
 
 /**
@@ -54,12 +43,14 @@ export const useSettingsStore = defineStore('settings', () => {
   const ollamaAvailable = ref(false)
   const ollamaUrl = ref('http://localhost:11434')
   const ollamaModel = ref('')
+  const dbPath = ref('')
+  const currentTheme = ref<ThemeOption>('system')
 
   const isLoading = computed(() => loading.value)
   const hasError = computed(() => !!error.value)
 
   /** 获取设置值 */
-  function getSetting(key: string): string | null {
+  function getSettingValue(key: string): string | null {
     return settings.value.get(key) ?? null
   }
 
@@ -71,7 +62,7 @@ export const useSettingsStore = defineStore('settings', () => {
     error.value = null
 
     try {
-      const list = await getAllSettings()
+      const list = await getAllSettingsFull()
       const map = new Map<string, string | null>()
       for (const item of list) {
         map.set(item.key, item.value)
@@ -93,6 +84,15 @@ export const useSettingsStore = defineStore('settings', () => {
       if (model) {
         ollamaModel.value = model
       }
+
+      // 恢复主题设置
+      const theme = map.get(SETTING_KEYS.THEME)
+      if (theme === 'light' || theme === 'dark' || theme === 'system') {
+        currentTheme.value = theme
+      }
+
+      // 加载数据库路径
+      dbPath.value = await getDbPath()
     } catch (caughtError) {
       error.value = getErrorMessage(caughtError, '加载设置失败')
       console.error('loadSettings error:', caughtError)
@@ -109,7 +109,7 @@ export const useSettingsStore = defineStore('settings', () => {
     error.value = null
 
     try {
-      await upsertSetting(payload)
+      await upsertSettingRepo(payload)
       settings.value.set(payload.key, payload.value)
     } catch (caughtError) {
       error.value = getErrorMessage(caughtError, '保存设置失败')
@@ -148,6 +148,46 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
+   * 设置主题。
+   */
+  async function setTheme(theme: ThemeOption): Promise<void> {
+    currentTheme.value = theme
+    await saveSetting({ key: SETTING_KEYS.THEME, value: theme })
+  }
+
+  /**
+   * 备份数据库到指定路径。
+   */
+  async function backup(targetPath: string): Promise<void> {
+    loading.value = true
+    error.value = null
+    try {
+      await backupDatabase(targetPath)
+    } catch (caughtError) {
+      error.value = getErrorMessage(caughtError, '备份数据库失败')
+      throw caughtError
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 从指定路径恢复数据库。
+   */
+  async function restore(sourcePath: string): Promise<void> {
+    loading.value = true
+    error.value = null
+    try {
+      await restoreDatabase(sourcePath)
+    } catch (caughtError) {
+      error.value = getErrorMessage(caughtError, '恢复数据库失败')
+      throw caughtError
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * 检查 Ollama 连接状态。
    */
   async function checkOllama(): Promise<boolean> {
@@ -174,13 +214,18 @@ export const useSettingsStore = defineStore('settings', () => {
     ollamaAvailable,
     ollamaUrl,
     ollamaModel,
+    dbPath,
+    currentTheme,
     isLoading,
     hasError,
-    getSetting,
+    getSetting: getSettingValue,
     loadSettings,
     saveSetting,
     setOllamaUrl,
     setOllamaModel,
+    setTheme,
+    backup,
+    restore,
     checkOllama,
     clearError,
   }

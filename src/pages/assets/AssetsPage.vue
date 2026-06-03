@@ -9,12 +9,7 @@
 
     <NSpace class="assets-page__actions">
       <NButton type="primary" @click="handleCreate">+ 新增标的</NButton>
-      <NTooltip trigger="hover">
-        <template #trigger>
-          <NButton disabled>导出</NButton>
-        </template>
-        功能开发中
-      </NTooltip>
+      <NButton :loading="exporting" @click="handleExport">导出</NButton>
     </NSpace>
 
     <NSpace align="end" class="assets-page__filters">
@@ -62,17 +57,21 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { NButton, NFormItem, NInput, NSelect, NSpace, NTooltip, useMessage } from 'naive-ui'
+import { NButton, NFormItem, NInput, NSelect, NSpace, useMessage } from 'naive-ui'
 import { AssetForm, AssetTable } from '@/features/assets/components'
 import { useAssetStore } from '@/features/assets/store'
 import type { Asset, AssetCreatePayload, AssetFilter } from '@/domain/types'
 import { ASSET_TYPE_LABELS, ASSET_TYPES, MARKET_LABELS, MARKETS } from '@/domain/types'
+import { save } from '@tauri-apps/plugin-dialog'
+import { writeTextFile } from '@tauri-apps/plugin-fs'
+import { exportAssetsCsv } from '@/features/settings/repository'
 
 const message = useMessage()
 const store = useAssetStore()
 
 const formVisible = ref(false)
 const selectedAsset = ref<Asset | null>(null)
+const exporting = ref(false)
 const filterKeyword = ref('')
 const filterType = ref<AssetFilter['type']>('')
 const filterMarket = ref<AssetFilter['market']>('')
@@ -173,6 +172,26 @@ function handleFormVisibleUpdate(visible: boolean): void {
 
   if (!visible) {
     selectedAsset.value = null
+  }
+}
+
+async function handleExport(): Promise<void> {
+  try {
+    const filePath = await save({
+      title: '导出标的数据',
+      defaultPath: `assets-${new Date().toISOString().slice(0, 10)}.csv`,
+      filters: [{ name: 'CSV 文件', extensions: ['csv'] }],
+    })
+    if (!filePath) return
+
+    exporting.value = true
+    const csv = await exportAssetsCsv()
+    await writeTextFile(filePath, csv)
+    message.success('导出成功')
+  } catch {
+    message.error('导出失败')
+  } finally {
+    exporting.value = false
   }
 }
 </script>

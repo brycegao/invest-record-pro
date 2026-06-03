@@ -10,12 +10,7 @@
     <NSpace class="trades-page__actions">
       <NButton type="primary" @click="handleCreateBuy">+ 买入</NButton>
       <NButton type="primary" secondary @click="handleCreateSell">+ 卖出</NButton>
-      <NTooltip trigger="hover">
-        <template #trigger>
-          <NButton disabled>导出 CSV</NButton>
-        </template>
-        功能开发中
-      </NTooltip>
+      <NButton :loading="exporting" @click="handleExport">导出 CSV</NButton>
     </NSpace>
 
     <NSpace align="end" class="trades-page__filters">
@@ -90,13 +85,15 @@ import {
   NInput,
   NSelect,
   NSpace,
-  NTooltip,
   useMessage,
 } from 'naive-ui'
 import { BuyTradeForm, SellTradeForm, TradeTable } from '@/features/trades/components'
 import { useTradeStore } from '@/features/trades/store'
 import type { Mood, Trade, TradeCreatePayload, TradeFilter, TradeType } from '@/domain/types'
 import { MOOD_LABELS, MOODS, TRADE_TYPE_LABELS, TRADE_TYPES } from '@/domain/types'
+import { save } from '@tauri-apps/plugin-dialog'
+import { writeTextFile } from '@tauri-apps/plugin-fs'
+import { exportTradesCsv } from '@/features/settings/repository'
 
 const router = useRouter()
 const message = useMessage()
@@ -129,6 +126,7 @@ const moodOptions = [
 
 const editingBuyTrade = ref<Trade | null>(null)
 const editingSellTrade = ref<Trade | null>(null)
+const exporting = ref(false)
 
 onMounted(async () => {
   await store.loadTrades()
@@ -303,6 +301,26 @@ function handleSellFormVisibleUpdate(visible: boolean): void {
 
   if (!visible) {
     closeForms()
+  }
+}
+
+async function handleExport(): Promise<void> {
+  try {
+    const filePath = await save({
+      title: '导出交易记录',
+      defaultPath: `trades-${new Date().toISOString().slice(0, 10)}.csv`,
+      filters: [{ name: 'CSV 文件', extensions: ['csv'] }],
+    })
+    if (!filePath) return
+
+    exporting.value = true
+    const csv = await exportTradesCsv()
+    await writeTextFile(filePath, csv)
+    message.success('导出成功')
+  } catch {
+    message.error('导出失败')
+  } finally {
+    exporting.value = false
   }
 }
 </script>

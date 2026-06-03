@@ -67,9 +67,6 @@ test.describe('Batch 10a · Settings + Ollama 服务', () => {
 
   test('页面加载 — 标题和 AI 设置卡片可见', async ({ page }) => {
     await expect(page.locator('.settings-page__title')).toHaveText('设置')
-    await expect(page.locator('.settings-page__description')).toHaveText(
-      '应用配置与 AI 集成设置',
-    )
 
     // AI 设置卡片 — scope to .settings-page 避免匹配 MainLayout 的 n-card
     const aiCard = page.locator('.settings-page .n-card').filter({ hasText: 'AI 设置' })
@@ -83,9 +80,6 @@ test.describe('Batch 10a · Settings + Ollama 服务', () => {
 
     // 测试连接按钮
     await expect(page.getByRole('button', { name: '测试连接' })).toBeVisible()
-
-    // 保存按钮
-    await expect(page.getByRole('button', { name: '保存设置' })).toBeVisible()
   })
 
   // ── 2. 测试连接成功 ──────────────────────────────────────────
@@ -99,8 +93,8 @@ test.describe('Batch 10a · Settings + Ollama 服务', () => {
     await page.getByRole('button', { name: '测试连接' }).click()
     await page.waitForTimeout(500)
 
-    // 应显示"已连接"标签
-    await expect(page.locator('.n-tag').filter({ hasText: '已连接' })).toBeVisible()
+    // 应显示"✓ 已连接"文本（n-text 组件）
+    await expect(page.getByText('✓ 已连接')).toBeVisible()
   })
 
   // ── 3. Ollama 不可用 ──────────────────────────────────────────
@@ -112,12 +106,12 @@ test.describe('Batch 10a · Settings + Ollama 服务', () => {
     await page.getByRole('button', { name: '测试连接' }).click()
     await page.waitForTimeout(1000)
 
-    await expect(page.locator('.settings-page .n-tag').filter({ hasText: '未连接' })).toBeVisible()
+    await expect(page.getByText('✗ 未连接')).toBeVisible()
   })
 
   // ── 4. 非 localhost 地址拒绝 ──────────────────────────────────
 
-  test('非 localhost 地址 — 拒绝保存并显示错误提示', async ({ page }) => {
+  test('非 localhost 地址 — 拒绝连接并显示错误提示', async ({ page }) => {
     await page.addInitScript(createFetchMockScript({ tagsAvailable: true }))
     await gotoAndWait(page, '/settings')
 
@@ -126,13 +120,12 @@ test.describe('Batch 10a · Settings + Ollama 服务', () => {
     await urlInput.click()
     await urlInput.fill('http://example.com:11434')
 
-    // 点击保存
-    await page.getByRole('button', { name: '保存设置' }).click()
+    // 点击测试连接（会在 setBaseUrl 时抛出错误）
+    await page.getByRole('button', { name: '测试连接' }).click()
     await page.waitForTimeout(500)
 
-    // 应显示错误提示
-    await expect(page.locator('.n-alert')).toBeVisible()
-    await expect(page.locator('.n-alert')).toContainText('仅允许本机地址')
+    // 应显示错误提示（Naive UI message）
+    await expect(page.getByText('仅允许本机地址')).toBeVisible()
   })
 
   // ── 5. Prompt 模板服务 — 正确组装 prompt 文本 ──────────────

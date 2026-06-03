@@ -49,4 +49,10 @@ const router = createRouter({
   routes,
 })
 
+// 页面标题自动更新
+router.afterEach((to) => {
+  const title = (to.meta.title as string | undefined) ?? 'Invest Record Pro'
+  document.title = `${title} | Invest Record Pro`
+})
+
 export default router

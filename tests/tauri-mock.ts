@@ -357,8 +357,20 @@ export const defaultMockStore: Record<string, unknown> = {
   get_settings: [
     { id: 1, key: 'ollama_url', value: 'http://localhost:11434', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
     { id: 2, key: 'ollama_model', value: 'qwen2.5:7b', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
+    { id: 3, key: 'theme', value: 'system', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
+  ],
+  get_setting: 'http://localhost:11434',
+  get_all_settings: [
+    ['ollama_url', 'http://localhost:11434'],
+    ['ollama_model', 'qwen2.5:7b'],
+    ['theme', 'system'],
   ],
   upsert_setting: undefined,
+  get_db_path: '/Users/test/invest-record-pro/data.db',
+  backup_database: undefined,
+  restore_database: undefined,
+  export_assets_csv: '\u{FEFF}代码,名称,类型,市场,风险等级,投资逻辑,创建时间\n510300,沪深300ETF,etf,CN,2,,2026-05-28T08:00:00.000Z\n510500,中证500ETF,etf,CN,3,,2026-05-29T10:00:00.000Z\n',
+  export_trades_csv: '\u{FEFF}成交时间,标的,类型,价格,数量,总金额,手续费,情绪,遵守计划\n2026-05-30T09:30:00.000Z,510300,买入,3.680,500,1840.00,0.55,calm,是\n2026-06-01T10:00:00.000Z,510500,买入,6.200,300,1860.00,0.56,anxious,否\n',
 
   // Monthly Reports
   get_monthly_reports: mockMonthlyReports,

@@ -8,6 +8,9 @@ use tauri::Manager;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     if let Err(error) = tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             let db = db::init_database(app.handle())?;
             app.manage(db);
@@ -52,6 +55,15 @@ pub fn run() {
             commands::create_monthly_report,
             commands::update_monthly_report,
             commands::delete_monthly_report,
+            commands::get_setting,
+            commands::upsert_setting,
+            commands::get_settings,
+            commands::get_all_settings,
+            commands::get_db_path,
+            commands::backup_database,
+            commands::restore_database,
+            commands::export_assets_csv,
+            commands::export_trades_csv,
         ])
         .run(tauri::generate_context!())
     {
