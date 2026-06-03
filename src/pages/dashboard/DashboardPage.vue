@@ -53,6 +53,7 @@
             label="累计已实现盈亏"
             :value="formatSignedMoney(data.totalRealizedPnl)"
             :color="getMoneyColor(data.totalRealizedPnl)"
+            tooltip="所有投资标的交易汇总中的已实现盈亏累计值，只统计卖出交易已落袋部分。"
           />
         </n-grid-item>
         <n-grid-item>
@@ -60,16 +61,22 @@
             label="浮动盈亏"
             :value="formatSignedMoney(data.totalUnrealizedPnl)"
             :color="getMoneyColor(data.totalUnrealizedPnl)"
+            tooltip="最新仓位快照中的未实现盈亏，按当前市值减持仓成本计算。"
           />
         </n-grid-item>
         <n-grid-item>
-          <StatCard label="持仓标的数" :value="`${data.holdingAssetCount} 个`" />
+          <StatCard
+            label="持仓标的数"
+            :value="`${data.holdingAssetCount} 个`"
+            tooltip="当前交易汇总中持仓数量大于 0 的投资标的数量。"
+          />
         </n-grid-item>
         <n-grid-item>
           <StatCard
             label="计划执行率"
             :value="formatPercent(data.planExecutionRate)"
             suffix=""
+            tooltip="非已取消计划中，已完成计划按 1 计，部分执行计划按 0.5 计，再除以非已取消计划总数。"
           />
         </n-grid-item>
       </n-grid>
@@ -131,7 +138,6 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   NButton,
   NCard,
@@ -139,7 +145,6 @@ import {
   NDatePicker,
   NEmpty,
   NFormItem,
-  NGi,
   NGrid,
   NGridItem,
   NSpace,
@@ -161,7 +166,6 @@ import { fenToYuan, formatPercent, formatSignedMoney, getMoneyColor } from '@/do
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
 
-const router = useRouter()
 const store = useDashboardStore()
 
 // ---- 月份选择器 ----
@@ -228,7 +232,7 @@ const pnlTrendOption = computed(() => {
         if (!params.length) return ''
         let result = `${params[0].axisValue}<br/>`
         for (const p of params) {
-          result += `${p.marker} ${p.seriesName}：¥${fenToYuan(p.value).toFixed(2)}<br/>`
+          result += `${p.marker} ${p.seriesName}：¥${p.value.toFixed(2)}<br/>`
         }
         return result
       },

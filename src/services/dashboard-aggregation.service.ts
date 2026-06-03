@@ -12,7 +12,7 @@
 
 import { invoke } from '@tauri-apps/api/core'
 import dayjs from 'dayjs'
-import type { Asset, AssetType, Plan, PlanStatus, Position, PositionItem, Trade, TradeSummary } from '@/domain/types'
+import type { Asset, AssetType, Plan, Position, PositionItem, Trade, TradeSummary } from '@/domain/types'
 import { ASSET_TYPE_LABELS } from '@/domain/types'
 
 /** 月度盈亏趋势数据点 */
@@ -140,17 +140,32 @@ async function getAllPlans(): Promise<Plan[]> {
 
 // ---- 聚合计算 ----
 
+async function calculateTotalRealizedPnl(): Promise<number> {
+  const assets = await getAllAssets()
+  let total = 0
+
+  for (const asset of assets) {
+    try {
+      const summary = await getTradeSummaryByAsset(asset.id)
+      total += summary.realizedPnl
+    } catch {
+      // 单资产查询失败不影响整体
+    }
+  }
+
+  return total
+}
+
 /**
- * 计算累计已实现盈亏和浮动盈亏（基于最新仓位快照）。
+ * 计算累计已实现盈亏和浮动盈亏。
+ * 已实现盈亏来自交易汇总；浮动盈亏来自最新仓位快照。
  */
 async function calculatePnlStats(): Promise<{ totalRealizedPnl: number; totalUnrealizedPnl: number }> {
-  const latest = await getLatestPosition()
-  if (!latest) {
-    return { totalRealizedPnl: 0, totalUnrealizedPnl: 0 }
-  }
+  const [totalRealizedPnl, latest] = await Promise.all([calculateTotalRealizedPnl(), getLatestPosition()])
+
   return {
-    totalRealizedPnl: latest.realizedPnl,
-    totalUnrealizedPnl: latest.unrealizedPnl,
+    totalRealizedPnl,
+    totalUnrealizedPnl: latest?.unrealizedPnl ?? 0,
   }
 }
 
@@ -215,21 +230,8 @@ async function calculateMonthlyPnlTrend(): Promise<MonthlyPnlPoint[]> {
     }
   }
 
-  // 获取所有资产的交易汇总，用于计算已实现盈亏
-  const assets = await getAllAssets()
-  const summariesMap = new Map<number, TradeSummary>()
-
-  for (const asset of assets) {
-    try {
-      const summary = await getTradeSummaryByAsset(asset.id)
-      summariesMap.set(asset.id, summary)
-    } catch {
-      // 单资产查询失败不影响整体
-    }
-  }
-
   // 计算每个月的已实现盈亏：截止该月末所有卖出的已实现盈亏
-  const totalRealizedPnl = [...summariesMap.values()].reduce((sum, s) => sum + s.realizedPnl, 0)
+  const totalRealizedPnl = await calculateTotalRealizedPnl()
 
   return months.map((month) => {
     const snapshot = positionByMonth.get(month)
