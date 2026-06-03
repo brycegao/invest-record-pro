@@ -2,7 +2,7 @@
 
 # Invest Record Pro
 
-**个人投资决策记录系统・纯本地存储・离线 AI 分析・Tauri 2 桌面应用**
+**个人投资决策记录系统｜纯本地离线存储｜本地AI智能复盘｜Tauri2跨平台桌面软件**
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Tauri 2](https://img.shields.io/badge/Tauri-v2-blue?logo=tauri)](https://tauri.app/)
@@ -18,12 +18,12 @@
 
 ## ✨ 核心特性
 
-- 🔒 **纯本地存储** — 交易记录、持仓快照、复盘报告全部保存在本机 SQLite，零云端传输
-- 🤖 **离线 AI 分析** — 对接 Ollama 本地大模型，断网也可完成交易点评、月度复盘、纪律分析
-- 📊 **完整投资闭环** — 标的管理 → 交易计划 → 交易记录 → 仓位快照 → 深度复盘 → 月度报告
-- 📏 **纪律量化** — 自动统计计划执行率，量化交易纪律
-- 🖥️ **专业桌面体验** — Tauri 2 原生窗口，表格、可视化图表、侧边导航，适配重度使用场景
-- 💾 **轻量高性能** — Rust 后端 + SQLite，启动秒开
+- 🔒 **全本地隐私存储**：所有交易记录、持仓快照、AI复盘报告加密存放本机SQLite，**无任何数据联网上传、无云端上报**，从根源规避持仓策略泄露风险
+- 🤖 **离线本地化AI分析**：对接Ollama本地大模型，断网环境照常实现单笔交易点评、月度投资复盘、交易纪律诊断
+- 📊 **全链路投资闭环**：标的管理 → 交易计划编制 → 交易录入 → 持仓快照留存 → 逐笔复盘 → AI月度报告
+- 📏 **交易纪律量化统计**：自动核算交易计划执行率，量化复盘自身交易体系优劣
+- 🖥️ **原生桌面级交互**：基于Tauri2构建原生窗口，集成数据表格、盈亏可视化图表、侧边导航，适配高频投资记录场景
+- 💾 **轻量化高性能**：Rust后端+嵌入式SQLite，程序秒启动、资源占用低
 
 ## 📸 界面预览
 
@@ -32,22 +32,20 @@
 | <img src="pictures/仪表盘.png" alt="Dashboard" width="280" /> | <img src="pictures/交易计划.png" alt="Plans" width="380" /> | <img src="pictures/月度报告.png" alt="Report" width="380" /> |
 
 ## 🛠️ 技术栈
-
-| 层级 | 技术 |
+| 分层 | 技术选型 |
 |------|------|
-| 桌面端 | Tauri 2 + Rust |
-| 前端 | Vue 3 + TypeScript + Vite |
+| 桌面基座 | Tauri 2 + Rust |
+| 前端框架 | Vue 3 + TypeScript + Vite |
 | 状态管理 | Pinia |
-| UI 组件 | Naive UI |
-| 图表 | ECharts (vue-echarts) |
-| 数据库 | SQLite (rusqlite, bundled) |
-| 本地 AI | Ollama (fetch API) |
-| 单元测试 | Vitest + @vue/test-utils (132 tests) |
-| E2E 测试 | Playwright (89 tests) |
+| UI组件库 | Naive UI |
+| 可视化图表 | vue-echarts(ECharts) |
+| 本地数据库 | SQLite(rusqlite 内置打包) |
+| 离线AI能力 | Ollama HTTP Fetch |
+| 单元测试 | Vitest + @vue/test-utils（132个用例） |
+| E2E自动化 | Playwright（89个场景用例） |
 
-## 🏗️ 架构
-
-Feature-first 分层架构，业务模块互相隔离：
+## 🏗️ 项目架构
+采用 Feature-first 模块化架构，各业务模块低耦合、职责隔离：
 
 ```
 src/
@@ -124,10 +122,20 @@ npm run test:e2e:ui      # Playwright UI 模式
 
 支持平台：Windows 10/11、macOS
 
+
 ## 💬 Community / 社区
 
 - [GitHub Discussions](https://github.com/brycegao/invest-record-pro/discussions) — Feature requests, feedback, Q&A
 - [GitHub Issues](https://github.com/brycegao/invest-record-pro/issues) — Bug reports
+
+
+## 版本说明
+- 当前正式版本：V1.0.0   
+- 开发分支：dev/v1.0.0，稳定代码合并至main分支
+
+## 后续规划
+- v1.1.0：新增K线批量导入、自定义技术指标统计
+- 持续优化AI分析精准度
 
 ## 📄 License
 
