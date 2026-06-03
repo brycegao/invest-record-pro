@@ -147,11 +147,15 @@ export const useMonthlyReportsStore = defineStore('monthlyReports', () => {
             recentPlans: aggregation.activePlans,
           })
 
-          // 调用 Ollama 生成
-          const response = await ollamaService.generate({ model, prompt, system })
-          aiSummary = response.response.trim()
-          modelName = response.model
-          durationMs = Date.now() - startTime
+          try {
+            const response = await ollamaService.generate({ model, prompt, system })
+            aiSummary = response.response.trim()
+            modelName = response.model
+            durationMs = Date.now() - startTime
+          } catch (generateError) {
+            console.error('generate monthly report with Ollama error:', generateError)
+            aiSummary = buildFallbackSummary(aggregation)
+          }
         } else {
           aiSummary = buildFallbackSummary(aggregation)
         }

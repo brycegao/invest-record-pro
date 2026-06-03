@@ -64,6 +64,23 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+function createOllamaError(message: string, cause: unknown): Error {
+  return Object.assign(new Error(message), { cause })
+}
+
+async function readOllamaError(response: Response): Promise<string> {
+  try {
+    const data = (await response.json()) as { error?: string }
+    if (data.error) {
+      return data.error
+    }
+  } catch {
+    // Ignore invalid error body and fall back to the HTTP status.
+  }
+
+  return `HTTP ${response.status}`
+}
+
 /**
  * Ollama 离线 AI 服务
  * 只使用本地 Ollama API，不涉及任何远程调用
@@ -120,16 +137,16 @@ export class OllamaService {
       })
 
       if (!response.ok) {
-        throw new Error(`获取模型列表失败（HTTP ${response.status}）`)
+        throw new Error(`获取模型列表失败（${await readOllamaError(response)}）`)
       }
 
       const data = (await response.json()) as { models: OllamaModel[] }
       return data.models
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        throw new Error('连接 Ollama 超时，请确认 Ollama 服务已启动')
+        throw createOllamaError('连接 Ollama 超时，请确认 Ollama 服务已启动', error)
       }
-      throw new Error(getErrorMessage(error, '获取模型列表失败'))
+      throw createOllamaError(getErrorMessage(error, '获取模型列表失败'), error)
     } finally {
       clearTimeout(timeoutId)
     }
@@ -161,15 +178,15 @@ export class OllamaService {
       })
 
       if (!response.ok) {
-        throw new Error(`AI 生成失败（HTTP ${response.status}）`)
+        throw new Error(`AI 生成失败（${await readOllamaError(response)}）`)
       }
 
       return (await response.json()) as OllamaResponse
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        throw new Error('AI 生成超时（120秒），请尝试更小的模型或缩短 prompt')
+        throw createOllamaError('AI 生成超时（120秒），请尝试更小的模型或缩短 prompt', error)
       }
-      throw new Error(getErrorMessage(error, 'AI 生成失败'))
+      throw createOllamaError(getErrorMessage(error, 'AI 生成失败'), error)
     } finally {
       clearTimeout(timeoutId)
     }

@@ -131,7 +131,6 @@ import {
   NButton,
   NCard,
   NEmpty,
-  NGi,
   NGrid,
   NGridItem,
   NPopconfirm,
@@ -213,14 +212,14 @@ function handleDrawerSaved(): void {
 
 function handleExport(report: MonthlyReport): void {
   const content = buildExportContent(report)
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+  const blob = new globalThis.Blob([content], { type: 'text/markdown;charset=utf-8' })
+  const url = globalThis.URL.createObjectURL(blob)
+  const a = globalThis.document.createElement('a')
   a.href = url
   a.download = `月报-${report.month}.md`
   a.click()
-  URL.revokeObjectURL(url)
-  message.success('已导出 Markdown 文件')
+  globalThis.URL.revokeObjectURL(url)
+  message.success('已导出 Markdown 文件，请到“下载”目录查看')
 }
 
 async function handleDelete(report: MonthlyReport): Promise<void> {
