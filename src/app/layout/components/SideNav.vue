@@ -32,6 +32,7 @@ const menuOptions: MenuOption[] = [
   { label: '市场观察', key: 'market-observations' },
   { label: '月度报告', key: 'monthly-reports' },
   { label: '设置', key: 'settings' },
+  { label: '帮助', key: 'help' },
 ]
 
 const activeKey = computed(() => {

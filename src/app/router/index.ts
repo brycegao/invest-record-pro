@@ -21,6 +21,7 @@ import PositionsPage from '@/pages/positions/PositionsPage.vue'
 import ReviewsPage from '@/pages/reviews/ReviewsPage.vue'
 import SettingsPage from '@/pages/settings/SettingsPage.vue'
 import TradesPage from '@/pages/trades/TradesPage.vue'
+import HelpPage from '@/pages/help/HelpPage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -52,6 +53,7 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '月度报告' },
       },
       { path: 'settings', name: 'settings', component: SettingsPage, meta: { title: '设置' } },
+      { path: 'help', name: 'help', component: HelpPage, meta: { title: '帮助' } },
     ],
   },
 ]

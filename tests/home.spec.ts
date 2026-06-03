@@ -21,7 +21,7 @@ test.describe('冒烟测试 — 应用基本可用', () => {
 
     // 侧边栏应显示所有导航项（限定在 NMenu 组件内，避免与页面标题冲突）
     const nav = page.getByRole('menu')
-    for (const label of ['仪表盘', '投资标的', '交易计划', '交易记录', '仓位快照', '交易复盘', '市场观察', '月度报告', '设置']) {
+    for (const label of ['仪表盘', '投资标的', '交易计划', '交易记录', '仓位快照', '交易复盘', '市场观察', '月度报告', '设置', '帮助']) {
       await expect(nav.getByText(label, { exact: true })).toBeVisible()
     }
   })
