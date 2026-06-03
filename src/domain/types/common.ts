@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 通用类型定义（ID、分页、筛选）
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 /** 分页参数 */
 export type PageParams = {
   page: number

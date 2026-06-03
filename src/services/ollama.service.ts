@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: Ollama 离线 AI 服务封装
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 /** Ollama 模型信息 */
 export type OllamaModel = {
   name: string

@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 月度报告详情抽屉
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 <template>
   <NDrawer v-model:show="innerShow" :width="800" placement="right">
     <NDrawerContent :title="drawerTitle" closable @close="close">

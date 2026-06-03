@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: Tauri IPC Mock 数据与脚本生成
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 /**
  * Mock data for Tauri invoke calls.
  * Injected via page.addInitScript() before the app loads.

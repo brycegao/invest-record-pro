@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 月度报告完整 E2E 测试
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 import { test, expect, gotoAndWait } from './fixtures'
 import { mockMonthlyReports, mockMonthlyReportCreated } from './tauri-mock'
 

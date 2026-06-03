@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: monthly-aggregation.service.ts 模块
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 import { invoke } from '@tauri-apps/api/core'
 import dayjs from 'dayjs'
 import type { Plan, Trade } from '@/domain/types'

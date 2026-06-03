@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 金融工具函数 — 分转元、格式化
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 const MONEY_FORMATTER = new Intl.NumberFormat('zh-CN', {
   maximumFractionDigits: 2,
   minimumFractionDigits: 2,

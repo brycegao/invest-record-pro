@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 业务常量（情绪、交易类型、市场等）
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 /** 资产类型 */
 export const ASSET_TYPES = ['stock', 'etf', 'fund', 'index', 'bond'] as const
 export type AssetType = (typeof ASSET_TYPES)[number]

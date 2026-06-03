@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: CreateSnapshotDrawer 组件
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 <template>
   <NDrawer :show="visible" placement="right" size="480px" @close="handleClose">
     <NDrawerContent title="生成仓位快照">

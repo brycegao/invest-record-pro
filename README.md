@@ -146,3 +146,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 **Local-First Investment Journal | 100% Offline Storage | Local AI Review | Windows & macOS**
 
 </div>
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

@@ -1,3 +1,15 @@
+/*
+ * @Author: brycegao
+ * @Github: https://github.com/brycegao
+ * @Date: 2026/06/03
+ * @Description: 仓位快照 Pinia Store
+ *
+ * Copyright (c) 2026 brycegao
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Position, PositionCreatePayload, PositionItem } from '@/domain/types'
