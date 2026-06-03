@@ -2,7 +2,8 @@
 
 # Invest Record Pro
 
-**个人投资决策记录系统｜纯本地离线存储｜本地AI智能复盘｜Tauri2跨平台桌面软件**
+### Privacy-First Offline Investment Record Desktop Application
+**全本地数据存储｜离线大模型智能复盘｜Tauri2跨平台投资管理软件**
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Tauri 2](https://img.shields.io/badge/Tauri-v2-blue?logo=tauri)](https://tauri.app/)
@@ -13,6 +14,7 @@
 ![image](./UI.gif)
 
 </div>
+> 所有交易、持仓、复盘数据加密存放本地SQLite，无任何联网上报；依托Ollama实现断网可用的AI投资复盘，一站式完成标的管理、交易记账、仓位统计与月度分析。
 
 ---
 
