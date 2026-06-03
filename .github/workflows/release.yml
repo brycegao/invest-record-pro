@@ -5,6 +5,13 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -48,8 +55,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Invest Record Pro ${{ github.ref_name }}'
+          tagName: ${{ inputs.tag || github.ref_name }}
+          releaseName: 'Invest Record Pro ${{ inputs.tag || github.ref_name }}'
           releaseBody: 'See the [full changelog](https://github.com/brycegao/invest-record-pro/blob/main/CHANGELOG.md).'
           releaseDraft: true
           prerelease: false
