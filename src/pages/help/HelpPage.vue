@@ -79,33 +79,36 @@
         <NSpace vertical size="medium">
           <NAlert type="info" title="关于 AI 功能" closable>
             本软件使用 <strong>Ollama</strong> 提供本地 AI 分析能力（月度报告生成、交易纪律分析等）。
-            Ollama 完全运行在您的电脑上，不涉及任何远程调用，无需联网即可使用。
+            AI 推理在您的电脑本机完成，不上传投资数据。首次安装 Ollama 和下载模型需要联网；模型下载完成后，生成月度报告可在本机离线运行。
           </NAlert>
 
           <div class="help-page__section">
             <h3 class="help-page__section-title">第一步：安装 Ollama</h3>
-            <p>前往 Ollama 官网下载并安装：</p>
+            <p>新用户建议安装官方 Ollama App。它会自动启动后台服务，并包含完整的模型运行组件。</p>
             <div class="help-page__link-box">
               <a href="https://ollama.com" target="_blank" rel="noopener">
                 https://ollama.com
               </a>
             </div>
-            <p class="help-page__tip">
-              支持 macOS、Linux 和 Windows。macOS 推荐使用 Homebrew 安装：
-            </p>
+            <p class="help-page__tip">macOS 也可以通过 Homebrew 安装官方 App 版：</p>
             <div class="help-page__code-block">
-              <code>brew install ollama</code>
+              <code>brew install --cask ollama-app</code>
             </div>
+            <p class="help-page__tip">
+              不建议在 macOS 上使用 <code>brew install ollama</code> 的 formula 版；部分版本可能缺少运行模型所需的
+              <code>llama-server</code>，导致生成时出现 HTTP 500。
+            </p>
           </div>
 
           <div class="help-page__section">
             <h3 class="help-page__section-title">第二步：启动 Ollama 服务</h3>
-            <p>安装完成后，启动 Ollama 服务：</p>
+            <p>安装官方 App 后，打开「Ollama」应用，菜单栏出现 Ollama 图标即表示后台服务已启动。</p>
             <div class="help-page__code-block">
-              <code>ollama serve</code>
+              <code>open -a Ollama</code>
             </div>
             <p class="help-page__tip">
-              macOS 应用版安装后，Ollama 会自动在后台运行，无需手动启动。
+              也可以在终端运行 <code>ollama --version</code> 或 <code>curl http://localhost:11434/api/tags</code>
+              检查服务是否可访问。默认服务地址是 <code>http://localhost:11434</code>。
             </p>
           </div>
 
@@ -116,11 +119,20 @@
               <code>ollama pull qwen2.5:7b</code>
             </div>
             <p class="help-page__tip">
-              推荐模型：<strong>qwen2.5:7b</strong>（约 4.7 GB，中文能力优秀，适合本工具的分析场景）。
+              推荐模型：<strong>qwen2.5:7b</strong>（约 4.7 GB，中文能力较好，适合月度复盘、交易纪律分析）。
               <br />
-              其他可选模型：<code>qwen2.5:3b</code>（更轻量，约 2 GB）、<code>llama3.1:8b</code>（英文为主）。
+              电脑内存较小时可选：<code>qwen2.5:3b</code>（更轻量，速度更快，分析深度略弱）。
               <br />
-              模型越大效果越好，但需要更多内存和计算资源。建议至少 8 GB 内存。
+              下载完成后可运行 <code>ollama list</code> 确认模型已经存在。
+            </p>
+            <p class="help-page__tip">
+              最小验证命令：
+            </p>
+            <div class="help-page__code-block">
+              <code>ollama run qwen2.5:7b "请用一句话回答：你好"</code>
+            </div>
+            <p class="help-page__tip">
+              如果终端能返回中文回答，说明 Ollama 和模型都可以正常生成。
             </p>
           </div>
 
@@ -135,12 +147,23 @@
                 如果您修改过 Ollama 监听端口，请对应调整。
               </li>
               <li>
-                <strong>模型名称</strong>：点击「测试连接」按钮，连接成功后会自动加载可用模型列表，选择您下载的模型（如 <code>qwen2.5:7b</code>）。
+                <strong>测试连接</strong>：点击「测试连接」按钮，状态显示为
+                <NText type="success">✓ 已连接</NText> 表示应用已经能访问本机 Ollama。
               </li>
               <li>
-                点击「测试连接」确认连接正常，状态显示为
-                <NText type="success">✓ 已连接</NText> 即可。
+                <strong>模型名称</strong>：连接成功后会加载可用模型列表。建议选择或保留 <code>qwen2.5:7b</code>。
               </li>
+            </ol>
+          </div>
+
+          <div class="help-page__section">
+            <h3 class="help-page__section-title">第五步：生成 AI 月度报告</h3>
+            <ol class="help-page__config-steps">
+              <li>先在「投资标的」「交易计划」「交易记录」「仓位快照」中录入本月数据。</li>
+              <li>进入「月度报告」页面，点击「生成本月报告」或空状态中的「生成 AI 报告」。</li>
+              <li>应用会先聚合本月交易次数、买入/卖出金额、已实现盈亏、计划执行率、情绪分布和近期计划。</li>
+              <li>如果 Ollama 可用，会调用本机模型生成 Markdown 月度复盘；如果 Ollama 不可用，会自动降级生成规则摘要。</li>
+              <li>生成后可点击「查看」阅读详情，也可以点击「导出」保存 Markdown 文件到下载目录。</li>
             </ol>
           </div>
 
@@ -157,13 +180,29 @@
                 <p>请先运行 <code>ollama pull qwen2.5:7b</code> 下载模型。下载完成后重新测试连接。</p>
               </div>
               <div class="help-page__faq">
+                <p><strong>Q：生成失败，提示 HTTP 500 或 llama-server binary not found？</strong></p>
+                <p>通常是 macOS 安装了缺少运行组件的 Ollama formula 版。建议卸载 formula 后安装官方 App 版：
+                  <code>brew uninstall ollama</code>，然后运行 <code>brew install --cask ollama-app</code>。</p>
+              </div>
+              <div class="help-page__faq">
+                <p><strong>Q：第一次生成很慢？</strong></p>
+                <p>正常。首次生成需要加载模型到内存，可能耗时十几秒到一分钟；后续同一模型通常会更快。</p>
+              </div>
+              <div class="help-page__faq">
                 <p><strong>Q：AI 生成速度很慢？</strong></p>
-                <p>可尝试使用更小的模型（如 <code>qwen2.5:3b</code>），或在拥有独立显卡的机器上启用 GPU 加速。
-                  Ollama 会自动检测并使用 GPU。</p>
+                <p>可尝试使用更小的模型（如 <code>qwen2.5:3b</code>）。模型越大，效果通常越好，但需要更多内存和计算时间。</p>
+              </div>
+              <div class="help-page__faq">
+                <p><strong>Q：生成的是规则摘要，不是 AI 深度分析？</strong></p>
+                <p>说明应用没有成功调用 Ollama。请检查 Ollama 是否启动、模型是否已下载，并在「设置」页面重新测试连接。</p>
               </div>
               <div class="help-page__faq">
                 <p><strong>Q：不配置 AI 也能使用软件吗？</strong></p>
                 <p>可以。AI 功能仅在生成月度报告时使用，其他功能（投资标的、交易计划、交易记录、仓位快照、交易复盘等）均不依赖 AI，可正常使用。</p>
+              </div>
+              <div class="help-page__faq">
+                <p><strong>Q：AI 会把我的投资数据上传到外部服务吗？</strong></p>
+                <p>不会。应用只连接本机 <code>localhost</code> 上的 Ollama 服务，AI 推理在您的电脑上完成。请不要把 Ollama 地址改成远程服务器。</p>
               </div>
             </NSpace>
           </div>

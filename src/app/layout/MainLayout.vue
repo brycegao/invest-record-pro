@@ -18,8 +18,11 @@
         <span>Invest Record Pro</span>
       </div>
       <div class="main-layout__actions">
-        <NSwitch size="small" />
-        <NButton size="small" secondary>备份</NButton>
+        <NSwitch
+          :value="isDarkTheme"
+          size="small"
+          @update:value="handleThemeSwitch"
+        />
         <NButton size="small" secondary @click="showAbout = true">关于</NButton>
       </div>
     </NLayoutHeader>
@@ -75,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   NButton,
   NCard,
@@ -87,10 +90,22 @@ import {
   NSwitch,
 } from 'naive-ui'
 import SideNav from '@/app/layout/components/SideNav.vue'
+import { useSettingsStore } from '@/features/settings/store'
 import { APP_VERSION } from '@/shared/version'
 
 const showAbout = ref(false)
 const appVersion = APP_VERSION
+const settingsStore = useSettingsStore()
+
+const isDarkTheme = computed(() => settingsStore.currentTheme === 'dark')
+
+onMounted(() => {
+  settingsStore.loadSettings()
+})
+
+async function handleThemeSwitch(value: boolean): Promise<void> {
+  await settingsStore.setTheme(value ? 'dark' : 'light')
+}
 </script>
 
 <style scoped>
@@ -103,16 +118,16 @@ const appVersion = APP_VERSION
   height: 48px;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #d9dee8;
+  border-bottom: 1px solid var(--n-border-color);
   padding: 0 16px;
-  background: #ffffff;
+  background: var(--n-color);
 }
 
 .main-layout__brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #1f2937;
+  color: var(--n-text-color);
   font-size: 15px;
   font-weight: 600;
 }
@@ -123,8 +138,8 @@ const appVersion = APP_VERSION
   height: 26px;
   place-items: center;
   border-radius: 4px;
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--n-text-color);
+  color: var(--n-color);
   font-size: 11px;
   letter-spacing: 0;
 }
@@ -141,11 +156,12 @@ const appVersion = APP_VERSION
 
 .main-layout__content {
   padding: 16px;
-  background: #f4f6f8;
+  background: var(--n-body-color);
 }
 
 .main-layout__card {
   min-height: calc(100vh - 80px);
+  background: var(--n-card-color);
 }
 
 /* 关于对话框 */
@@ -155,7 +171,7 @@ const appVersion = APP_VERSION
 
 .about-dialog__tagline {
   margin: 0 0 16px;
-  color: #6b7280;
+  color: var(--n-text-color-3);
   font-size: 13px;
 }
 
@@ -163,20 +179,20 @@ const appVersion = APP_VERSION
   text-align: left;
   margin-bottom: 16px;
   padding: 12px 16px;
-  background: #f9fafb;
+  background: var(--n-action-color);
   border-radius: 6px;
   font-size: 13px;
   line-height: 2;
 }
 
 .about-dialog__label {
-  color: #6b7280;
+  color: var(--n-text-color-3);
 }
 
 .about-dialog__footer {
   padding-top: 12px;
-  border-top: 1px solid #e5e7eb;
-  color: #9ca3af;
+  border-top: 1px solid var(--n-divider-color);
+  color: var(--n-text-color-3);
   font-size: 12px;
   line-height: 1.8;
 }
