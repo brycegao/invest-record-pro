@@ -20,9 +20,47 @@
       <div class="main-layout__actions">
         <NSwitch size="small" />
         <NButton size="small" secondary>备份</NButton>
-        <NButton size="small" secondary>关于</NButton>
+        <NButton size="small" secondary @click="showAbout = true">关于</NButton>
       </div>
     </NLayoutHeader>
+
+    <!-- 关于对话框 -->
+    <NModal
+      v-model:show="showAbout"
+      preset="card"
+      :title="`Invest Record Pro`"
+      class="about-dialog"
+      :style="{ width: '420px' }"
+      :bordered="false"
+      :segmented="{ content: true }"
+    >
+      <div class="about-dialog__body">
+        <p class="about-dialog__tagline">本地AI股票分析工具 · 纯离线运行 · 保障数据隐私</p>
+
+        <div class="about-dialog__info">
+          <div class="about-dialog__row">
+            <span class="about-dialog__label">项目地址：</span>
+            <a href="https://github.com/brycegao/invest-record-pro/" target="_blank" rel="noopener">
+              https://github.com/brycegao/invest-record-pro/
+            </a>
+          </div>
+          <div class="about-dialog__row">
+            <span class="about-dialog__label">作&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;者：</span>
+            <span>brycegao</span>
+          </div>
+          <div class="about-dialog__row">
+            <span class="about-dialog__label">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本：</span>
+            <span>{{ appVersion }}</span>
+          </div>
+        </div>
+
+        <div class="about-dialog__footer">
+          本软件完全本地运行，不联网、不上传数据<br />
+          所有分析与数据仅保存在您的设备中
+        </div>
+      </div>
+    </NModal>
+
     <NLayout has-sider class="main-layout__body">
       <NLayoutSider :width="220" :collapsed-width="0" bordered>
         <SideNav />
@@ -37,6 +75,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import {
   NButton,
   NCard,
@@ -44,9 +83,14 @@ import {
   NLayoutContent,
   NLayoutHeader,
   NLayoutSider,
+  NModal,
   NSwitch,
 } from 'naive-ui'
 import SideNav from '@/app/layout/components/SideNav.vue'
+import { APP_VERSION } from '@/shared/version'
+
+const showAbout = ref(false)
+const appVersion = APP_VERSION
 </script>
 
 <style scoped>
@@ -102,5 +146,38 @@ import SideNav from '@/app/layout/components/SideNav.vue'
 
 .main-layout__card {
   min-height: calc(100vh - 80px);
+}
+
+/* 关于对话框 */
+.about-dialog__body {
+  text-align: center;
+}
+
+.about-dialog__tagline {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.about-dialog__info {
+  text-align: left;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 2;
+}
+
+.about-dialog__label {
+  color: #6b7280;
+}
+
+.about-dialog__footer {
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.8;
 }
 </style>

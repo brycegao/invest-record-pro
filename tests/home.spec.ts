@@ -59,4 +59,29 @@ test.describe('冒烟测试 — 应用基本可用', () => {
     await page.getByRole('menu').getByText('交易复盘', { exact: true }).click()
     await expect(page).toHaveURL('/reviews')
   })
+
+  test('点击"关于"按钮 — 显示对话框，内容完整', async ({ page }) => {
+    await gotoAndWait(page, '/dashboard')
+
+    // 点击头部"关于"按钮
+    await page.getByRole('button', { name: '关于' }).click()
+    await page.waitForTimeout(300)
+
+    // NModal card 对话框应可见
+    const modal = page.locator('.n-modal')
+    await expect(modal).toBeVisible()
+
+    // 验证对话框内容
+    await expect(modal).toContainText('Invest Record Pro')
+    await expect(modal).toContainText('本地AI股票分析工具 · 纯离线运行 · 保障数据隐私')
+    await expect(modal).toContainText('brycegao')
+    await expect(modal).toContainText('V1.0.0')
+    await expect(modal).toContainText('https://github.com/brycegao/invest-record-pro/')
+    await expect(modal).toContainText('本软件完全本地运行，不联网、不上传数据')
+
+    // 点击关闭按钮关闭对话框
+    await modal.getByRole('button', { name: 'close' }).click()
+    await page.waitForTimeout(300)
+    await expect(modal).not.toBeVisible()
+  })
 })
