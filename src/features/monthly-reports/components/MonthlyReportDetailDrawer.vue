@@ -238,7 +238,7 @@ const snapshot = computed<MonthlyAggregationSnapshot>(() => {
 })
 
 const renderedSummary = computed(() => {
-  const text = props.report?.userEditedSummary ?? props.report?.aiSummary ?? ''
+  const text = props.report?.aiSummary ?? ''
   if (!text) return ''
   const raw = md.render(text)
   return DOMPurify.sanitize(raw)
@@ -306,19 +306,29 @@ function handleExport(): void {
   }
   lines.push('')
 
-  const content = props.report.userEditedSummary ?? props.report.aiSummary ?? ''
-  lines.push(content)
+  if (props.report.aiSummary) {
+    lines.push('## AI 分析')
+    lines.push('')
+    lines.push(props.report.aiSummary)
+    lines.push('')
+  }
+  if (props.report.userEditedSummary) {
+    lines.push('## 用户补充')
+    lines.push('')
+    lines.push(props.report.userEditedSummary)
+    lines.push('')
+  }
   lines.push('')
   lines.push('---')
   lines.push('> 由 Invest Record Pro 生成')
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+  const blob = new globalThis.Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
+  const url = globalThis.URL.createObjectURL(blob)
+  const a = globalThis.document.createElement('a')
   a.href = url
   a.download = `月报-${props.report.month}.md`
   a.click()
-  URL.revokeObjectURL(url)
+  globalThis.URL.revokeObjectURL(url)
 }
 
 // ---- 格式化 ----
