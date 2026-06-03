@@ -12,7 +12,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use rusqlite::{params, Connection, Error, ErrorCode};
+use rusqlite::{params, Connection, Error};
 
 use crate::common::now_iso;
 use crate::models::{CreateMonthlyReportPayload, MonthlyReport, UpdateMonthlyReportPayload};
@@ -172,7 +172,7 @@ fn map_report_row(row: &rusqlite::Row<'_>) -> Result<MonthlyReport, rusqlite::Er
 fn map_monthly_report_error(error: Error) -> String {
     match error {
         Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == ErrorCode::ConstraintUnique =>
+            if sqlite_error.code == rusqlite::ErrorCode::ConstraintViolation =>
         {
             "该月份报告已存在".to_string()
         }

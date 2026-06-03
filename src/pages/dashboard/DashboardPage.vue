@@ -30,14 +30,20 @@
       </NSpace>
     </div>
 
-    <!-- 空状态 -->
-    <NCard v-if="store.isLoading === false && store.isEmpty">
-      <NEmpty description="欢迎使用 Invest Record Pro">
-        <template #extra>
-          <NButton type="primary" @click="$router.push({ name: 'assets' })">新增标的</NButton>
-        </template>
-      </NEmpty>
-    </NCard>
+    <!-- 空状态 — 欢迎引导 -->
+    <div v-if="store.isLoading === false && store.isEmpty" class="dashboard-page__welcome">
+      <div class="dashboard-page__welcome-bg">
+        <div class="dashboard-page__welcome-content">
+          <div class="dashboard-page__welcome-icon">📊</div>
+          <h3 class="dashboard-page__welcome-title">欢迎使用 Invest Record Pro</h3>
+          <p class="dashboard-page__welcome-desc">开始记录您的投资决策，让每笔交易有据可循</p>
+          <NSpace justify="center" size="medium">
+            <NButton type="primary" @click="$router.push({ name: 'assets' })">开始使用</NButton>
+            <NButton ghost class="dashboard-page__welcome-btn-ghost" @click="$router.push({ name: 'help' })">查看帮助</NButton>
+          </NSpace>
+        </div>
+      </div>
+    </div>
 
     <template v-else>
       <!-- 上部：4 张统计卡片 -->
@@ -455,5 +461,88 @@ function renderEmpty() {
 .dashboard-page__charts,
 .dashboard-page__lists {
   width: 100%;
+}
+
+/* 欢迎引导区域 */
+.dashboard-page__welcome {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dashboard-page__welcome-bg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 40%, #0f172a 100%);
+  overflow: hidden;
+}
+
+.dashboard-page__welcome-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+}
+
+.dashboard-page__welcome-bg::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 89deg,
+    rgba(255, 255, 255, 0.01) 89deg 90deg
+  );
+  animation: welcome-rotate 120s linear infinite;
+}
+
+@keyframes welcome-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.dashboard-page__welcome-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px;
+}
+
+.dashboard-page__welcome-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+}
+
+.dashboard-page__welcome-title {
+  margin: 0 0 8px;
+  color: #f9fafb;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-page__welcome-desc {
+  margin: 0 0 28px;
+  color: #9ca3af;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.dashboard-page__welcome-btn-ghost {
+  color: #e5e7eb !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.dashboard-page__welcome-btn-ghost:hover {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 </style>

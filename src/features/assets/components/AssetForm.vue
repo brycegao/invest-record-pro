@@ -44,10 +44,11 @@
         </NFormItem>
 
         <NFormItem label="风险等级" path="riskLevel">
-          <NSpace align="center" class="asset-form__risk">
-            <NSlider v-model:value="formData.riskLevel" :min="1" :max="5" :step="1" />
-            <NText class="asset-form__risk-value">{{ formData.riskLevel }}/5</NText>
-          </NSpace>
+          <NRadioGroup v-model:value="formData.riskLevel" class="asset-form__risk">
+            <NSpace>
+              <NRadio v-for="level in 5" :key="level" :value="level">{{ level }}</NRadio>
+            </NSpace>
+          </NRadioGroup>
         </NFormItem>
 
         <NFormItem label="跟踪指数" path="indexReference">
@@ -97,10 +98,10 @@ import {
   NForm,
   NFormItem,
   NInput,
+  NRadio,
+  NRadioGroup,
   NSelect,
-  NSlider,
   NSpace,
-  NText,
   useMessage,
 } from 'naive-ui'
 import type { Asset, AssetCreatePayload } from '@/domain/types'
@@ -225,15 +226,6 @@ async function handleSubmit(): Promise<void> {
 
 .asset-form__risk {
   width: 100%;
-}
-
-.asset-form__risk :deep(.n-slider) {
-  flex: 1;
-}
-
-.asset-form__risk-value {
-  width: 36px;
-  text-align: right;
 }
 
 .asset-form__footer {

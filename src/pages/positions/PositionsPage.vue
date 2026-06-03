@@ -51,16 +51,14 @@
       </n-grid-item>
     </n-grid>
 
-    <NSpace align="end" class="positions-page__filters">
+    <NSpace align="center" class="positions-page__filters">
       <NFormItem label="日期范围" class="positions-page__filter-item">
         <NDatePicker v-model:value="dateRange" type="daterange" placeholder="请选择日期范围" />
       </NFormItem>
-      <NFormItem label=" " class="positions-page__button-item">
-        <NSpace>
-          <NButton type="primary" :loading="store.isLoading" @click="handleSearch">搜索</NButton>
-          <NButton :disabled="store.isLoading" @click="handleReset">重置</NButton>
-        </NSpace>
-      </NFormItem>
+      <NSpace>
+        <NButton type="primary" :loading="store.isLoading" @click="handleSearch">搜索</NButton>
+        <NButton :disabled="store.isLoading" @click="handleReset">重置</NButton>
+      </NSpace>
     </NSpace>
 
     <NDataTable
@@ -349,10 +347,5 @@ function renderEmpty() {
 
 .positions-page__filter-item {
   min-width: 320px;
-}
-
-.positions-page__button-item {
-  display: flex;
-  align-items: center;
 }
 </style>

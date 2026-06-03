@@ -14,6 +14,8 @@ use std::sync::{Arc, Mutex};
 
 use rusqlite::params;
 
+use tauri::Manager;
+
 use crate::common::now_iso;
 
 type DbState<'a> = tauri::State<'a, Arc<Mutex<rusqlite::Connection>>>;
@@ -103,12 +105,9 @@ pub fn get_db_path(app: tauri::AppHandle) -> Result<String, String> {
 pub fn backup_database(db: DbState<'_>, target_path: String) -> Result<(), String> {
     let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
 
-    // 使用 rusqlite 的 backup API
-    let backup_path = std::path::Path::new(&target_path);
-    let dest_connection = rusqlite::Connection::open(backup_path)
-        .map_err(|e| format!("创建备份数据库失败: {e}"))?;
+    // 使用 rusqlite 的 backup API：backup(DatabaseName, dst_path, progress)
     connection
-        .backup(&dest_connection)
+        .backup(rusqlite::DatabaseName::Main, &target_path, None)
         .map_err(|e| format!("数据库备份失败: {e}"))?;
 
     Ok(())
