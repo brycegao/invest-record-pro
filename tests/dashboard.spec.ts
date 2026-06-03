@@ -57,6 +57,8 @@ test.describe('Batch 09 · Dashboard 仪表盘', () => {
 
   test('统计卡片 — 4张卡片可见且有数据', async ({ page }) => {
     const stats = page.locator('.dashboard-page__stats .n-statistic')
+    // Wait for stat cards to render (dashboard aggregates data from multiple mock calls)
+    await expect(stats.first()).toBeVisible({ timeout: 10000 })
 
     await expect(stats.filter({ hasText: '累计已实现盈亏' })).toBeVisible()
     await expect(stats.filter({ hasText: '浮动盈亏' })).toBeVisible()

@@ -11,6 +11,7 @@
  */
 
 import { test, expect, gotoAndWait } from './fixtures'
+import { createFetchMockScript } from './helpers/ollama-mock'
 
 /**
  * Batch 10a · Settings + Ollama 服务验证
@@ -25,50 +26,6 @@ import { test, expect, gotoAndWait } from './fixtures'
  * - Tauri commands（get_settings, upsert_setting）通过现有 Tauri mock
  * - Ollama fetch 调用通过 window.fetch mock（addInitScript 注入）
  */
-
-// ---- fetch mock script for Ollama API ----
-
-function createFetchMockScript(options: {
-  tagsAvailable?: boolean
-  tagsError?: boolean
-  generateResponse?: string
-}): string {
-  const { tagsAvailable = true, tagsError = false, generateResponse = '' } = options
-
-  const tagsHandler = tagsError
-    ? `throw new Error('Connection refused')`
-    : tagsAvailable
-      ? `return new Response(JSON.stringify({ models: [{ name: 'qwen2.5:7b', model: 'qwen2.5:7b', modified_at: '2026-01-01', size: 4700000000 }] }), { status: 200, headers: { 'Content-Type': 'application/json' } })`
-      : `return new Response(JSON.stringify({ models: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } })`
-
-  return `
-    (function() {
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options) {
-        const urlStr = typeof url === 'string' ? url : url.url;
-
-        // Ollama API calls
-        if (urlStr.includes('/api/tags')) {
-          ${tagsHandler}
-        }
-
-        if (urlStr.includes('/api/generate')) {
-          return new Response(JSON.stringify({
-            model: 'qwen2.5:7b',
-            response: ${JSON.stringify(generateResponse)},
-            done: true,
-            total_duration: 5000000000,
-            eval_count: 100
-          }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-        }
-
-        // Non-Ollama calls go through original fetch (for Vite HMR etc.)
-        return originalFetch.apply(this, arguments);
-      };
-      console.log('[Fetch Mock] Injected');
-    })();
-  `
-}
 
 test.describe('Batch 10a · Settings + Ollama 服务', () => {
   test.beforeEach(async ({ page }) => {

@@ -26,6 +26,7 @@ test.describe('Batch 06 · Positions 仓位快照', () => {
     )
 
     const stats = page.locator('.n-statistic')
+    await expect(stats.first()).toBeVisible({ timeout: 10000 })
     await expect(stats.filter({ hasText: '总资产' })).toBeVisible()
     await expect(stats.filter({ hasText: '现金' })).toBeVisible()
     await expect(stats.filter({ hasText: '浮动盈亏' })).toBeVisible()

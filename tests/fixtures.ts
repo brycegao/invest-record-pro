@@ -20,8 +20,8 @@ import { createTauriMockScript } from './tauri-mock'
 export async function gotoAndWait(page: Page, url: string) {
   await page.goto(url)
   await page.waitForLoadState('load')
-  // Wait for Vue to mount and Pinia stores to resolve mock data
-  await page.waitForTimeout(1500)
+  // Wait for Vue to mount, Pinia stores to resolve mock data, and DOM to update
+  await page.waitForTimeout(1000)
 }
 
 /**

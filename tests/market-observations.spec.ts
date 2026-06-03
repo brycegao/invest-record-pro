@@ -42,7 +42,7 @@ test.describe('Batch 08 · Market Observations 市场观察', () => {
       await expect(table.getByRole('columnheader', { name: h })).toBeVisible()
     }
 
-    await expect(table.locator('tbody tr').first()).toBeVisible()
+    await expect(table.locator('tbody tr').first()).toBeVisible({ timeout: 10000 })
     await expect(table.locator('tbody tr')).toHaveCount(2)
     await expect(page.getByRole('button', { name: '+ 新增观察' })).toBeVisible()
   })

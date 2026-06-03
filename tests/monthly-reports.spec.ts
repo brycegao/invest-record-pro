@@ -11,6 +11,7 @@
  */
 
 import { test, expect, gotoAndWait } from './fixtures'
+import { createFetchMockScript } from './helpers/ollama-mock'
 import { mockMonthlyReports, mockMonthlyReportCreated } from './tauri-mock'
 
 /**
@@ -30,50 +31,6 @@ import { mockMonthlyReports, mockMonthlyReportCreated } from './tauri-mock'
  * - Tauri commands 通过现有 Tauri mock（含 monthly_reports 数据）
  * - Ollama fetch 调用通过 window.fetch mock（addInitScript 注入）
  */
-
-// ---- fetch mock script for Ollama API ----
-
-function createFetchMockScript(options: {
-  tagsAvailable?: boolean
-  tagsError?: boolean
-  generateResponse?: string
-}): string {
-  const { tagsAvailable = true, tagsError = false, generateResponse = '' } = options
-
-  const tagsHandler = tagsError
-    ? `throw new Error('Connection refused')`
-    : tagsAvailable
-      ? `return new Response(JSON.stringify({ models: [{ name: 'qwen2.5:7b', model: 'qwen2.5:7b', modified_at: '2026-01-01', size: 4700000000 }] }), { status: 200, headers: { 'Content-Type': 'application/json' } })`
-      : `return new Response(JSON.stringify({ models: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } })`
-
-  return `
-    (function() {
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options) {
-        const urlStr = typeof url === 'string' ? url : url.url;
-
-        // Ollama API calls
-        if (urlStr.includes('/api/tags')) {
-          ${tagsHandler}
-        }
-
-        if (urlStr.includes('/api/generate')) {
-          return new Response(JSON.stringify({
-            model: 'qwen2.5:7b',
-            response: ${JSON.stringify(generateResponse)},
-            done: true,
-            total_duration: 5000000000,
-            eval_count: 100
-          }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-        }
-
-        // Non-Ollama calls go through original fetch (for Vite HMR etc.)
-        return originalFetch.apply(this, arguments);
-      };
-      console.log('[Fetch Mock] Injected');
-    })();
-  `
-}
 
 test.describe('Batch 10b · Monthly Reports 完整验证', () => {
   test.beforeEach(async ({ page }) => {
@@ -96,6 +53,7 @@ test.describe('Batch 10b · Monthly Reports 完整验证', () => {
     await expect(page.locator('.n-base-selection').first()).toBeVisible()
 
     // 报告卡片应可见（mock 有 2 条记录）
+    await expect(page.locator('.monthly-reports-page__card').first()).toBeVisible({ timeout: 10000 })
     await expect(page.locator('.monthly-reports-page__card')).toHaveCount(2)
   })
 

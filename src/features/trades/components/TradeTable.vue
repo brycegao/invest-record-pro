@@ -50,6 +50,7 @@ import {
   NButton,
   NCheckbox,
   NCheckboxGroup,
+  NDataTable,
   NEmpty,
   NPopover,
   NPopconfirm,

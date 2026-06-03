@@ -29,7 +29,7 @@ test.describe('Batch 07 · Reviews 交易复盘', () => {
       await expect(table.getByRole('columnheader', { name: h })).toBeVisible()
     }
 
-    await expect(table.locator('tbody tr').first()).toBeVisible()
+    await expect(table.locator('tbody tr').first()).toBeVisible({ timeout: 10000 })
     await expect(table.locator('tbody tr')).toHaveCount(1)
     await expect(page.getByRole('button', { name: '+ 新增复盘' })).toBeVisible()
   })

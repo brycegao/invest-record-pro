@@ -6,6 +6,8 @@ export default defineConfig({
   retries: 1,
   fullyParallel: false,
   workers: 1,
+  // Warm up Vite dev server before any test runs to avoid cold-start flakiness
+  globalSetup: './tests/global-setup.ts',
   use: {
     baseURL: 'http://127.0.0.1:1420',
     viewport: { width: 1280, height: 800 },
