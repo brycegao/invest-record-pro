@@ -1,6 +1,6 @@
 [package]
 name = "invest-record-pro"
-version = "0.1.0"
+version = "1.0.0"
 description = "Personal investment decision record system"
 authors = ["invest-record-pro"]
 edition = "2021"
