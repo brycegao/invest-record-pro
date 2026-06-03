@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invest Record Pro — 本地隐私投资复盘工具 | Local-First Investment Journal</title>
+  <meta name="description" content="A privacy-first, fully local desktop journal for investment tracking, trade planning and AI-powered post-trade review. All data stays on your device.">
+  <meta name="keywords" content="investment journal, trading review, local AI, privacy, offline, desktop app, Ollama, Tauri">
+  <style>
+    :root {
+      --color-bg: #0a0a0f;
+      --color-surface: #12121a;
+      --color-border: #1e1e2e;
+      --color-text: #e0e0e8;
+      --color-text-secondary: #8888a0;
+      --color-accent: #4f8fff;
+      --color-accent-hover: #6ba3ff;
+      --color-green: #22c55e;
+      --color-orange: #f59e0b;
+      --max-width: 960px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.7;
+    }
+
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--color-accent), var(--color-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 40px;
+    }
+    .hero .subtitle-en {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      opacity: 0.7;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--color-accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--color-accent-hover); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      margin-left: 12px;
+    }
+    .btn-secondary:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+    /* Screenshots */
+    .screenshots {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .screenshots img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+    }
+    .features h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 48px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+    .feature-card .icon { font-size: 1.5rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card h3 small { font-weight: 400; color: var(--color-text-secondary); margin-left: 8px; font-size: 0.85rem; }
+    .feature-card p { font-size: 0.95rem; color: var(--color-text-secondary); }
+
+    /* Comparison */
+    .comparison {
+      padding: 60px 0;
+    }
+    .comparison h2 { text-align: center; font-size: 1.8rem; margin-bottom: 48px; }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-surface);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 14px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .comparison-table th {
+      background: var(--color-bg);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+    }
+    .comparison-table td { font-size: 0.95rem; }
+    .comparison-table .plan-header { text-align: center; }
+    .comparison-table .check { color: var(--color-green); }
+    .comparison-table .dash { color: var(--color-text-secondary); }
+    .comparison-table .pro-badge {
+      background: var(--color-orange);
+      color: #000;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    /* FAQ */
+    .faq {
+      padding: 60px 0;
+    }
+    .faq h2 { text-align: center; font-size: 1.8rem; margin-bottom: 48px; }
+    .faq-item {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 20px 28px;
+      margin-bottom: 12px;
+    }
+    .faq-item h3 { font-size: 1rem; margin-bottom: 8px; }
+    .faq-item p { font-size: 0.95rem; color: var(--color-text-secondary); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 0 60px;
+      border-top: 1px solid var(--color-border);
+    }
+    .footer a { color: var(--color-accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .footer p { color: var(--color-text-secondary); font-size: 0.85rem; margin-top: 8px; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.8rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .btn-secondary { margin-left: 0; margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Invest Record Pro</h1>
+    <p class="subtitle">本地隐私投资复盘工具・数据不上云・离线 AI 分析・Windows / Mac 双端支持</p>
+    <p class="subtitle-en">Local-First Investment Journal | 100% Offline Storage | Local AI Review | Windows & macOS</p>
+    <a class="btn btn-primary" href="https://github.com/brycegao/invest-record-pro/releases">⬇ Download / 下载</a>
+    <a class="btn btn-secondary" href="https://github.com/brycegao/invest-record-pro">⭐ GitHub</a>
+  </div>
+</section>
+
+<!-- Screenshots -->
+<section class="screenshots">
+  <div class="container">
+    <img src="images/screenshot-dashboard.png" alt="Dashboard screenshot" />
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <div class="container">
+    <h2>核心特性 / Core Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">🔒</div>
+        <h3>全本地存储 <small>100% Local Storage</small></h3>
+        <p>交易记录、持仓、复盘报告仅保存在本机，零云端上传，杜绝数据泄露。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🤖</div>
+        <h3>离线本地 AI <small>Offline Local AI</small></h3>
+        <p>对接 Ollama 大模型，断网也可完成交易点评、月度复盘、纪律分析。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🖥️</div>
+        <h3>专业桌面体验 <small>Professional Desktop</small></h3>
+        <p>表格、可视化图表、快捷键、大屏分析，适配重度使用场景。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔓</div>
+        <h3>开源免费 <small>Free & Open Source</small></h3>
+        <p>代码透明可审计，基础功能永久免费使用，MIT 协议。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section class="comparison">
+  <div class="container">
+    <h2>功能对比 / Feature Comparison</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>功能 / Feature</th>
+          <th class="plan-header">Free (开源免费)</th>
+          <th class="plan-header">Pro Plugin <span class="pro-badge">付费</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>手动录入 / Manual entry</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>单账户 / Single account</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>基础统计图表 / Basic charts</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>基础 AI 点评 / Basic AI review</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>本地手动备份 / Manual backup</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>CSV/Excel 批量导入 / Bulk import</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>多账户管理 / Multi-account</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>高级 AI 全量复盘 / Advanced AI</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>月度/季度报告 / Reports</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>高级分析图表 / Advanced analytics</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>批量导出 / Batch export</td><td class="dash">—</td><td class="check">✅</td></tr>
+        <tr><td>专业复盘模板库 / Pro templates</td><td class="dash">—</td><td class="check">✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="container">
+    <h2>常见问题 / FAQ</h2>
+    <div class="faq-item">
+      <h3>我的数据会上传到云端吗？ / Will my data be uploaded to the cloud?</h3>
+      <p>不会。所有数据存储在本地 SQLite 数据库中，没有任何网络传输。<br>
+      No. All data is stored in a local SQLite database. There is zero network transmission.</p>
+    </div>
+    <div class="faq-item">
+      <h3>AI 复盘需要联网吗？ / Does AI review require internet?</h3>
+      <p>不需要。AI 功能基于 Ollama 本地大模型运行，完全离线可用。<br>
+      No. AI features run on local LLMs via Ollama and work fully offline.</p>
+    </div>
+    <div class="faq-item">
+      <h3>支持哪些平台？ / Which platforms are supported?</h3>
+      <p>Windows 10/11 和 macOS。Linux 支持计划中。<br>
+      Windows 10/11 and macOS. Linux support is planned.</p>
+    </div>
+    <div class="faq-item">
+      <h3>开源版本是否永久免费？ / Is the open-source version permanently free?</h3>
+      <p>是的。基础功能永久免费，MIT 协议开源。高级功能以可选付费插件形式提供。<br>
+      Yes. Core features are permanently free under the MIT license. Advanced features are offered as optional paid plugins.</p>
+    </div>
+    <div class="faq-item">
+      <h3>如何使用 AI 功能？ / How to use AI features?</h3>
+      <p>需要在本机安装 Ollama 并下载一个推荐模型（如 qwen2.5），然后在本工具设置中配置 Ollama 地址即可。<br>
+      Install Ollama locally, download a recommended model (e.g. qwen2.5), and configure the Ollama endpoint in the app's settings.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <a href="https://github.com/brycegao/invest-record-pro">GitHub</a> ·
+    <a href="https://github.com/brycegao/invest-record-pro/issues">Issues</a> ·
+    <a href="https://github.com/brycegao/invest-record-pro/discussions">Discussions</a>
+    <p>MIT License · Invest Record Pro</p>
+  </div>
+</footer>
+
+</body>
+</html>
