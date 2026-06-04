@@ -66,17 +66,3 @@ export async function backupDatabase(targetPath: string): Promise<void> {
 export async function restoreDatabase(sourcePath: string): Promise<void> {
   await invoke('restore_database', { sourcePath })
 }
-
-/**
- * 导出标的为 CSV 字符串。
- */
-export async function exportAssetsCsv(): Promise<string> {
-  return invoke<string>('export_assets_csv')
-}
-
-/**
- * 导出交易记录为 CSV 字符串。
- */
-export async function exportTradesCsv(): Promise<string> {
-  return invoke<string>('export_trades_csv')
-}

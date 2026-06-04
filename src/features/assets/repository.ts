@@ -134,3 +134,14 @@ export async function queryAssets(filter: AssetFilter): Promise<Asset[]> {
     throw createRepositoryError('查询资产失败', error)
   }
 }
+
+/**
+ * 导出标的为 CSV 字符串。
+ */
+export async function exportAssetsCsv(): Promise<string> {
+  try {
+    return await invoke<string>('export_assets_csv')
+  } catch (error) {
+    throw createRepositoryError('导出标的CSV失败', error)
+  }
+}

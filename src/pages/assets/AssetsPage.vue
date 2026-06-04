@@ -76,7 +76,7 @@ import type { Asset, AssetCreatePayload, AssetFilter } from '@/domain/types'
 import { ASSET_TYPE_LABELS, ASSET_TYPES, MARKET_LABELS, MARKETS } from '@/domain/types'
 import { save } from '@tauri-apps/plugin-dialog'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
-import { exportAssetsCsv } from '@/features/settings/repository'
+import { exportAssetsCsv } from '@/features/assets/repository'
 
 const message = useMessage()
 const store = useAssetStore()

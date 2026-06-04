@@ -166,3 +166,14 @@ export async function getTradeSummary(assetId: number): Promise<TradeSummary> {
     throw createRepositoryError('获取交易汇总失败', error)
   }
 }
+
+/**
+ * 导出交易记录为 CSV 字符串。
+ */
+export async function exportTradesCsv(): Promise<string> {
+  try {
+    return await invoke<string>('export_trades_csv')
+  } catch (error) {
+    throw createRepositoryError('导出交易CSV失败', error)
+  }
+}

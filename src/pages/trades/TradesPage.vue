@@ -105,7 +105,7 @@ import type { Mood, Trade, TradeCreatePayload, TradeFilter, TradeType } from '@/
 import { MOOD_LABELS, MOODS, TRADE_TYPE_LABELS, TRADE_TYPES } from '@/domain/types'
 import { save } from '@tauri-apps/plugin-dialog'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
-import { exportTradesCsv } from '@/features/settings/repository'
+import { exportTradesCsv } from '@/features/trades/repository'
 
 const router = useRouter()
 const message = useMessage()
