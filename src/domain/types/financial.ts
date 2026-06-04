@@ -104,7 +104,7 @@ export function formatSignedMoney(fen: number): string {
  * @returns 格式化后的百分比字符串
  */
 export function formatPercent(stored: number): string {
-  return `${(safeNumber(stored) / 100).toFixed(1)}%`
+  return `${(safeNumber(stored) / 100).toFixed(2)}%`
 }
 
 /**

@@ -10,14 +10,11 @@
  * See LICENSE file in the project root for full license information.
  */
 
-use std::sync::{Arc, Mutex};
-
-use rusqlite::{params, Connection, Error, ErrorCode};
+use rusqlite::{params, Connection, Error};
 
 use crate::common::now_iso;
+use crate::db::{lock_connection, DbState};
 use crate::models::{CreatePositionItemPayload, CreatePositionPayload, Position, PositionItem};
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<Connection>>>;
 
 #[tauri::command]
 pub fn get_positions(db: DbState<'_>) -> Result<Vec<Position>, String> {
@@ -115,13 +112,6 @@ pub fn get_latest_position(db: DbState<'_>) -> Result<Option<Position>, String> 
     )?;
 
     Ok(positions.pop())
-}
-
-fn lock_connection<'a>(
-    db: &'a DbState<'a>,
-) -> Result<std::sync::MutexGuard<'a, Connection>, String> {
-    db.lock()
-        .map_err(|error| format!("获取数据库锁失败: {error}"))
 }
 
 fn insert_position_item(
@@ -273,13 +263,5 @@ fn validate_position_item_payload(item: &CreatePositionItemPayload) -> Result<()
 }
 
 fn map_position_error(error: Error) -> String {
-    match error {
-        Error::QueryReturnedNoRows => "仓位快照不存在".to_string(),
-        Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == ErrorCode::ConstraintViolation =>
-        {
-            "仓位快照数据违反约束，请检查关联标的和明细内容".to_string()
-        }
-        _ => format!("数据库错误: {error}"),
-    }
+    crate::db::map_db_error(error, "仓位快照不存在", "仓位快照数据违反约束，请检查关联标的和明细内容")
 }

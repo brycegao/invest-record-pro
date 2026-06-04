@@ -16,7 +16,6 @@ import type { Setting, SettingUpsertPayload, ThemeOption } from '@/domain/types'
 import { SETTING_KEYS } from '@/domain/types'
 import { ollamaService } from '@/services/ollama.service'
 import {
-  getSetting,
   upsertSetting as upsertSettingRepo,
   getAllSettingsFull,
   getDbPath,

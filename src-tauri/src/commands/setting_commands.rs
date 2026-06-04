@@ -10,19 +10,16 @@
  * See LICENSE file in the project root for full license information.
  */
 
-use std::sync::{Arc, Mutex};
-
 use rusqlite::params;
 
 use tauri::Manager;
 
 use crate::common::now_iso;
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<rusqlite::Connection>>>;
+use crate::db::{lock_connection, DbState};
 
 #[tauri::command]
 pub fn get_setting(db: DbState<'_>, key: String) -> Result<Option<String>, String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let mut statement = connection
         .prepare("SELECT value FROM settings WHERE key = ?1")
         .map_err(|e| format!("数据库错误: {e}"))?;
@@ -34,7 +31,7 @@ pub fn get_setting(db: DbState<'_>, key: String) -> Result<Option<String>, Strin
 
 #[tauri::command]
 pub fn upsert_setting(db: DbState<'_>, payload: serde_json::Value) -> Result<(), String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let key = payload["key"].as_str().unwrap_or_default().to_string();
     let value = payload["value"].as_str().unwrap_or_default().to_string();
     let now = now_iso();
@@ -53,7 +50,7 @@ pub fn upsert_setting(db: DbState<'_>, payload: serde_json::Value) -> Result<(),
 
 #[tauri::command]
 pub fn get_settings(db: DbState<'_>) -> Result<Vec<serde_json::Value>, String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let mut statement = connection
         .prepare("SELECT id, key, value, created_at, updated_at FROM settings ORDER BY key")
         .map_err(|e| format!("数据库错误: {e}"))?;
@@ -75,7 +72,7 @@ pub fn get_settings(db: DbState<'_>) -> Result<Vec<serde_json::Value>, String> {
 
 #[tauri::command]
 pub fn get_all_settings(db: DbState<'_>) -> Result<Vec<(String, Option<String>)>, String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let mut statement = connection
         .prepare("SELECT key, value FROM settings ORDER BY key")
         .map_err(|e| format!("数据库错误: {e}"))?;
@@ -103,7 +100,7 @@ pub fn get_db_path(app: tauri::AppHandle) -> Result<String, String> {
 
 #[tauri::command]
 pub fn backup_database(db: DbState<'_>, target_path: String) -> Result<(), String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
 
     // 使用 rusqlite 的 backup API：backup(DatabaseName, dst_path, progress)
     connection
@@ -138,7 +135,7 @@ pub fn restore_database(app: tauri::AppHandle, source_path: String) -> Result<()
 
 #[tauri::command]
 pub fn export_assets_csv(db: DbState<'_>) -> Result<String, String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let mut statement = connection
         .prepare("SELECT code, name, type, market, risk_level, logic, created_at FROM assets ORDER BY id")
         .map_err(|e| format!("查询标的失败: {e}"))?;
@@ -186,7 +183,7 @@ pub fn export_assets_csv(db: DbState<'_>) -> Result<String, String> {
 
 #[tauri::command]
 pub fn export_trades_csv(db: DbState<'_>) -> Result<String, String> {
-    let connection = db.lock().map_err(|e| format!("获取数据库锁失败: {e}"))?;
+    let connection = lock_connection(&db)?;
     let mut statement = connection
         .prepare(
             "SELECT t.trade_at, a.code, a.name, t.trade_type, t.price, t.quantity, t.total_amount, t.fee, t.mood, t.follow_plan
@@ -217,7 +214,7 @@ pub fn export_trades_csv(db: DbState<'_>) -> Result<String, String> {
         .map_err(|e| format!("查询交易失败: {e}"))?;
 
     for row in rows {
-        let (trade_at, code, name, trade_type, price, quantity, total_amount, fee, mood, follow_plan) =
+        let (trade_at, code, _name, trade_type, price, quantity, total_amount, fee, mood, follow_plan) =
             row.map_err(|e| format!("读取交易数据失败: {e}"))?;
         let mood_str = mood.unwrap_or_default();
         let follow_str = if follow_plan { "是" } else { "否" };

@@ -371,7 +371,6 @@ export const defaultMockStore: Record<string, unknown> = {
     { id: 2, key: 'ollama_model', value: 'qwen2.5:7b', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
     { id: 3, key: 'theme', value: 'system', createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
   ],
-  get_setting: 'http://localhost:11434',
   get_all_settings: [
     ['ollama_url', 'http://localhost:11434'],
     ['ollama_model', 'qwen2.5:7b'],

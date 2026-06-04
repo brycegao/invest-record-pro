@@ -10,14 +10,11 @@
  * See LICENSE file in the project root for full license information.
  */
 
-use std::sync::{Arc, Mutex};
-
-use rusqlite::{params, Connection, Error, ErrorCode};
+use rusqlite::{params, Connection, Error};
 
 use crate::common::now_iso;
+use crate::db::{lock_connection, normalize_filter, DbState};
 use crate::models::{CreateMarketObservationPayload, MarketObservation, UpdateMarketObservationPayload};
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<Connection>>>;
 
 #[tauri::command]
 pub fn get_market_observations(db: DbState<'_>) -> Result<Vec<MarketObservation>, String> {
@@ -152,13 +149,6 @@ pub fn query_market_observations(
     rows.collect::<Result<Vec<_>, _>>().map_err(map_error)
 }
 
-fn lock_connection<'a>(
-    db: &'a DbState<'a>,
-) -> Result<std::sync::MutexGuard<'a, Connection>, String> {
-    db.lock()
-        .map_err(|error| format!("获取数据库锁失败: {error}"))
-}
-
 fn get_market_observation_by_id(
     connection: &Connection,
     id: i64,
@@ -208,25 +198,6 @@ fn map_row(row: &rusqlite::Row<'_>) -> Result<MarketObservation, rusqlite::Error
     })
 }
 
-fn normalize_filter(value: Option<String>) -> Option<String> {
-    value.and_then(|inner| {
-        let trimmed = inner.trim();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(trimmed.to_string())
-        }
-    })
-}
-
 fn map_error(error: Error) -> String {
-    match error {
-        Error::QueryReturnedNoRows => "市场观察记录不存在".to_string(),
-        Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == ErrorCode::ConstraintViolation =>
-        {
-            "市场观察数据违反约束".to_string()
-        }
-        _ => format!("数据库错误: {error}"),
-    }
+    crate::db::map_db_error(error, "市场观察记录不存在", "市场观察数据违反约束")
 }

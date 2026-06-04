@@ -130,11 +130,11 @@ describe('formatSignedMoney', () => {
 
 describe('formatPercent', () => {
   it('should format stored percentage (×100) as human-readable', () => {
-    expect(formatPercent(1000)).toBe('10.0%')
-    expect(formatPercent(0)).toBe('0.0%')
-    expect(formatPercent(5000)).toBe('50.0%')
-    expect(formatPercent(-1000)).toBe('-10.0%')
-    expect(formatPercent(15)).toBe('0.1%')
+    expect(formatPercent(1000)).toBe('10.00%')
+    expect(formatPercent(0)).toBe('0.00%')
+    expect(formatPercent(5000)).toBe('50.00%')
+    expect(formatPercent(-1000)).toBe('-10.00%')
+    expect(formatPercent(15)).toBe('0.15%')
   })
 })
 

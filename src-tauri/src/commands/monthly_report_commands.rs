@@ -10,14 +10,11 @@
  * See LICENSE file in the project root for full license information.
  */
 
-use std::sync::{Arc, Mutex};
-
 use rusqlite::{params, Connection, Error};
 
 use crate::common::now_iso;
+use crate::db::{lock_connection, DbState};
 use crate::models::{CreateMonthlyReportPayload, MonthlyReport, UpdateMonthlyReportPayload};
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<Connection>>>;
 
 #[tauri::command]
 pub fn get_monthly_reports(db: DbState<'_>) -> Result<Vec<MonthlyReport>, String> {
@@ -116,13 +113,6 @@ pub fn delete_monthly_report(db: DbState<'_>, id: i64) -> Result<(), String> {
     Ok(())
 }
 
-fn lock_connection<'a>(
-    db: &'a DbState<'a>,
-) -> Result<std::sync::MutexGuard<'a, Connection>, String> {
-    db.lock()
-        .map_err(|error| format!("获取数据库锁失败: {error}"))
-}
-
 fn get_report_by_id(connection: &Connection, id: i64) -> Result<MonthlyReport, String> {
     let reports = select_monthly_reports(
         connection,
@@ -170,12 +160,5 @@ fn map_report_row(row: &rusqlite::Row<'_>) -> Result<MonthlyReport, rusqlite::Er
 }
 
 fn map_monthly_report_error(error: Error) -> String {
-    match error {
-        Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == rusqlite::ErrorCode::ConstraintViolation =>
-        {
-            "该月份报告已存在".to_string()
-        }
-        _ => format!("数据库错误: {error}"),
-    }
+    crate::db::map_db_error(error, "月度报告不存在", "该月份报告已存在")
 }

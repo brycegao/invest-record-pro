@@ -11,14 +11,11 @@
  */
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-
-use rusqlite::{params, Connection, Error, ErrorCode};
+use rusqlite::{params, Connection, Error};
 
 use crate::common::now_iso;
+use crate::db::{lock_connection, normalize_filter, DbState};
 use crate::models::{CreateTradePayload, Trade, TradeSummary, UpdateTradePayload};
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<Connection>>>;
 
 #[derive(Debug, Clone)]
 struct ReplayState {
@@ -231,13 +228,6 @@ pub fn get_trade_summary(db: DbState<'_>, asset_id: i64) -> Result<TradeSummary,
         }))
 }
 
-fn lock_connection<'a>(
-    db: &'a DbState<'a>,
-) -> Result<std::sync::MutexGuard<'a, Connection>, String> {
-    db.lock()
-        .map_err(|error| format!("获取数据库锁失败: {error}"))
-}
-
 fn get_trade_by_id(connection: &Connection, id: i64) -> Result<Trade, String> {
     let mut trades = select_trades(
         connection,
@@ -407,25 +397,6 @@ fn map_trade_row(row: &rusqlite::Row<'_>) -> Result<Trade, rusqlite::Error> {
     })
 }
 
-fn normalize_filter(value: Option<String>) -> Option<String> {
-    value.and_then(|inner| {
-        let trimmed = inner.trim();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(trimmed.to_string())
-        }
-    })
-}
-
 fn map_trade_error(error: Error) -> String {
-    match error {
-        Error::QueryReturnedNoRows => "交易记录不存在".to_string(),
-        Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == ErrorCode::ConstraintViolation =>
-        {
-            "交易数据违反约束，请检查关联标的、计划和交易内容".to_string()
-        }
-        _ => format!("数据库错误: {error}"),
-    }
+    crate::db::map_db_error(error, "交易记录不存在", "交易数据违反约束，请检查关联标的、计划和交易内容")
 }

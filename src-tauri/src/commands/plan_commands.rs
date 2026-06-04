@@ -10,14 +10,11 @@
  * See LICENSE file in the project root for full license information.
  */
 
-use std::sync::{Arc, Mutex};
-
-use rusqlite::{params, Connection, Error, ErrorCode, Transaction};
+use rusqlite::{params, Connection, Error, Transaction};
 
 use crate::common::now_iso;
+use crate::db::{lock_connection, normalize_filter, DbState};
 use crate::models::{CreatePlanPayload, CreatePlanRulePayload, Plan, PlanRule, UpdatePlanPayload};
-
-type DbState<'a> = tauri::State<'a, Arc<Mutex<Connection>>>;
 
 #[tauri::command]
 pub fn get_plans(db: DbState<'_>) -> Result<Vec<Plan>, String> {
@@ -205,13 +202,6 @@ pub fn get_plan_rules(db: DbState<'_>, plan_id: i64) -> Result<Vec<PlanRule>, St
     rows.collect::<Result<Vec<_>, _>>().map_err(map_plan_error)
 }
 
-fn lock_connection<'a>(
-    db: &'a DbState<'a>,
-) -> Result<std::sync::MutexGuard<'a, Connection>, String> {
-    db.lock()
-        .map_err(|error| format!("获取数据库锁失败: {error}"))
-}
-
 fn get_plan_by_id(connection: &Connection, id: i64) -> Result<Plan, String> {
     connection
         .query_row(
@@ -299,25 +289,6 @@ fn map_plan_rule_row(row: &rusqlite::Row<'_>) -> Result<PlanRule, rusqlite::Erro
     })
 }
 
-fn normalize_filter(value: Option<String>) -> Option<String> {
-    value.and_then(|inner| {
-        let trimmed = inner.trim();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(trimmed.to_string())
-        }
-    })
-}
-
 fn map_plan_error(error: Error) -> String {
-    match error {
-        Error::QueryReturnedNoRows => "计划不存在".to_string(),
-        Error::SqliteFailure(ref sqlite_error, _)
-            if sqlite_error.code == ErrorCode::ConstraintViolation =>
-        {
-            "计划数据违反约束，请检查关联标的和规则内容".to_string()
-        }
-        _ => format!("数据库错误: {error}"),
-    }
+    crate::db::map_db_error(error, "计划不存在", "计划数据违反约束，请检查关联标的和规则内容")
 }
