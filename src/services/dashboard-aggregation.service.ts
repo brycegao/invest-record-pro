@@ -208,7 +208,8 @@ function calculatePlanExecutionRate(plans: Plan[]): number {
 
 /**
  * 计算近 6 个月盈亏趋势。
- * 已实现盈亏来自交易汇总；未实现盈亏来自对应月份最新的仓位快照。
+ * 已实现盈亏：截止每月末，按时间回放所有卖出交易的累计 realizedPnl；
+ * 未实现盈亏来自对应月份最新的仓位快照。
  */
 async function calculateMonthlyPnlTrend(): Promise<MonthlyPnlPoint[]> {
   const now = dayjs()
@@ -230,15 +231,33 @@ async function calculateMonthlyPnlTrend(): Promise<MonthlyPnlPoint[]> {
     }
   }
 
-  // 计算每个月的已实现盈亏：截止该月末所有卖出的已实现盈亏
-  const totalRealizedPnl = await calculateTotalRealizedPnl()
+  // 获取所有交易（Rust 后端已通过 fill_realized_pnl 填充 per-trade realizedPnl），按时间正序
+  const allTrades = await getAllTrades()
+  allTrades.sort((a, b) => dayjs(a.tradeAt).valueOf() - dayjs(b.tradeAt).valueOf())
+
+  // 按月回放：逐月推进交易指针，累加卖出交易的 realizedPnl
+  const monthlyCumulativePnl = new Map<string, number>()
+  let cumulativePnl = 0
+  let tradeIdx = 0
+
+  for (const month of months) {
+    const monthEndMs = dayjs(month).endOf('month').valueOf()
+    while (tradeIdx < allTrades.length && dayjs(allTrades[tradeIdx].tradeAt).valueOf() <= monthEndMs) {
+      const pnl = allTrades[tradeIdx].realizedPnl
+      if (pnl != null) {
+        cumulativePnl += pnl
+      }
+      tradeIdx++
+    }
+    monthlyCumulativePnl.set(month, cumulativePnl)
+  }
 
   return months.map((month) => {
     const snapshot = positionByMonth.get(month)
 
     return {
       month,
-      realizedPnl: totalRealizedPnl,
+      realizedPnl: monthlyCumulativePnl.get(month) ?? 0,
       unrealizedPnl: snapshot ? snapshot.unrealizedPnl : 0,
       hasSnapshot: !!snapshot,
     }
