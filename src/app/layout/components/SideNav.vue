@@ -29,6 +29,7 @@ const menuOptions: MenuOption[] = [
   { label: '交易记录', key: 'trades' },
   { label: '仓位快照', key: 'positions' },
   { label: '交易复盘', key: 'reviews' },
+  { label: '投顾推荐', key: 'advisor' },
   { label: '市场观察', key: 'market-observations' },
   { label: '月度报告', key: 'monthly-reports' },
   { label: '设置', key: 'settings' },

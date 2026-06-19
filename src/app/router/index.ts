@@ -18,6 +18,7 @@ import MarketObservationsPage from '@/pages/market-observations/MarketObservatio
 import MonthlyReportsPage from '@/pages/monthly-reports/MonthlyReportsPage.vue'
 import PlansPage from '@/pages/plans/PlansPage.vue'
 import PositionsPage from '@/pages/positions/PositionsPage.vue'
+import AdvisorPage from '@/pages/advisor/AdvisorPage.vue'
 import ReviewsPage from '@/pages/reviews/ReviewsPage.vue'
 import SettingsPage from '@/pages/settings/SettingsPage.vue'
 import TradesPage from '@/pages/trades/TradesPage.vue'
@@ -40,6 +41,7 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '仓位快照' },
       },
       { path: 'reviews', name: 'reviews', component: ReviewsPage, meta: { title: '交易复盘' } },
+      { path: 'advisor', name: 'advisor', component: AdvisorPage, meta: { title: '投顾推荐' } },
       {
         path: 'market-observations',
         name: 'market-observations',
