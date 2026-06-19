@@ -118,12 +118,25 @@ pub fn upsert_daily_bars(connection: &Connection, code: &str, bars: &[DailyBar])
 }
 
 /// 拉取并缓存某 A 股从某日期至今的日线。返回缓存的日线数量。
+/// beg 会往前推 10 个自然日，确保推荐日附近的行情也能拉到（避免 beg==今天时东财返回空）。
 pub fn refresh_and_cache_a_share(
     connection: &Connection,
     code: &str,
     beg_date_iso: &str, // YYYY-MM-DD
 ) -> Result<usize, String> {
-    let beg = beg_date_iso.replace('-', "");
+    // beg 前推 10 天，保证有数据
+    let beg_ymd = beg_date_iso.replace('-', "");
+    let beg = if beg_ymd.len() == 8 {
+        let y: i32 = beg_ymd[0..4].parse().unwrap_or(2026);
+        let m: u32 = beg_ymd[4..6].parse().unwrap_or(1);
+        let d: u32 = beg_ymd[6..8].parse().unwrap_or(1);
+        match chrono::NaiveDate::from_ymd_opt(y, m, d) {
+            Some(date) => (date - chrono::Duration::days(10)).format("%Y%m%d").to_string(),
+            None => beg_ymd.clone(),
+        }
+    } else {
+        beg_ymd
+    };
     let end = chrono::Local::now().format("%Y%m%d").to_string();
     let bars = fetch_a_share_daily(code, &beg, &end)?;
     let count = bars.len();
@@ -161,13 +174,14 @@ pub fn query_daily_bars(
         .map_err(|e| format!("收集 price_daily 行失败: {e}"))
 }
 
-/// 根据 signal_at 之后的日线，计算 T+N 收盘价 + 区间最高最低，写入 signal_tracking
+/// 根据 signal_at 之后的日线，计算 T+N 收盘价 + 区间最高最低，写入 signal_tracking。
+/// 返回 Ok(true) 表示有后市数据并已写入；Ok(false) 表示该推荐为今日新增、暂无后市数据（不报错）。
 pub fn update_signal_tracking(
     connection: &Connection,
     signal_id: i64,
     code: &str,
     signal_at_iso: &str, // YYYY-MM-DD（取日期部分）
-) -> Result<(), String> {
+) -> Result<bool, String> {
     // 取推荐日之后到今天的日线
     let today = chrono::Local::now().format("%Y-%m-%d").to_string();
     let bars = query_daily_bars(connection, code, signal_at_iso, &today)?;
@@ -176,7 +190,8 @@ pub fn update_signal_tracking(
     let after: Vec<&DailyBar> = bars.iter().filter(|b| b.trade_date.as_str() > signal_day).collect();
 
     if after.is_empty() {
-        return Err(format!("代码 {} 在 {} 之后无可用日线", code, signal_day));
+        // 今日新增的推荐，暂无后市数据：不报错，返回 false
+        return Ok(false);
     }
 
     let total_days = after.len() as i64;
@@ -224,7 +239,7 @@ pub fn update_signal_tracking(
             ],
         )
         .map_err(|e| format!("写入 signal_tracking 失败: {e}"))?;
-    Ok(())
+    Ok(true)
 }
 
 /// 供命令层使用的 DB 句柄别名
@@ -381,3 +396,4 @@ pub fn aggregate_strategy_stats(connection: &Connection) -> Result<Vec<StrategyS
     }
     Ok(stats)
 }
+

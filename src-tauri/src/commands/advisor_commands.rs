@@ -333,9 +333,13 @@ pub fn refresh_advisor_market(db: tauri::State<'_, Arc<Mutex<Connection>>>) -> R
         }
         // 2. 计算 T+N 追踪并写入
         match update_signal_tracking(&connection, signal_id, &code, beg) {
-            Ok(()) => results.push(RefreshItem {
+            Ok(true) => results.push(RefreshItem {
                 signal_id, code, success: true,
                 message: "已更新".to_string(),
+            }),
+            Ok(false) => results.push(RefreshItem {
+                signal_id, code, success: true,
+                message: "今日新增，暂无后市数据".to_string(),
             }),
             Err(e) => results.push(RefreshItem {
                 signal_id, code, success: false,
