@@ -79,8 +79,8 @@ export interface ReviewInput {
   /** 推荐参考价（分） */
   refPrice: number
   followed: boolean
-  /** 跟随时的实际盈亏（分，仅 followed 时有意义） */
-  actualPnl?: number
+  /** 我的实际成交价（分，仅 followed 时有意义） */
+  actualPrice?: number
   /** 假设仓位（股数） */
   hypotheticalQty: number
   /** 区间最高价（分） */
@@ -93,18 +93,16 @@ export interface ReviewInput {
 
 export interface ReviewOutcome {
   outcomeType: OutcomeType
-  /** 跟随时的实际盈亏（分） */
-  actualPnl?: number
-  /** 踏空/卖飞/正确持筹 → 错过或多赚的上涨金额（分） */
+  /** 踏空/卖飞 → 错过的上涨金额（分） */
   missedAmount?: number
   missedPct?: number
-  /** 躲过下跌/逃顶/死扛 → 躲过的下跌或多亏的金额（分） */
+  /** 躲过下跌/逃顶 → 躲过的下跌金额（分） */
   avoidedAmount?: number
   avoidedPct?: number
-  /** 正确持筹：没卖多赚的（分） */
+  /** 跟随获利/正确持筹 → 多赚的金额（分） */
   gainedAmount?: number
   gainedPct?: number
-  /** 死扛被套：没卖多亏的（分） */
+  /** 跟随亏损/死扛被套 → 多亏的金额（分） */
   lostAmount?: number
   lostPct?: number
 }
@@ -124,19 +122,22 @@ function downPct(ref: number, low: number): number {
 
 /** 评估单条推荐信号。 */
 export function evaluateSignal(inp: ReviewInput): ReviewOutcome {
-  const { direction, refPrice, followed, hypotheticalQty: qty, rangeHigh, rangeLow, rangeEndClose } = inp
-  const rose = rangeEndClose >= refPrice
+  const { direction, refPrice, followed, actualPrice, hypotheticalQty: qty, rangeHigh, rangeLow, rangeEndClose } = inp
+  // 基准价：跟随用实际成交价，未跟随用推荐价
+  const baseline = followed ? (actualPrice ?? refPrice) : refPrice
 
-  // refPrice <= 0 视为无效，退化（无法判断涨跌）
-  if (refPrice <= 0) {
+  // baseline <= 0 视为无效，退化（无法判断涨跌）
+  if (baseline <= 0) {
     return { outcomeType: 'held_through_loss' }
   }
+
+  const rose = rangeEndClose >= baseline
 
   if (direction === 'buy') {
     if (followed) {
       return rose
-        ? { outcomeType: 'followed_buy_gain', actualPnl: inp.actualPnl ?? 0 }
-        : { outcomeType: 'followed_buy_loss', actualPnl: inp.actualPnl ?? 0 }
+        ? { outcomeType: 'followed_buy_gain', gainedAmount: upAmount(rangeHigh, baseline, qty), gainedPct: upPct(rangeHigh, baseline) }
+        : { outcomeType: 'followed_buy_loss', lostAmount: downAmount(baseline, rangeLow, qty), lostPct: downPct(baseline, rangeLow) }
     }
     return rose
       ? { outcomeType: 'missed_buy', missedAmount: upAmount(rangeHigh, refPrice, qty), missedPct: upPct(rangeHigh, refPrice) }
@@ -146,8 +147,8 @@ export function evaluateSignal(inp: ReviewInput): ReviewOutcome {
   // direction === 'sell'
   if (followed) {
     return rose
-      ? { outcomeType: 'followed_sell_rise', missedAmount: upAmount(rangeHigh, refPrice, qty), missedPct: upPct(rangeHigh, refPrice) }
-      : { outcomeType: 'followed_sell_drop', avoidedAmount: downAmount(refPrice, rangeLow, qty), avoidedPct: downPct(refPrice, rangeLow) }
+      ? { outcomeType: 'followed_sell_rise', missedAmount: upAmount(rangeHigh, baseline, qty), missedPct: upPct(rangeHigh, baseline) }
+      : { outcomeType: 'followed_sell_drop', avoidedAmount: downAmount(baseline, rangeLow, qty), avoidedPct: downPct(baseline, rangeLow) }
   }
   return rose
     ? { outcomeType: 'held_through_gain', gainedAmount: upAmount(rangeHigh, refPrice, qty), gainedPct: upPct(rangeHigh, refPrice) }
@@ -162,10 +163,12 @@ export interface WeeklySummary {
   decisionAccuracy: number
   /** 各状态计数 */
   outcomeCounts: Record<OutcomeType, number>
-  /** 跟随时的实际盈亏合计（分） */
-  followedPnl: number
-  /** 踏空 + 卖飞 + 死扛多亏 的金额合计（分，均为"本可避免的损失"） */
+  /** 正确决策带来的收益合计（分）：跟随获利多赚 + 正确持筹多赚 + 躲过下跌 + 逃顶成功 */
+  totalGain: number
+  /** 错误决策造成的损失合计（分）：踏空错过 + 卖飞错过 + 跟随亏损 + 死扛多亏 */
   totalRegret: number
+  /** 净效果 = totalGain - totalRegret（分） */
+  netEffect: number
 }
 
 function emptyOutcomeCounts(): Record<OutcomeType, number> {
@@ -186,16 +189,15 @@ export function aggregate(outcomes: ReviewOutcome[]): WeeklySummary {
   const total = outcomes.length
   const outcomeCounts = emptyOutcomeCounts()
   let correctCount = 0
-  let followedPnl = 0
+  let totalGain = 0
   let totalRegret = 0
 
   for (const o of outcomes) {
     outcomeCounts[o.outcomeType] += 1
     if (isCorrectOutcome(o.outcomeType)) correctCount += 1
-    if (o.outcomeType === 'followed_buy_gain' || o.outcomeType === 'followed_buy_loss') {
-      followedPnl += o.actualPnl ?? 0
-    }
-    // "本可避免的损失"：踏空错过的、卖飞错过的、死扛多亏的
+    // 正确决策带来的收益：多赚的金额 + 躲过的下跌
+    totalGain += (o.gainedAmount ?? 0) + (o.avoidedAmount ?? 0)
+    // 错误决策造成的损失：错过的上涨 + 多亏的金额
     totalRegret += (o.missedAmount ?? 0) + (o.lostAmount ?? 0)
   }
 
@@ -205,7 +207,8 @@ export function aggregate(outcomes: ReviewOutcome[]): WeeklySummary {
     wrongCount: total - correctCount,
     decisionAccuracy: total > 0 ? correctCount / total : 0,
     outcomeCounts,
-    followedPnl,
+    totalGain,
     totalRegret,
+    netEffect: totalGain - totalRegret,
   }
 }

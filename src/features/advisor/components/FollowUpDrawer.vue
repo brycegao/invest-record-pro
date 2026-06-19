@@ -22,7 +22,7 @@
         </NRadioGroup>
 
         <template v-if="followed">
-          <NFormItem label="实际价">
+          <NFormItem label="实际成交价">
             <NSpace align="center" class="advisor-followup__full">
               <NInputNumber v-model:value="actualPriceYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
               <NText>元</NText>
@@ -34,37 +34,35 @@
           <NFormItem label="实际日期">
             <NDatePicker v-model:value="actualAtTs" type="datetime" class="advisor-followup__full" />
           </NFormItem>
-          <NFormItem label="实际盈亏">
-            <NSpace align="center" class="advisor-followup__full">
-              <NInputNumber v-model:value="actualPnlYuan" :precision="2" :step="0.01" placeholder="元（可选）" />
-              <NText>元</NText>
-            </NSpace>
-          </NFormItem>
+          <div class="advisor-followup__hint">基准价 = 实际成交价，与后市收盘价比较判断操作对错</div>
         </template>
 
         <template v-else>
           <NFormItem label="未跟随原因">
             <NInput v-model:value="reason" type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" />
           </NFormItem>
-          <NFormItem label="区间最高价">
-            <NSpace align="center" class="advisor-followup__full">
-              <NInputNumber v-model:value="rangeHighYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
-              <NText>元</NText>
-            </NSpace>
-          </NFormItem>
-          <NFormItem label="区间最低价">
-            <NSpace align="center" class="advisor-followup__full">
-              <NInputNumber v-model:value="rangeLowYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
-              <NText>元</NText>
-            </NSpace>
-          </NFormItem>
-          <NFormItem label="终点收盘价">
-            <NSpace align="center" class="advisor-followup__full">
-              <NInputNumber v-model:value="rangeEndCloseYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
-              <NText>元</NText>
-            </NSpace>
-          </NFormItem>
+          <div class="advisor-followup__hint">基准价 = 老师推荐价，与后市收盘价比较判断踏空/躲过</div>
         </template>
+
+        <div class="advisor-followup__section-title">后市区间价（必填，用于判断涨跌和算金额）</div>
+        <NFormItem label="区间最高价">
+          <NSpace align="center" class="advisor-followup__full">
+            <NInputNumber v-model:value="rangeHighYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NText>元</NText>
+          </NSpace>
+        </NFormItem>
+        <NFormItem label="区间最低价">
+          <NSpace align="center" class="advisor-followup__full">
+            <NInputNumber v-model:value="rangeLowYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NText>元</NText>
+          </NSpace>
+        </NFormItem>
+        <NFormItem label="终点收盘价">
+          <NSpace align="center" class="advisor-followup__full">
+            <NInputNumber v-model:value="rangeEndCloseYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NText>元</NText>
+          </NSpace>
+        </NFormItem>
 
         <NCard title="实时计算结果" size="small" :bordered="true">
           <NSpace vertical :size="8">
@@ -73,10 +71,7 @@
               <NTag :type="outcomeTagType">{{ outcomeLabel }}</NTag>
               <span v-if="outcome" class="advisor-followup__desc">{{ outcomeDescription }}</span>
             </div>
-            <!-- 跟随：显示实际盈亏 -->
-            <div v-if="isFollowedType && actualPnlYuan != null" :class="actualPnlYuan >= 0 ? 'pos' : 'neg'">
-              实际盈亏：{{ formatMoney(yuanToFen(actualPnlYuan)) }}
-            </div>
+            <!-- 跟随：显示多赚/多亏金额（基准为成交价） -->
             <!-- 踏空 / 卖飞：错过上涨 -->
             <div v-if="outcome?.missedAmount != null" class="neg">
               错过上涨：{{ formatMoney(outcome.missedAmount) }}（{{ pctText(outcome.missedPct) }}）
@@ -144,7 +139,6 @@ const followed = ref(true)
 const actualPriceYuan = ref<number | null>(null)
 const actualQty = ref<number | null>(null)
 const actualAtTs = ref<number>(Date.now())
-const actualPnlYuan = ref<number | null>(null)
 const reason = ref('')
 const rangeHighYuan = ref<number | null>(null)
 const rangeLowYuan = ref<number | null>(null)
@@ -160,7 +154,6 @@ watch(
     actualPriceYuan.value = existing?.actualPrice != null ? fenToYuan(existing.actualPrice) : null
     actualQty.value = existing?.actualQty ?? null
     actualAtTs.value = existing?.actualAt ? new Date(existing.actualAt).getTime() : Date.now()
-    actualPnlYuan.value = null
     reason.value = existing?.reason ?? ''
     rangeHighYuan.value = existing?.rangeHigh != null ? fenToYuan(existing.rangeHigh) : null
     rangeLowYuan.value = existing?.rangeLow != null ? fenToYuan(existing.rangeLow) : null
@@ -175,7 +168,7 @@ const outcome = computed<ReviewOutcome | null>(() => {
     direction: props.signal.direction,
     refPrice: props.signal.refPrice,
     followed: followed.value,
-    actualPnl: actualPnlYuan.value != null ? yuanToFen(actualPnlYuan.value) : undefined,
+    actualPrice: actualPriceYuan.value != null ? yuanToFen(actualPriceYuan.value) : undefined,
     hypotheticalQty: props.signal.hypotheticalQty,
     rangeHigh: rangeHighYuan.value != null ? yuanToFen(rangeHighYuan.value) : 0,
     rangeLow: rangeLowYuan.value != null ? yuanToFen(rangeLowYuan.value) : 0,
@@ -194,11 +187,6 @@ const outcomeDescription = computed(() => {
 const outcomeTagType = computed<'success' | 'warning' | 'error'>(() => {
   const t = outcome.value?.outcomeType
   return t ? OUTCOME_TAG_TYPES[t] : 'warning'
-})
-const isFollowedType = computed(() => {
-  const t = outcome.value?.outcomeType
-  return t === 'followed_buy_gain' || t === 'followed_buy_loss'
-    || t === 'followed_sell_drop' || t === 'followed_sell_rise'
 })
 
 function pctText(pct: number | undefined): string {
@@ -244,6 +232,23 @@ async function handleSave(): Promise<void> {
   background: #fafafa;
   padding: 8px 12px;
   border-radius: 4px;
+}
+.advisor-followup__hint {
+  color: #888;
+  font-size: 12px;
+  padding: 4px 0;
+}
+.advisor-followup__section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+.advisor-followup__desc {
+  color: #888;
+  font-size: 12px;
+  margin-left: 8px;
 }
 .advisor-followup__full {
   width: 100%;

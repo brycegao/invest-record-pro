@@ -23,9 +23,10 @@ interface SummaryRow {
   total: number
   reviewedCount: number
   decisionAccuracy: string
-  followedPnl: string
+  totalGain: string
   totalRegret: string
-  regretClass: string
+  netEffect: string
+  netClass: string
 }
 
 const rows = computed<SummaryRow[]>(() => {
@@ -60,9 +61,10 @@ const rows = computed<SummaryRow[]>(() => {
       total: sigs.length,
       reviewedCount: reviewed.length,
       decisionAccuracy: `${(sum.decisionAccuracy * 100).toFixed(0)}%`,
-      followedPnl: formatMoney(sum.followedPnl),
+      totalGain: formatMoney(sum.totalGain),
       totalRegret: formatMoney(sum.totalRegret),
-      regretClass: sum.totalRegret > 0 ? 'neg' : 'pos',
+      netEffect: formatMoney(sum.netEffect),
+      netClass: sum.netEffect >= 0 ? 'pos' : 'neg',
     })
   }
   return result
@@ -73,10 +75,11 @@ const columns: DataTableColumns<SummaryRow> = [
   { title: '推荐数', key: 'total' },
   { title: '已复盘', key: 'reviewedCount' },
   { title: '决策正确率', key: 'decisionAccuracy' },
-  { title: '跟随收益', key: 'followedPnl' },
+  { title: '正确收益', key: 'totalGain' },
+  { title: '错误损失', key: 'totalRegret' },
   {
-    title: '本可避免损失', key: 'totalRegret',
-    render: (r) => h('span', { class: r.regretClass }, r.totalRegret),
+    title: '净效果', key: 'netEffect',
+    render: (r) => h('span', { class: r.netClass }, r.netEffect),
   },
 ]
 </script>
