@@ -86,3 +86,43 @@ export async function deleteFollowUp(id: number): Promise<void> {
     throw createRepositoryError('删除复盘记录失败', error)
   }
 }
+
+/** 单条推荐的刷新结果 */
+export interface RefreshItem {
+  signalId: number
+  code: string
+  success: boolean
+  message: string
+}
+
+/** 刷新所有推荐信号的后市行情（拉东财日线 → 缓存 → 更新追踪） */
+export async function refreshAdvisorMarket(): Promise<RefreshItem[]> {
+  try {
+    return await invoke<RefreshItem[]>('refresh_advisor_market')
+  } catch (error) {
+    throw createRepositoryError('刷新行情失败', error)
+  }
+}
+
+/** 策略统计（按 老师×方向 聚合） */
+export interface StrategyStat {
+  advisor: string
+  direction: 'buy' | 'sell'
+  count: number
+  avgT1Pct: number | null
+  avgT3Pct: number | null
+  avgT5Pct: number | null
+  avgT10Pct: number | null
+  avgT20Pct: number | null
+  avgMaxCloseDay: number | null
+  avgMinCloseDay: number | null
+  t5WinRate: number | null
+}
+
+export async function getStrategyStats(): Promise<StrategyStat[]> {
+  try {
+    return await invoke<StrategyStat[]>('get_strategy_stats')
+  } catch (error) {
+    throw createRepositoryError('获取策略统计失败', error)
+  }
+}

@@ -5,6 +5,7 @@
   <NSpace vertical :size="16">
     <AdvisorSignalForm />
     <ReviewSummaryCard :signals="store.signals" />
+    <StrategyStatsPanel />
     <AdvisorSignalTable
       :signals="store.signals"
       :loading="store.loading"
@@ -22,6 +23,7 @@ import { useAdvisorStore } from '../store'
 import AdvisorSignalForm from './AdvisorSignalForm.vue'
 import AdvisorSignalTable from './AdvisorSignalTable.vue'
 import ReviewSummaryCard from './ReviewSummaryCard.vue'
+import StrategyStatsPanel from './StrategyStatsPanel.vue'
 import FollowUpDrawer from './FollowUpDrawer.vue'
 
 const store = useAdvisorStore()
