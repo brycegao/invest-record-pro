@@ -51,6 +51,18 @@ pub fn a_share_market_prefix(code: &str) -> Option<&'static str> {
     }
 }
 
+/// 港股东财市场前缀统一为 116（主板/创业板均走此前缀）
+pub const HK_MARKET_PREFIX: &str = "116";
+
+/// 按市场（CN/HK）+ 代码解析东财 secid 前缀
+/// market: "CN" | "HK"（与 assets.market 字段一致）
+pub fn market_prefix(market: &str, code: &str) -> Option<&'static str> {
+    match market {
+        "HK" => Some(HK_MARKET_PREFIX),
+        _ => a_share_market_prefix(code),
+    }
+}
+
 /// 解析一根 kline 字符串："2026-06-18,1235.00,1215.00,1238.87,1211.22,57472,..."
 fn parse_kline(line: &str) -> Option<DailyBar> {
     let parts: Vec<&str> = line.split(',').collect();
@@ -73,7 +85,13 @@ fn parse_kline(line: &str) -> Option<DailyBar> {
 
 /// 从东财拉取某 A 股代码的日线（beg/end 格式 YYYYMMDD）
 pub fn fetch_a_share_daily(code: &str, beg: &str, end: &str) -> Result<Vec<DailyBar>, String> {
-    let prefix = a_share_market_prefix(code).ok_or_else(|| format!("无法识别 A 股代码 {} 的市场", code))?;
+    fetch_daily("CN", code, beg, end)
+}
+
+/// 从东财拉取日线，按市场分流（CN=A股, HK=港股）
+pub fn fetch_daily(market: &str, code: &str, beg: &str, end: &str) -> Result<Vec<DailyBar>, String> {
+    let prefix = market_prefix(market, code)
+        .ok_or_else(|| format!("无法识别代码 {} 的市场({})前缀", code, market))?;
     let secid = format!("{}.{}", prefix, code);
     let url = format!(
         "{}?secid={}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58&klt=101&fqt=0&beg={}&end={}&lmt=120",
@@ -117,10 +135,12 @@ pub fn upsert_daily_bars(connection: &Connection, code: &str, bars: &[DailyBar])
     Ok(())
 }
 
-/// 拉取并缓存某 A 股从某日期至今的日线。返回缓存的日线数量。
+/// 拉取并缓存某股票从某日期至今的日线。返回缓存的日线数量。
+/// market: "CN" | "HK"。
 /// beg 会往前推 10 个自然日，确保推荐日附近的行情也能拉到（避免 beg==今天时东财返回空）。
-pub fn refresh_and_cache_a_share(
+pub fn refresh_and_cache(
     connection: &Connection,
+    market: &str,
     code: &str,
     beg_date_iso: &str, // YYYY-MM-DD
 ) -> Result<usize, String> {
@@ -138,7 +158,7 @@ pub fn refresh_and_cache_a_share(
         beg_ymd
     };
     let end = chrono::Local::now().format("%Y%m%d").to_string();
-    let bars = fetch_a_share_daily(code, &beg, &end)?;
+    let bars = fetch_daily(market, code, &beg, &end)?;
     let count = bars.len();
     upsert_daily_bars(connection, code, &bars)?;
     Ok(count)

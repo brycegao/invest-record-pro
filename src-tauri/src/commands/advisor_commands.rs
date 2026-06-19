@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use rusqlite::{params, Connection, Error, ErrorCode};
 
 use crate::common::now_iso;
-use crate::market::{aggregate_strategy_stats, refresh_and_cache_a_share, update_signal_tracking, StrategyStat};
+use crate::market::{aggregate_strategy_stats, refresh_and_cache, update_signal_tracking, StrategyStat};
 use crate::models::{
     AdvisorSignal, CreateAdvisorSignalPayload, FollowUp, UpdateAdvisorSignalPayload,
     UpsertFollowUpPayload,
@@ -309,22 +309,22 @@ pub struct RefreshItem {
 #[tauri::command(rename_all = "camelCase")]
 pub fn refresh_advisor_market(db: tauri::State<'_, Arc<Mutex<Connection>>>) -> Result<Vec<RefreshItem>, String> {
     let connection = lock_connection(&db)?;
-    // 取所有推荐信号（含 asset code）
+    // 取所有推荐信号（含 asset code + market）
     let mut stmt = connection
-        .prepare("SELECT s.id, s.signal_at, a.code FROM advisor_signals s INNER JOIN assets a ON s.asset_id = a.id")
+        .prepare("SELECT s.id, s.signal_at, a.code, COALESCE(a.market, 'CN') FROM advisor_signals s INNER JOIN assets a ON s.asset_id = a.id")
         .map_err(map_advisor_error)?;
-    let signals: Vec<(i64, String, String)> = stmt
-        .query_map(params![], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+    let signals: Vec<(i64, String, String, String)> = stmt
+        .query_map(params![], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
         .map_err(map_advisor_error)?
         .collect::<Result<Vec<_>, _>>()
         .map_err(map_advisor_error)?;
 
     let mut results = Vec::with_capacity(signals.len());
-    for (signal_id, signal_at, code) in signals {
+    for (signal_id, signal_at, code, market) in signals {
         // signal_at 取日期部分作为拉取起点
         let beg = signal_at.get(..10).unwrap_or(&signal_at);
-        // 1. 拉取并缓存日线
-        if let Err(e) = refresh_and_cache_a_share(&connection, &code, beg) {
+        // 1. 拉取并缓存日线（按市场分流）
+        if let Err(e) = refresh_and_cache(&connection, &market, &code, beg) {
             results.push(RefreshItem {
                 signal_id, code, success: false,
                 message: format!("拉取行情失败: {e}"),
