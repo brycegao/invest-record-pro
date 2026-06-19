@@ -1,7 +1,8 @@
 /*
- * @Description: 投顾推荐 Tauri IPC 仓库（camelCase↔snake_case 转换）
+ * @Description: 投顾推荐 Tauri IPC 仓库
  *
- * 前端用 camelCase，Tauri command 用 snake_case，此处负责转换。
+ * Rust 端的 payload 结构体标了 #[serde(rename_all = "camelCase")]，
+ * 因此前端直接发 camelCase 对象，无需转换。
  * invoke 命令名与 src-tauri/src/commands/advisor_commands.rs 的 #[tauri::command] 对齐。
  */
 import { invoke } from '@tauri-apps/api/core'
@@ -12,40 +13,6 @@ import type {
   FollowUp,
   FollowUpUpsertPayload,
 } from '@/domain/types'
-
-function toCreateSignalCommandPayload(payload: AdvisorSignalCreatePayload) {
-  return {
-    advisor: payload.advisor,
-    asset_id: payload.assetId,
-    direction: payload.direction,
-    signal_at: payload.signalAt,
-    ref_price: payload.refPrice,
-    target_price: payload.targetPrice,
-    stop_loss: payload.stopLoss,
-    hypothetical_qty: payload.hypotheticalQty,
-    note: payload.note,
-  }
-}
-
-function toUpdateSignalCommandPayload(payload: AdvisorSignalUpdatePayload) {
-  return { id: payload.id, ...toCreateSignalCommandPayload(payload) }
-}
-
-function toUpsertFollowUpCommandPayload(payload: FollowUpUpsertPayload) {
-  return {
-    signal_id: payload.signalId,
-    followed: payload.followed,
-    actual_price: payload.actualPrice,
-    actual_qty: payload.actualQty,
-    actual_at: payload.actualAt,
-    linked_trade_id: payload.linkedTradeId,
-    reason: payload.reason,
-    range_high: payload.rangeHigh,
-    range_low: payload.rangeLow,
-    range_end_close: payload.rangeEndClose,
-    reviewed_at: payload.reviewedAt,
-  }
-}
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -70,9 +37,7 @@ export async function createAdvisorSignal(
   payload: AdvisorSignalCreatePayload,
 ): Promise<AdvisorSignal> {
   try {
-    return await invoke<AdvisorSignal>('create_advisor_signal', {
-      payload: toCreateSignalCommandPayload(payload),
-    })
+    return await invoke<AdvisorSignal>('create_advisor_signal', { payload })
   } catch (error) {
     throw createRepositoryError('创建投顾推荐失败', error)
   }
@@ -82,9 +47,7 @@ export async function updateAdvisorSignal(
   payload: AdvisorSignalUpdatePayload,
 ): Promise<AdvisorSignal> {
   try {
-    return await invoke<AdvisorSignal>('update_advisor_signal', {
-      payload: toUpdateSignalCommandPayload(payload),
-    })
+    return await invoke<AdvisorSignal>('update_advisor_signal', { payload })
   } catch (error) {
     throw createRepositoryError('更新投顾推荐失败', error)
   }
@@ -110,9 +73,7 @@ export async function getFollowUp(signalId: number): Promise<FollowUp | null> {
 /** 创建或更新复盘记录（按 signalId upsert）。 */
 export async function upsertFollowUp(payload: FollowUpUpsertPayload): Promise<FollowUp> {
   try {
-    return await invoke<FollowUp>('upsert_follow_up', {
-      payload: toUpsertFollowUpCommandPayload(payload),
-    })
+    return await invoke<FollowUp>('upsert_follow_up', { payload })
   } catch (error) {
     throw createRepositoryError('保存复盘记录失败', error)
   }
