@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { NCard, NDataTable, type DataTableColumns } from 'naive-ui'
-import type { AdvisorSignal, FollowUp } from '@/domain/types'
+import type { AdvisorSignal } from '@/domain/types'
 import { aggregate, evaluateSignal } from '@/services/advisor-review-calc.service'
 import { formatMoney } from '@/domain/types/financial'
 import { useAdvisorStore } from '../store'
@@ -21,12 +21,11 @@ const props = defineProps<{ signals: AdvisorSignal[] }>()
 interface SummaryRow {
   advisor: string
   total: number
-  accuracy: string
+  reviewedCount: number
+  decisionAccuracy: string
   followedPnl: string
-  missedAmount: string
-  avoidedAmount: string
-  contribution: string
-  contributionClass: string
+  totalRegret: string
+  regretClass: string
 }
 
 const rows = computed<SummaryRow[]>(() => {
@@ -38,29 +37,32 @@ const rows = computed<SummaryRow[]>(() => {
   }
   const result: SummaryRow[] = []
   for (const [advisor, sigs] of byAdvisor) {
-    const outcomes = sigs.map((s) => {
-      const fu: FollowUp | undefined = store.getFollowUpFor(s.id)
+    // 只统计已复盘（有 rangeEndClose）的
+    const reviewed = sigs.filter((s) => {
+      const fu = store.getFollowUpFor(s.id)
+      return fu?.rangeEndClose != null
+    })
+    const outcomes = reviewed.map((s) => {
+      const fu = store.getFollowUpFor(s.id)!
       return evaluateSignal({
+        direction: s.direction,
         refPrice: s.refPrice,
-        followed: fu?.followed ?? false,
-        actualPnl: undefined,
+        followed: fu.followed,
         hypotheticalQty: s.hypotheticalQty,
-        rangeHigh: fu?.rangeHigh ?? 0,
-        rangeLow: fu?.rangeLow ?? 0,
-        rangeEndClose: fu?.rangeEndClose ?? 0,
+        rangeHigh: fu.rangeHigh ?? 0,
+        rangeLow: fu.rangeLow ?? 0,
+        rangeEndClose: fu.rangeEndClose ?? 0,
       })
     })
     const sum = aggregate(outcomes)
-    const contribution = sum.contribution
     result.push({
       advisor,
-      total: sum.total,
-      accuracy: `${(sum.accuracy * 100).toFixed(0)}%`,
+      total: sigs.length,
+      reviewedCount: reviewed.length,
+      decisionAccuracy: `${(sum.decisionAccuracy * 100).toFixed(0)}%`,
       followedPnl: formatMoney(sum.followedPnl),
-      missedAmount: formatMoney(sum.missedAmount),
-      avoidedAmount: formatMoney(sum.avoidedAmount),
-      contribution: formatMoney(contribution),
-      contributionClass: contribution >= 0 ? 'pos' : 'neg',
+      totalRegret: formatMoney(sum.totalRegret),
+      regretClass: sum.totalRegret > 0 ? 'neg' : 'pos',
     })
   }
   return result
@@ -69,13 +71,12 @@ const rows = computed<SummaryRow[]>(() => {
 const columns: DataTableColumns<SummaryRow> = [
   { title: '老师', key: 'advisor' },
   { title: '推荐数', key: 'total' },
-  { title: '准确率', key: 'accuracy' },
+  { title: '已复盘', key: 'reviewedCount' },
+  { title: '决策正确率', key: 'decisionAccuracy' },
   { title: '跟随收益', key: 'followedPnl' },
-  { title: '踏空', key: 'missedAmount' },
-  { title: '躲避', key: 'avoidedAmount' },
   {
-    title: '贡献度', key: 'contribution',
-    render: (r) => h('span', { class: r.contributionClass }, r.contribution),
+    title: '本可避免损失', key: 'totalRegret',
+    render: (r) => h('span', { class: r.regretClass }, r.totalRegret),
   },
 ]
 </script>

@@ -16,9 +16,14 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import { NButton, NCard, NDataTable, NTag, type DataTableColumns } from 'naive-ui'
-import type { AdvisorSignal, FollowUp } from '@/domain/types'
+import type { AdvisorSignal } from '@/domain/types'
 import { ADVISOR_DIRECTION_LABELS } from '@/domain/types'
 import { formatMoney } from '@/domain/types/financial'
+import {
+  evaluateSignal,
+  OUTCOME_LABELS,
+  OUTCOME_TAG_TYPES,
+} from '@/services/advisor-review-calc.service'
 import { useAdvisorStore } from '../store'
 
 const store = useAdvisorStore()
@@ -28,16 +33,26 @@ defineProps<{
 }>()
 const emit = defineEmits<{ review: [AdvisorSignal] }>()
 
-function statusOf(s: AdvisorSignal): { label: string; type: 'default' | 'success' | 'warning' } {
-  const fu: FollowUp | undefined = store.getFollowUpFor(s.id)
+function statusOf(s: AdvisorSignal): { label: string; type: 'default' | 'success' | 'warning' | 'error' } {
+  const fu = store.getFollowUpFor(s.id)
   if (!fu) return { label: '待复盘', type: 'default' }
-  if (fu.followed) return { label: '已跟随', type: 'success' }
-  if (fu.rangeEndClose != null && s.refPrice > 0) {
-    return fu.rangeEndClose >= s.refPrice
-      ? { label: '踏空', type: 'warning' }
-      : { label: '躲避', type: 'success' }
+  // 已填区间价的，用算法判定 8 状态之一
+  if (fu.rangeEndClose != null) {
+    const o = evaluateSignal({
+      direction: s.direction,
+      refPrice: s.refPrice,
+      followed: fu.followed,
+      hypotheticalQty: s.hypotheticalQty,
+      rangeHigh: fu.rangeHigh ?? 0,
+      rangeLow: fu.rangeLow ?? 0,
+      rangeEndClose: fu.rangeEndClose,
+    })
+    return { label: OUTCOME_LABELS[o.outcomeType], type: OUTCOME_TAG_TYPES[o.outcomeType] }
   }
-  return { label: '未跟随', type: 'default' }
+  // 没填区间价，只显示是否跟随
+  return fu.followed
+    ? { label: '已跟随', type: 'success' }
+    : { label: '未跟随', type: 'default' }
 }
 
 /** 可空金额格式化：null/undefined 显示 — */

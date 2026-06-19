@@ -69,25 +69,41 @@
         <NCard title="实时计算结果" size="small" :bordered="true">
           <NSpace vertical :size="8">
             <div>
-              结果类型：
+              状态：
               <NTag :type="outcomeTagType">{{ outcomeLabel }}</NTag>
+              <span v-if="outcome" class="advisor-followup__desc">{{ outcomeDescription }}</span>
             </div>
-            <div v-if="outcome?.missedAmount != null" class="pos">
-              踏空金额：{{ formatMoney(outcome.missedAmount) }}
-              （{{ pctText(outcome.missedPct) }}）
+            <!-- 跟随：显示实际盈亏 -->
+            <div v-if="isFollowedType && actualPnlYuan != null" :class="actualPnlYuan >= 0 ? 'pos' : 'neg'">
+              实际盈亏：{{ formatMoney(yuanToFen(actualPnlYuan)) }}
+            </div>
+            <!-- 踏空 / 卖飞：错过上涨 -->
+            <div v-if="outcome?.missedAmount != null" class="neg">
+              错过上涨：{{ formatMoney(outcome.missedAmount) }}（{{ pctText(outcome.missedPct) }}）
             </div>
             <div v-else-if="outcome?.missedPct != null">
-              踏空比例：{{ pctText(outcome.missedPct) }}（未填假设量）
+              错过上涨比例：{{ pctText(outcome.missedPct) }}（未填假设量）
             </div>
-            <div v-if="outcome?.avoidedAmount != null" class="neg">
-              躲避金额：{{ formatMoney(outcome.avoidedAmount) }}
-              （{{ pctText(outcome.avoidedPct) }}）
+            <!-- 躲过下跌 / 逃顶：躲过的下跌 -->
+            <div v-if="outcome?.avoidedAmount != null" class="pos">
+              躲过下跌：{{ formatMoney(outcome.avoidedAmount) }}（{{ pctText(outcome.avoidedPct) }}）
             </div>
             <div v-else-if="outcome?.avoidedPct != null">
-              躲避比例：{{ pctText(outcome.avoidedPct) }}（未填假设量）
+              躲过下跌比例：{{ pctText(outcome.avoidedPct) }}（未填假设量）
             </div>
-            <div v-if="outcome?.outcomeType === 'followed' && actualPnlYuan != null" class="pos">
-              跟随盈亏：{{ formatMoney(yuanToFen(actualPnlYuan)) }}
+            <!-- 正确持筹：没卖多赚的 -->
+            <div v-if="outcome?.gainedAmount != null" class="pos">
+              多赚金额：{{ formatMoney(outcome.gainedAmount) }}（{{ pctText(outcome.gainedPct) }}）
+            </div>
+            <div v-else-if="outcome?.gainedPct != null">
+              多赚比例：{{ pctText(outcome.gainedPct) }}（未填假设量）
+            </div>
+            <!-- 死扛被套：没卖多亏的 -->
+            <div v-if="outcome?.lostAmount != null" class="neg">
+              多亏金额：{{ formatMoney(outcome.lostAmount) }}（{{ pctText(outcome.lostPct) }}）
+            </div>
+            <div v-else-if="outcome?.lostPct != null">
+              多亏比例：{{ pctText(outcome.lostPct) }}（未填假设量）
             </div>
           </NSpace>
         </NCard>
@@ -107,7 +123,13 @@ import {
   NButton, NCard, NDatePicker, NDrawer, NDrawerContent, NFormItem,
   NInput, NInputNumber, NRadioButton, NRadioGroup, NSpace, NTag, NText, useMessage,
 } from 'naive-ui'
-import { evaluateSignal, type ReviewOutcome } from '@/services/advisor-review-calc.service'
+import {
+  evaluateSignal,
+  OUTCOME_LABELS,
+  OUTCOME_DESCRIPTIONS,
+  OUTCOME_TAG_TYPES,
+  type ReviewOutcome,
+} from '@/services/advisor-review-calc.service'
 import { fenToYuan, formatMoney, yuanToFen } from '@/domain/types/financial'
 import { useAdvisorStore } from '../store'
 import type { AdvisorSignal, FollowUpUpsertPayload } from '@/domain/types'
@@ -150,6 +172,7 @@ watch(
 const outcome = computed<ReviewOutcome | null>(() => {
   if (!props.signal) return null
   return evaluateSignal({
+    direction: props.signal.direction,
     refPrice: props.signal.refPrice,
     followed: followed.value,
     actualPnl: actualPnlYuan.value != null ? yuanToFen(actualPnlYuan.value) : undefined,
@@ -161,20 +184,21 @@ const outcome = computed<ReviewOutcome | null>(() => {
 })
 
 const outcomeLabel = computed(() => {
-  switch (outcome.value?.outcomeType) {
-    case 'followed': return '已跟随'
-    case 'missed_gain': return '踏空'
-    case 'avoided_loss': return '躲避'
-    default: return '—'
-  }
+  const t = outcome.value?.outcomeType
+  return t ? OUTCOME_LABELS[t] : '—'
+})
+const outcomeDescription = computed(() => {
+  const t = outcome.value?.outcomeType
+  return t ? OUTCOME_DESCRIPTIONS[t] : ''
 })
 const outcomeTagType = computed<'success' | 'warning' | 'error'>(() => {
-  switch (outcome.value?.outcomeType) {
-    case 'followed': return 'success'
-    case 'missed_gain': return 'error'
-    case 'avoided_loss': return 'warning'
-    default: return 'warning'
-  }
+  const t = outcome.value?.outcomeType
+  return t ? OUTCOME_TAG_TYPES[t] : 'warning'
+})
+const isFollowedType = computed(() => {
+  const t = outcome.value?.outcomeType
+  return t === 'followed_buy_gain' || t === 'followed_buy_loss'
+    || t === 'followed_sell_drop' || t === 'followed_sell_rise'
 })
 
 function pctText(pct: number | undefined): string {
