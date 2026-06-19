@@ -10,6 +10,7 @@ use std::sync::{Arc, Mutex};
 use rusqlite::{params, Connection, Error, ErrorCode};
 
 use crate::common::now_iso;
+use crate::market::{refresh_and_cache_a_share, update_signal_tracking};
 use crate::models::{
     AdvisorSignal, CreateAdvisorSignalPayload, FollowUp, UpdateAdvisorSignalPayload,
     UpsertFollowUpPayload,
@@ -293,3 +294,55 @@ fn get_follow_up_by_id(connection: &Connection, id: i64) -> Result<FollowUp, Str
         .ok_or_else(|| "复盘记录不存在".to_string())?
         .map_err(map_advisor_error)
 }
+
+/// 行情刷新结果（单条）
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RefreshItem {
+    pub signal_id: i64,
+    pub code: String,
+    pub success: bool,
+    pub message: String,
+}
+
+/// 刷新所有推荐信号的后市行情：拉日线 → 缓存 → 更新 signal_tracking
+#[tauri::command(rename_all = "camelCase")]
+pub fn refresh_advisor_market(db: tauri::State<'_, Arc<Mutex<Connection>>>) -> Result<Vec<RefreshItem>, String> {
+    let connection = lock_connection(&db)?;
+    // 取所有推荐信号（含 asset code）
+    let mut stmt = connection
+        .prepare("SELECT s.id, s.signal_at, a.code FROM advisor_signals s INNER JOIN assets a ON s.asset_id = a.id")
+        .map_err(map_advisor_error)?;
+    let signals: Vec<(i64, String, String)> = stmt
+        .query_map(params![], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+        .map_err(map_advisor_error)?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(map_advisor_error)?;
+
+    let mut results = Vec::with_capacity(signals.len());
+    for (signal_id, signal_at, code) in signals {
+        // signal_at 取日期部分作为拉取起点
+        let beg = signal_at.get(..10).unwrap_or(&signal_at);
+        // 1. 拉取并缓存日线
+        if let Err(e) = refresh_and_cache_a_share(&connection, &code, beg) {
+            results.push(RefreshItem {
+                signal_id, code, success: false,
+                message: format!("拉取行情失败: {e}"),
+            });
+            continue;
+        }
+        // 2. 计算 T+N 追踪并写入
+        match update_signal_tracking(&connection, signal_id, &code, beg) {
+            Ok(()) => results.push(RefreshItem {
+                signal_id, code, success: true,
+                message: "已更新".to_string(),
+            }),
+            Err(e) => results.push(RefreshItem {
+                signal_id, code, success: false,
+                message: format!("更新追踪失败: {e}"),
+            }),
+        }
+    }
+    Ok(results)
+}
+
