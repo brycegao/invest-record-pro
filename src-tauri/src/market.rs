@@ -230,3 +230,154 @@ pub fn update_signal_tracking(
 /// 供命令层使用的 DB 句柄别名
 #[allow(dead_code)]
 pub type DbRef<'a> = &'a Arc<Mutex<Connection>>;
+
+/// 单条推荐的 T+N 收盘价快照（用于策略统计）
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SignalTracking {
+    pub signal_id: i64,
+    pub advisor: String,
+    pub direction: String,
+    pub ref_price: i64,      // 推荐价（分）
+    pub signal_at: String,
+    pub t1_close: Option<i64>,
+    pub t3_close: Option<i64>,
+    pub t5_close: Option<i64>,
+    pub t10_close: Option<i64>,
+    pub t20_close: Option<i64>,
+    pub max_close: Option<i64>,
+    pub max_close_day: Option<i64>,
+    pub min_close: Option<i64>,
+    pub min_close_day: Option<i64>,
+    pub total_days: i64,
+}
+
+/// 某老师某方向的聚合统计
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StrategyStat {
+    pub advisor: String,
+    pub direction: String,
+    pub count: i64,
+    /// T+N 相对推荐价的平均涨跌幅（小数，0.02=2%）
+    pub avg_t1_pct: Option<f64>,
+    pub avg_t3_pct: Option<f64>,
+    pub avg_t5_pct: Option<f64>,
+    pub avg_t10_pct: Option<f64>,
+    pub avg_t20_pct: Option<f64>,
+    /// 平均「最高收盘价出现日」：反映多久见顶
+    pub avg_max_close_day: Option<f64>,
+    /// 平均「最低收盘价出现日」：反映多久见底
+    pub avg_min_close_day: Option<f64>,
+    /// T+5 正收益比例（收盘 >= 推荐）
+    pub t5_win_rate: Option<f64>,
+}
+
+fn avg_pct(tracking: &[&SignalTracking], pick: fn(&SignalTracking) -> Option<i64>) -> Option<f64> {
+    let pairs: Vec<(i64, i64)> = tracking
+        .iter()
+        .copied()
+        .filter_map(|t| pick(t).map(|c| (c, t.ref_price)))
+        .filter(|(_, r)| *r > 0)
+        .collect();
+    if pairs.is_empty() {
+        return None;
+    }
+    let sum: f64 = pairs.iter().map(|(c, r)| (c - r) as f64 / *r as f64).sum();
+    Some(sum / pairs.len() as f64)
+}
+
+fn avg_day(tracking: &[&SignalTracking], pick: fn(&SignalTracking) -> Option<i64>) -> Option<f64> {
+    let vals: Vec<i64> = tracking.iter().copied().filter_map(pick).collect();
+    if vals.is_empty() {
+        return None;
+    }
+    let sum: f64 = vals.iter().map(|d| *d as f64).sum();
+    Some(sum / vals.len() as f64)
+}
+
+/// 按「老师 × 方向」聚合策略统计
+pub fn aggregate_strategy_stats(connection: &Connection) -> Result<Vec<StrategyStat>, String> {
+    // JOIN signal_tracking + advisor_signals，取需要的列
+    let mut stmt = connection
+        .prepare(
+            "SELECT st.signal_id, s.advisor, s.direction, s.ref_price, s.signal_at,
+                    st.t1_close, st.t3_close, st.t5_close, st.t10_close, st.t20_close,
+                    st.max_close, st.max_close_day, st.min_close, st.min_close_day, st.total_days
+             FROM signal_tracking st
+             INNER JOIN advisor_signals s ON st.signal_id = s.id",
+        )
+        .map_err(|e| format!("查询 tracking 失败: {e}"))?;
+    let rows: Vec<SignalTracking> = stmt
+        .query_map(params![], |row| {
+            Ok(SignalTracking {
+                signal_id: row.get(0)?,
+                advisor: row.get(1)?,
+                direction: row.get(2)?,
+                ref_price: row.get(3)?,
+                signal_at: row.get(4)?,
+                t1_close: row.get(5)?,
+                t3_close: row.get(6)?,
+                t5_close: row.get(7)?,
+                t10_close: row.get(8)?,
+                t20_close: row.get(9)?,
+                max_close: row.get(10)?,
+                max_close_day: row.get(11)?,
+                min_close: row.get(12)?,
+                min_close_day: row.get(13)?,
+                total_days: row.get(14)?,
+            })
+        })
+        .map_err(|e| format!("读取 tracking 失败: {e}"))?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| format!("收集 tracking 失败: {e}"))?;
+
+    // 按 (advisor, direction) 分组
+    use std::collections::BTreeMap;
+    let mut groups: BTreeMap<(String, String), Vec<&SignalTracking>> = BTreeMap::new();
+    for t in &rows {
+        groups
+            .entry((t.advisor.clone(), t.direction.clone()))
+            .or_default()
+            .push(t);
+    }
+
+    let mut stats = Vec::new();
+    for ((advisor, direction), group) in groups {
+        let count = group.len() as i64;
+        let avg_t1_pct = avg_pct(&group, |t| t.t1_close);
+        let avg_t3_pct = avg_pct(&group, |t| t.t3_close);
+        let avg_t5_pct = avg_pct(&group, |t| t.t5_close);
+        let avg_t10_pct = avg_pct(&group, |t| t.t10_close);
+        let avg_t20_pct = avg_pct(&group, |t| t.t20_close);
+        let avg_max_close_day = avg_day(&group, |t| t.max_close_day);
+        let avg_min_close_day = avg_day(&group, |t| t.min_close_day);
+        // T+5 正收益比例
+        let t5_win_rate = {
+            let has_any_t5 = group.iter().any(|t| t.t5_close.is_some());
+            if !has_any_t5 {
+                None
+            } else {
+                let win_count = group
+                    .iter()
+                    .filter(|t| t.t5_close.map(|c| c >= t.ref_price).unwrap_or(false))
+                    .count();
+                Some(win_count as f64 / group.len() as f64)
+            }
+        };
+        stats.push(StrategyStat {
+            advisor,
+            direction,
+            count,
+            avg_t1_pct,
+            avg_t3_pct,
+            avg_t5_pct,
+            avg_t10_pct,
+            avg_t20_pct,
+            avg_max_close_day,
+            avg_min_close_day,
+            t5_win_rate,
+        });
+    }
+    Ok(stats)
+}

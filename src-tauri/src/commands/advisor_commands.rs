@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use rusqlite::{params, Connection, Error, ErrorCode};
 
 use crate::common::now_iso;
-use crate::market::{refresh_and_cache_a_share, update_signal_tracking};
+use crate::market::{aggregate_strategy_stats, refresh_and_cache_a_share, update_signal_tracking, StrategyStat};
 use crate::models::{
     AdvisorSignal, CreateAdvisorSignalPayload, FollowUp, UpdateAdvisorSignalPayload,
     UpsertFollowUpPayload,
@@ -344,5 +344,12 @@ pub fn refresh_advisor_market(db: tauri::State<'_, Arc<Mutex<Connection>>>) -> R
         }
     }
     Ok(results)
+}
+
+/// 获取策略统计（按 老师×方向 聚合 T+N 涨跌幅等）
+#[tauri::command(rename_all = "camelCase")]
+pub fn get_strategy_stats(db: tauri::State<'_, Arc<Mutex<Connection>>>) -> Result<Vec<StrategyStat>, String> {
+    let connection = lock_connection(&db)?;
+    aggregate_strategy_stats(&connection)
 }
 

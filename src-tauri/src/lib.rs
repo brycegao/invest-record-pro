@@ -66,6 +66,7 @@ pub fn run() {
             commands::upsert_follow_up,
             commands::delete_follow_up,
             commands::refresh_advisor_market,
+            commands::get_strategy_stats,
             commands::get_market_observations,
             commands::create_market_observation,
             commands::update_market_observation,
