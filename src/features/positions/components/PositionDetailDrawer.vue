@@ -57,8 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { h } from 'vue'
+import { computed, h } from 'vue'
 import {
   NDataTable,
   NDescriptions,
