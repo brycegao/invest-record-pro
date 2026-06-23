@@ -63,7 +63,7 @@
 
         <NFormItem label="假设量">
           <NSpace align="center" class="advisor-form__full">
-            <NInputNumber v-model:value="formData.hypotheticalQty" :precision="0" :step="100" :min="0" placeholder="股数" />
+            <NInputNumber v-model:value="hypotheticalQty" :precision="0" :step="100" :min="0" placeholder="股数" />
             <NText>股</NText>
           </NSpace>
         </NFormItem>
