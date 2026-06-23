@@ -168,7 +168,7 @@ import {
   NTag,
 } from 'naive-ui'
 import type { MonthlyReport } from '@/domain/types'
-import { useMonthlyReportsStore } from '@/features/monthly-reports/store'
+import { useMonthlyReportsStore } from '../store'
 import { fenToYuan } from '@/domain/types/financial'
 
 type MonthlyAggregationSnapshot = {
