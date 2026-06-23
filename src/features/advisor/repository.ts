@@ -13,16 +13,7 @@ import type {
   FollowUp,
   FollowUpUpsertPayload,
 } from '@/domain/types'
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message
-  if (typeof error === 'string') return error
-  return '未知错误'
-}
-
-function createRepositoryError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
-}
+import { createServiceError as createRepositoryError } from '@/shared/utils/error'
 
 /** 获取所有推荐信号（带标的信息），按推荐时间倒序。 */
 export async function getAdvisorSignals(): Promise<AdvisorSignal[]> {
