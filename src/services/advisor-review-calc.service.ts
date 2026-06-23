@@ -122,7 +122,16 @@ function downPct(ref: number, low: number): number {
 
 /** 评估单条推荐信号。 */
 export function evaluateSignal(inp: ReviewInput): ReviewOutcome {
-  const { direction, refPrice, followed, actualPrice, hypotheticalQty: qty, rangeHigh, rangeLow, rangeEndClose } = inp
+  const {
+    direction,
+    refPrice,
+    followed,
+    actualPrice,
+    hypotheticalQty: qty,
+    rangeHigh,
+    rangeLow,
+    rangeEndClose,
+  } = inp
   // 基准价：跟随用实际成交价，未跟随用推荐价
   const baseline = followed ? (actualPrice ?? refPrice) : refPrice
 
@@ -136,23 +145,55 @@ export function evaluateSignal(inp: ReviewInput): ReviewOutcome {
   if (direction === 'buy') {
     if (followed) {
       return rose
-        ? { outcomeType: 'followed_buy_gain', gainedAmount: upAmount(rangeHigh, baseline, qty), gainedPct: upPct(rangeHigh, baseline) }
-        : { outcomeType: 'followed_buy_loss', lostAmount: downAmount(baseline, rangeLow, qty), lostPct: downPct(baseline, rangeLow) }
+        ? {
+            outcomeType: 'followed_buy_gain',
+            gainedAmount: upAmount(rangeHigh, baseline, qty),
+            gainedPct: upPct(rangeHigh, baseline),
+          }
+        : {
+            outcomeType: 'followed_buy_loss',
+            lostAmount: downAmount(baseline, rangeLow, qty),
+            lostPct: downPct(baseline, rangeLow),
+          }
     }
     return rose
-      ? { outcomeType: 'missed_buy', missedAmount: upAmount(rangeHigh, refPrice, qty), missedPct: upPct(rangeHigh, refPrice) }
-      : { outcomeType: 'avoided_buy', avoidedAmount: downAmount(refPrice, rangeLow, qty), avoidedPct: downPct(refPrice, rangeLow) }
+      ? {
+          outcomeType: 'missed_buy',
+          missedAmount: upAmount(rangeHigh, refPrice, qty),
+          missedPct: upPct(rangeHigh, refPrice),
+        }
+      : {
+          outcomeType: 'avoided_buy',
+          avoidedAmount: downAmount(refPrice, rangeLow, qty),
+          avoidedPct: downPct(refPrice, rangeLow),
+        }
   }
 
   // direction === 'sell'
   if (followed) {
     return rose
-      ? { outcomeType: 'followed_sell_rise', missedAmount: upAmount(rangeHigh, baseline, qty), missedPct: upPct(rangeHigh, baseline) }
-      : { outcomeType: 'followed_sell_drop', avoidedAmount: downAmount(baseline, rangeLow, qty), avoidedPct: downPct(baseline, rangeLow) }
+      ? {
+          outcomeType: 'followed_sell_rise',
+          missedAmount: upAmount(rangeHigh, baseline, qty),
+          missedPct: upPct(rangeHigh, baseline),
+        }
+      : {
+          outcomeType: 'followed_sell_drop',
+          avoidedAmount: downAmount(baseline, rangeLow, qty),
+          avoidedPct: downPct(baseline, rangeLow),
+        }
   }
   return rose
-    ? { outcomeType: 'held_through_gain', gainedAmount: upAmount(rangeHigh, refPrice, qty), gainedPct: upPct(rangeHigh, refPrice) }
-    : { outcomeType: 'held_through_loss', lostAmount: downAmount(refPrice, rangeLow, qty), lostPct: downPct(refPrice, rangeLow) }
+    ? {
+        outcomeType: 'held_through_gain',
+        gainedAmount: upAmount(rangeHigh, refPrice, qty),
+        gainedPct: upPct(rangeHigh, refPrice),
+      }
+    : {
+        outcomeType: 'held_through_loss',
+        lostAmount: downAmount(refPrice, rangeLow, qty),
+        lostPct: downPct(refPrice, rangeLow),
+      }
 }
 
 export interface WeeklySummary {

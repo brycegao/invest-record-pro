@@ -42,28 +42,54 @@
 
         <NFormItem label="参考价" path="refPrice">
           <NSpace align="center" class="advisor-form__full">
-            <NInputNumber v-model:value="refPriceYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NInputNumber
+              v-model:value="refPriceYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
 
         <NFormItem label="目标价">
           <NSpace align="center" class="advisor-form__full">
-            <NInputNumber v-model:value="targetPriceYuan" :precision="2" :step="0.01" :min="0" clearable placeholder="元" />
+            <NInputNumber
+              v-model:value="targetPriceYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              clearable
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
 
         <NFormItem label="止损位">
           <NSpace align="center" class="advisor-form__full">
-            <NInputNumber v-model:value="stopLossYuan" :precision="2" :step="0.01" :min="0" clearable placeholder="元" />
+            <NInputNumber
+              v-model:value="stopLossYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              clearable
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
 
         <NFormItem label="假设量">
           <NSpace align="center" class="advisor-form__full">
-            <NInputNumber v-model:value="hypotheticalQty" :precision="0" :step="100" :min="0" placeholder="股数" />
+            <NInputNumber
+              v-model:value="hypotheticalQty"
+              :precision="0"
+              :step="100"
+              :min="0"
+              placeholder="股数"
+            />
             <NText>股</NText>
           </NSpace>
         </NFormItem>
@@ -85,8 +111,19 @@
 import { computed, ref, watch } from 'vue'
 import type { FormInst, FormRules } from 'naive-ui'
 import {
-  NButton, NCard, NDatePicker, NForm, NFormItem, NInput, NInputNumber,
-  NRadioButton, NRadioGroup, NSelect, NSpace, NText, useMessage,
+  NButton,
+  NCard,
+  NDatePicker,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NRadioButton,
+  NRadioGroup,
+  NSelect,
+  NSpace,
+  NText,
+  useMessage,
 } from 'naive-ui'
 import type { AdvisorDirection, AdvisorSignalCreatePayload } from '@/domain/types'
 import { yuanToFen } from '@/domain/types/financial'
@@ -122,10 +159,14 @@ const formRules: FormRules = {
 
 // 给 NForm 校验用的合成字段
 const refPriceFen = computed(() => yuanToFen(refPriceYuan.value ?? 0))
-watch([signalAtTs, refPriceYuan], () => {
-  formData.value.signalAt = new Date(signalAtTs.value).toISOString()
-  ;(formData.value as unknown as { refPrice: number }).refPrice = refPriceFen.value
-}, { immediate: true })
+watch(
+  [signalAtTs, refPriceYuan],
+  () => {
+    formData.value.signalAt = new Date(signalAtTs.value).toISOString()
+    ;(formData.value as unknown as { refPrice: number }).refPrice = refPriceFen.value
+  },
+  { immediate: true },
+)
 
 void loadAssetOptions('')
 
@@ -211,6 +252,10 @@ function handleReset(): void {
   gap: 8px;
   margin-top: 8px;
 }
-:deep(.pos) { color: #e74c3c; }
-:deep(.neg) { color: #27ae60; }
+:deep(.pos) {
+  color: #e74c3c;
+}
+:deep(.neg) {
+  color: #27ae60;
+}
 </style>

@@ -78,7 +78,8 @@ const columns: DataTableColumns<SummaryRow> = [
   { title: '正确收益', key: 'totalGain' },
   { title: '错误损失', key: 'totalRegret' },
   {
-    title: '净效果', key: 'netEffect',
+    title: '净效果',
+    key: 'netEffect',
     render: (r) => h('span', { class: r.netClass }, r.netEffect),
   },
 ]
@@ -88,6 +89,12 @@ const columns: DataTableColumns<SummaryRow> = [
 .advisor-summary {
   margin-bottom: 16px;
 }
-:deep(.pos) { color: #e74c3c; font-weight: 600; }
-:deep(.neg) { color: #27ae60; font-weight: 600; }
+:deep(.pos) {
+  color: #e74c3c;
+  font-weight: 600;
+}
+:deep(.neg) {
+  color: #27ae60;
+  font-weight: 600;
+}
 </style>

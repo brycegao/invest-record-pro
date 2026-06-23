@@ -11,9 +11,8 @@
     <NDrawerContent title="复盘推荐" closable>
       <NSpace vertical :size="16">
         <div class="advisor-followup__ref">
-          推荐：{{ signal?.assetCode }} {{ signal?.assetName }}
-          ｜ 参考价 {{ formatMoney(signal?.refPrice ?? 0) }}
-          ｜ 假设量 {{ signal?.hypotheticalQty ?? 0 }} 股
+          推荐：{{ signal?.assetCode }} {{ signal?.assetName }} ｜ 参考价
+          {{ formatMoney(signal?.refPrice ?? 0) }} ｜ 假设量 {{ signal?.hypotheticalQty ?? 0 }} 股
         </div>
 
         <NRadioGroup v-model:value="followed">
@@ -24,42 +23,80 @@
         <template v-if="followed">
           <NFormItem label="实际成交价">
             <NSpace align="center" class="advisor-followup__full">
-              <NInputNumber v-model:value="actualPriceYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+              <NInputNumber
+                v-model:value="actualPriceYuan"
+                :precision="2"
+                :step="0.01"
+                :min="0"
+                placeholder="元"
+              />
               <NText>元</NText>
             </NSpace>
           </NFormItem>
           <NFormItem label="实际数量">
-            <NInputNumber v-model:value="actualQty" :precision="0" :step="100" :min="0" placeholder="股数" />
+            <NInputNumber
+              v-model:value="actualQty"
+              :precision="0"
+              :step="100"
+              :min="0"
+              placeholder="股数"
+            />
           </NFormItem>
           <NFormItem label="实际日期">
-            <NDatePicker v-model:value="actualAtTs" type="datetime" class="advisor-followup__full" />
+            <NDatePicker
+              v-model:value="actualAtTs"
+              type="datetime"
+              class="advisor-followup__full"
+            />
           </NFormItem>
-          <div class="advisor-followup__hint">基准价 = 实际成交价，与后市收盘价比较判断操作对错</div>
+          <div class="advisor-followup__hint">
+            基准价 = 实际成交价，与后市收盘价比较判断操作对错
+          </div>
         </template>
 
         <template v-else>
           <NFormItem label="未跟随原因">
             <NInput v-model:value="reason" type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" />
           </NFormItem>
-          <div class="advisor-followup__hint">基准价 = 老师推荐价，与后市收盘价比较判断踏空/躲过</div>
+          <div class="advisor-followup__hint">
+            基准价 = 老师推荐价，与后市收盘价比较判断踏空/躲过
+          </div>
         </template>
 
         <div class="advisor-followup__section-title">后市区间价（必填，用于判断涨跌和算金额）</div>
         <NFormItem label="区间最高价">
           <NSpace align="center" class="advisor-followup__full">
-            <NInputNumber v-model:value="rangeHighYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NInputNumber
+              v-model:value="rangeHighYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
         <NFormItem label="区间最低价">
           <NSpace align="center" class="advisor-followup__full">
-            <NInputNumber v-model:value="rangeLowYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NInputNumber
+              v-model:value="rangeLowYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
         <NFormItem label="终点收盘价">
           <NSpace align="center" class="advisor-followup__full">
-            <NInputNumber v-model:value="rangeEndCloseYuan" :precision="2" :step="0.01" :min="0" placeholder="元" />
+            <NInputNumber
+              v-model:value="rangeEndCloseYuan"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              placeholder="元"
+            />
             <NText>元</NText>
           </NSpace>
         </NFormItem>
@@ -81,7 +118,9 @@
             </div>
             <!-- 躲过下跌 / 逃顶：躲过的下跌 -->
             <div v-if="outcome?.avoidedAmount != null" class="pos">
-              躲过下跌：{{ formatMoney(outcome.avoidedAmount) }}（{{ pctText(outcome.avoidedPct) }}）
+              躲过下跌：{{ formatMoney(outcome.avoidedAmount) }}（{{
+                pctText(outcome.avoidedPct)
+              }}）
             </div>
             <div v-else-if="outcome?.avoidedPct != null">
               躲过下跌比例：{{ pctText(outcome.avoidedPct) }}（未填假设量）
@@ -115,8 +154,20 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import {
-  NButton, NCard, NDatePicker, NDrawer, NDrawerContent, NFormItem,
-  NInput, NInputNumber, NRadioButton, NRadioGroup, NSpace, NTag, NText, useMessage,
+  NButton,
+  NCard,
+  NDatePicker,
+  NDrawer,
+  NDrawerContent,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NRadioButton,
+  NRadioGroup,
+  NSpace,
+  NTag,
+  NText,
+  useMessage,
 } from 'naive-ui'
 import {
   evaluateSignal,
@@ -157,7 +208,8 @@ watch(
     reason.value = existing?.reason ?? ''
     rangeHighYuan.value = existing?.rangeHigh != null ? fenToYuan(existing.rangeHigh) : null
     rangeLowYuan.value = existing?.rangeLow != null ? fenToYuan(existing.rangeLow) : null
-    rangeEndCloseYuan.value = existing?.rangeEndClose != null ? fenToYuan(existing.rangeEndClose) : null
+    rangeEndCloseYuan.value =
+      existing?.rangeEndClose != null ? fenToYuan(existing.rangeEndClose) : null
   },
   { immediate: true },
 )
@@ -190,12 +242,15 @@ const outcomeTagType = computed<'success' | 'warning' | 'error'>(() => {
 })
 
 function pctText(pct: number | undefined): string {
-  return `${(((pct ?? 0)) * 100).toFixed(1)}%`
+  return `${((pct ?? 0) * 100).toFixed(1)}%`
 }
 
 async function handleSave(): Promise<void> {
   if (!props.signal) return
-  if (!followed.value && (rangeHighYuan.value == null || rangeLowYuan.value == null || rangeEndCloseYuan.value == null)) {
+  if (
+    !followed.value &&
+    (rangeHighYuan.value == null || rangeLowYuan.value == null || rangeEndCloseYuan.value == null)
+  ) {
     message.warning('未跟随时请填写区间最高/最低/收盘价')
     return
   }
@@ -259,6 +314,12 @@ async function handleSave(): Promise<void> {
   gap: 8px;
   margin-top: 16px;
 }
-.pos { color: #e74c3c; font-weight: 600; }
-.neg { color: #27ae60; font-weight: 600; }
+.pos {
+  color: #e74c3c;
+  font-weight: 600;
+}
+.neg {
+  color: #27ae60;
+  font-weight: 600;
+}
 </style>

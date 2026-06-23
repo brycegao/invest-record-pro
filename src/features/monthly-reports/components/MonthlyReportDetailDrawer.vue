@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 月度报告详情抽屉
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+月度报告详情抽屉 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE
+file in the project root for full license information. */
 
 <template>
   <NDrawer v-model:show="innerShow" :width="800" placement="right">
@@ -64,7 +56,9 @@
                     <span>{{ formatPercent(snapshot.planExecutionRate) }}</span>
                   </div>
                 </NDescriptionsItem>
-                <NDescriptionsItem label="遵守次数">{{ snapshot.completedPlanCount }}</NDescriptionsItem>
+                <NDescriptionsItem label="遵守次数">{{
+                  snapshot.completedPlanCount
+                }}</NDescriptionsItem>
                 <NDescriptionsItem label="偏离次数">
                   {{ snapshot.totalActivePlanCount - snapshot.completedPlanCount }}
                 </NDescriptionsItem>

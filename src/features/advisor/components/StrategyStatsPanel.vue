@@ -12,7 +12,10 @@
       </NSpace>
     </template>
 
-    <NEmpty v-if="!stats.length && !refreshing" description="暂无统计，先录入推荐并复盘后点「刷新行情」" />
+    <NEmpty
+      v-if="!stats.length && !refreshing"
+      description="暂无统计，先录入推荐并复盘后点「刷新行情」"
+    />
 
     <div v-else class="advisor-strategy__grid">
       <div v-for="s in stats" :key="`${s.advisor}-${s.direction}`" class="advisor-strategy__item">
@@ -31,9 +34,9 @@
           <span>T+20 均幅</span><b :class="pctClass(s.avgT20Pct)">{{ pctText(s.avgT20Pct) }}</b>
         </div>
         <div class="advisor-strategy__row">
-          <span>平均见顶</span><b>{{ dayText(s.avgMaxCloseDay) }}</b>
-          <span>平均见底</span><b>{{ dayText(s.avgMinCloseDay) }}</b>
-          <span>T+5 胜率</span><b :class="rateClass(s.t5WinRate)">{{ rateText(s.t5WinRate) }}</b>
+          <span>平均见顶</span><b>{{ dayText(s.avgMaxCloseDay) }}</b> <span>平均见底</span
+          ><b>{{ dayText(s.avgMinCloseDay) }}</b> <span>T+5 胜率</span
+          ><b :class="rateClass(s.t5WinRate)">{{ rateText(s.t5WinRate) }}</b>
         </div>
       </div>
     </div>
@@ -43,11 +46,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { NButton, NCard, NEmpty, NSpace, NTag, NText, useMessage } from 'naive-ui'
-import {
-  getStrategyStats,
-  refreshAdvisorMarket,
-  type StrategyStat,
-} from '../repository'
+import { getStrategyStats, refreshAdvisorMarket, type StrategyStat } from '../repository'
 
 const message = useMessage()
 const stats = ref<StrategyStat[]>([])
@@ -142,6 +141,10 @@ function rateClass(v: number | null): string {
 .advisor-strategy__row b {
   font-weight: 600;
 }
-.pos { color: #e74c3c; }
-.neg { color: #27ae60; }
+.pos {
+  color: #e74c3c;
+}
+.neg {
+  color: #27ae60;
+}
 </style>

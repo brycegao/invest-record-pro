@@ -6,11 +6,7 @@
     <AdvisorSignalForm />
     <ReviewSummaryCard :signals="store.signals" />
     <StrategyStatsPanel />
-    <AdvisorSignalTable
-      :signals="store.signals"
-      :loading="store.loading"
-      @review="handleReview"
-    />
+    <AdvisorSignalTable :signals="store.signals" :loading="store.loading" @review="handleReview" />
     <FollowUpDrawer v-model:show="drawerShow" :signal="activeSignal" />
   </NSpace>
 </template>

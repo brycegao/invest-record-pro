@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 设置页面 — 数据库/AI/显示/关于
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+设置页面 — 数据库/AI/显示/关于 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. *
+See LICENSE file in the project root for full license information. */
 
 <template>
   <div class="settings-page">
@@ -59,11 +51,7 @@
           </n-form-item>
 
           <n-space align="center">
-            <n-button
-              type="primary"
-              :loading="testingConnection"
-              @click="handleTestConnection"
-            >
+            <n-button type="primary" :loading="testingConnection" @click="handleTestConnection">
               测试连接
             </n-button>
             <n-text :type="store.ollamaAvailable ? 'success' : 'error'">
@@ -77,10 +65,7 @@
       <n-card title="显示设置">
         <n-space vertical size="medium">
           <n-form-item label="主题">
-            <n-radio-group
-              v-model:value="store.currentTheme"
-              @update:value="handleThemeChange"
-            >
+            <n-radio-group v-model:value="store.currentTheme" @update:value="handleThemeChange">
               <n-radio value="light">浅色</n-radio>
               <n-radio value="dark">深色</n-radio>
               <n-radio value="system">跟随系统</n-radio>
