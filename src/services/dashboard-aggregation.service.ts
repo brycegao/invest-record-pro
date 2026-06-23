@@ -12,7 +12,15 @@
 
 import { invoke } from '@tauri-apps/api/core'
 import dayjs from 'dayjs'
-import type { Asset, AssetType, Plan, Position, PositionItem, Trade, TradeSummary } from '@/domain/types'
+import type {
+  Asset,
+  AssetType,
+  Plan,
+  Position,
+  PositionItem,
+  Trade,
+  TradeSummary,
+} from '@/domain/types'
 import { ASSET_TYPE_LABELS } from '@/domain/types'
 
 /** 月度盈亏趋势数据点 */
@@ -160,8 +168,14 @@ async function calculateTotalRealizedPnl(): Promise<number> {
  * 计算累计已实现盈亏和浮动盈亏。
  * 已实现盈亏来自交易汇总；浮动盈亏来自最新仓位快照。
  */
-async function calculatePnlStats(): Promise<{ totalRealizedPnl: number; totalUnrealizedPnl: number }> {
-  const [totalRealizedPnl, latest] = await Promise.all([calculateTotalRealizedPnl(), getLatestPosition()])
+async function calculatePnlStats(): Promise<{
+  totalRealizedPnl: number
+  totalUnrealizedPnl: number
+}> {
+  const [totalRealizedPnl, latest] = await Promise.all([
+    calculateTotalRealizedPnl(),
+    getLatestPosition(),
+  ])
 
   return {
     totalRealizedPnl,

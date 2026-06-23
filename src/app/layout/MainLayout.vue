@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 主布局 — 侧边栏导航 + 内容区
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+主布局 — 侧边栏导航 + 内容区 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. *
+See LICENSE file in the project root for full license information. */
 
 <template>
   <NLayout class="main-layout">
@@ -18,11 +10,7 @@
         <span>Invest Record Pro</span>
       </div>
       <div class="main-layout__actions">
-        <NSwitch
-          :value="isDarkTheme"
-          size="small"
-          @update:value="handleThemeSwitch"
-        />
+        <NSwitch :value="isDarkTheme" size="small" @update:value="handleThemeSwitch" />
         <NButton size="small" secondary @click="showAbout = true">关于</NButton>
       </div>
     </NLayoutHeader>
@@ -48,11 +36,15 @@
             </a>
           </div>
           <div class="about-dialog__row">
-            <span class="about-dialog__label">作&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;者：</span>
+            <span class="about-dialog__label"
+              >作&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;者：</span
+            >
             <span>brycegao</span>
           </div>
           <div class="about-dialog__row">
-            <span class="about-dialog__label">版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本：</span>
+            <span class="about-dialog__label"
+              >版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本：</span
+            >
             <span>{{ appVersion }}</span>
           </div>
         </div>

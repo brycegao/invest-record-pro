@@ -93,8 +93,10 @@ export async function aggregateMonthlyData(month: string): Promise<MonthlyAggreg
 
   const monthTrades = trades.filter((trade) => {
     const tradeAt = dayjs(trade.tradeAt)
-    return (tradeAt.isAfter(monthStart) || tradeAt.isSame(monthStart, 'day')) &&
+    return (
+      (tradeAt.isAfter(monthStart) || tradeAt.isSame(monthStart, 'day')) &&
       (tradeAt.isBefore(monthEnd) || tradeAt.isSame(monthEnd, 'day'))
+    )
   })
 
   // 交易统计
@@ -135,7 +137,9 @@ export async function aggregateMonthlyData(month: string): Promise<MonthlyAggreg
 
   const planExecutionRate =
     nonCanceledPlans.length > 0
-      ? Math.round(((completedPlans.length + 0.5 * partialPlans.length) / nonCanceledPlans.length) * 10000)
+      ? Math.round(
+          ((completedPlans.length + 0.5 * partialPlans.length) / nonCanceledPlans.length) * 10000,
+        )
       : 0
 
   // 活跃计划（非 canceled 且非 completed）

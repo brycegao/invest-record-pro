@@ -1,17 +1,15 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 仓位详情抽屉
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+仓位详情抽屉 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE file
+in the project root for full license information. */
 
 <template>
-  <NDrawer v-model:show="innerVisible" placement="right" width="640" :show-close="true" :mask-closable="true">
+  <NDrawer
+    v-model:show="innerVisible"
+    placement="right"
+    width="640"
+    :show-close="true"
+    :mask-closable="true"
+  >
     <NDrawerContent :title="drawerTitle">
       <div v-if="!position">
         <NEmpty description="请选择一个快照查看明细" />
@@ -57,8 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { h } from 'vue'
+import { computed, h } from 'vue'
 import {
   NDataTable,
   NDescriptions,

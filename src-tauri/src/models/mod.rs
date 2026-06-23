@@ -10,6 +10,7 @@
  * See LICENSE file in the project root for full license information.
  */
 
+pub mod advisor;
 pub mod asset;
 pub mod market_observation;
 pub mod monthly_report;
@@ -18,6 +19,7 @@ pub mod position;
 pub mod review;
 pub mod trade;
 
+pub use advisor::*;
 pub use asset::*;
 pub use market_observation::*;
 pub use monthly_report::*;
