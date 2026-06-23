@@ -40,7 +40,6 @@ pnpm-debug.log*
 
 # ---------- Tauri / Rust ----------
 src-tauri/target/
-src-tauri/Cargo.lock
 src-tauri/*.log
 
 # ---------- IDE / Editor ----------
