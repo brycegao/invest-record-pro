@@ -18,6 +18,7 @@ import type {
   TradeSummary,
   TradeUpdatePayload,
 } from '@/domain/types'
+import { createServiceError as createRepositoryError } from '@/shared/utils/error'
 
 type TradeCommandPayload = {
   asset_id: number
@@ -62,22 +63,6 @@ function toTradeUpdateCommandPayload(payload: TradeUpdatePayload): TradeUpdateCo
     id: payload.id,
     ...toTradeCommandPayload(payload),
   }
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createRepositoryError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 /**

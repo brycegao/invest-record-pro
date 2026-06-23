@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 月度报告管理页面
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+月度报告管理页面 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE
+file in the project root for full license information. */
 
 <template>
   <div class="monthly-reports-page">
@@ -36,12 +28,7 @@
     </div>
 
     <!-- 错误提示 -->
-    <NAlert
-      v-if="store.hasError"
-      type="error"
-      closable
-      @close="store.clearError()"
-    >
+    <NAlert v-if="store.hasError" type="error" closable @close="store.clearError()">
       {{ store.error }}
     </NAlert>
 

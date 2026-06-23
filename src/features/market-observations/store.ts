@@ -19,18 +19,7 @@ import type {
   MarketObservationUpdatePayload,
 } from '@/domain/types'
 import * as repository from './repository'
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  if (typeof error === 'string' && error) {
-    return error
-  }
-
-  return fallback
-}
+import { getErrorMessage } from '@/shared/utils/error'
 
 function normalizeFilters(filters: MarketObservationFilter): MarketObservationFilter {
   return {

@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: StatCard 组件
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+StatCard 组件 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE file
+in the project root for full license information. */
 
 <template>
   <n-card>
@@ -18,7 +10,9 @@
           <span>{{ label }}</span>
           <n-tooltip v-if="tooltip" trigger="hover">
             <template #trigger>
-              <button class="stat-card__help" type="button" :aria-label="`${label}统计口径`">?</button>
+              <button class="stat-card__help" type="button" :aria-label="`${label}统计口径`">
+                ?
+              </button>
             </template>
             {{ tooltip }}
           </n-tooltip>

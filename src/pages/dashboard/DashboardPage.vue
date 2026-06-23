@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 仪表盘页面
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+仪表盘页面 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE file in
+the project root for full license information. */
 
 <template>
   <div class="dashboard-page">
@@ -39,7 +31,12 @@
           <p class="dashboard-page__welcome-desc">开始记录您的投资决策，让每笔交易有据可循</p>
           <NSpace justify="center" size="medium">
             <NButton type="primary" @click="$router.push({ name: 'assets' })">开始使用</NButton>
-            <NButton ghost class="dashboard-page__welcome-btn-ghost" @click="$router.push({ name: 'help' })">查看帮助</NButton>
+            <NButton
+              ghost
+              class="dashboard-page__welcome-btn-ghost"
+              @click="$router.push({ name: 'help' })"
+              >查看帮助</NButton
+            >
           </NSpace>
         </div>
       </div>
@@ -158,10 +155,19 @@ import VChart from 'vue-echarts'
 import dayjs from 'dayjs'
 import { useDashboardStore } from '@/features/dashboard/store'
 import StatCard from '@/shared/components/StatCard.vue'
-import type { DashboardData, MonthlyPnlPoint, PositionDistItem } from '@/services/dashboard-aggregation.service'
+import type {
+  DashboardData,
+  MonthlyPnlPoint,
+  PositionDistItem,
+} from '@/services/dashboard-aggregation.service'
 import type { Plan, Trade } from '@/domain/types'
 import { PLAN_STATUS_LABELS, PLAN_TYPE_LABELS, TRADE_TYPE_LABELS } from '@/domain/types'
-import { fenToYuan, formatPercent, formatSignedMoney, getMoneyColor } from '@/domain/types/financial'
+import {
+  fenToYuan,
+  formatPercent,
+  formatSignedMoney,
+  getMoneyColor,
+} from '@/domain/types/financial'
 
 // 注册 ECharts 组件
 use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
@@ -228,7 +234,9 @@ const pnlTrendOption = computed(() => {
   return {
     tooltip: {
       trigger: 'axis' as const,
-      formatter(params: Array<{ seriesName: string; value: number; marker: string; axisValue: string }>): string {
+      formatter(
+        params: Array<{ seriesName: string; value: number; marker: string; axisValue: string }>,
+      ): string {
         if (!params.length) return ''
         let result = `${params[0].axisValue}<br/>`
         for (const p of params) {
@@ -269,7 +277,9 @@ const pnlTrendOption = computed(() => {
       {
         name: '未实现盈亏',
         type: 'line' as const,
-        data: trend.map((p: MonthlyPnlPoint) => (p.hasSnapshot ? fenToYuan(p.unrealizedPnl) : null)),
+        data: trend.map((p: MonthlyPnlPoint) =>
+          p.hasSnapshot ? fenToYuan(p.unrealizedPnl) : null,
+        ),
         smooth: true,
         itemStyle: { color: '#faad14' },
         lineStyle: { width: 2, type: 'dashed' as const },
@@ -509,7 +519,9 @@ function renderEmpty() {
 }
 
 @keyframes welcome-rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .dashboard-page__welcome-content {

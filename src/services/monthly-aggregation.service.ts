@@ -14,6 +14,7 @@ import { invoke } from '@tauri-apps/api/core'
 import dayjs from 'dayjs'
 import type { Plan, Trade } from '@/domain/types'
 import { TRADE_TYPE_LABELS } from '@/domain/types'
+import { createServiceError } from '@/shared/utils/error'
 
 /** 月度聚合数据 */
 export type MonthlyAggregation = {
@@ -29,22 +30,6 @@ export type MonthlyAggregation = {
   moodDistribution: Record<string, number>
   recentTrades: Array<{ code: string; type: string; amount: number; mood?: string }>
   activePlans: Array<{ code: string; type: string; status: string }>
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 // ---- Tauri 命令调用封装 ----
@@ -93,8 +78,10 @@ export async function aggregateMonthlyData(month: string): Promise<MonthlyAggreg
 
   const monthTrades = trades.filter((trade) => {
     const tradeAt = dayjs(trade.tradeAt)
-    return (tradeAt.isAfter(monthStart) || tradeAt.isSame(monthStart, 'day')) &&
+    return (
+      (tradeAt.isAfter(monthStart) || tradeAt.isSame(monthStart, 'day')) &&
       (tradeAt.isBefore(monthEnd) || tradeAt.isSame(monthEnd, 'day'))
+    )
   })
 
   // 交易统计
@@ -135,7 +122,9 @@ export async function aggregateMonthlyData(month: string): Promise<MonthlyAggreg
 
   const planExecutionRate =
     nonCanceledPlans.length > 0
-      ? Math.round(((completedPlans.length + 0.5 * partialPlans.length) / nonCanceledPlans.length) * 10000)
+      ? Math.round(
+          ((completedPlans.length + 0.5 * partialPlans.length) / nonCanceledPlans.length) * 10000,
+        )
       : 0
 
   // 活跃计划（非 canceled 且非 completed）

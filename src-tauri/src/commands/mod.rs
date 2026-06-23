@@ -10,6 +10,7 @@
  * See LICENSE file in the project root for full license information.
  */
 
+pub mod advisor_commands;
 pub mod asset_commands;
 pub mod market_observation_commands;
 pub mod monthly_report_commands;
@@ -19,6 +20,7 @@ pub mod review_commands;
 pub mod setting_commands;
 pub mod trade_commands;
 
+pub use advisor_commands::*;
 pub use asset_commands::*;
 pub use market_observation_commands::*;
 pub use monthly_report_commands::*;

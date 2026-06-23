@@ -10,6 +10,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
+import { getErrorMessage } from '@/shared/utils/error'
+
 /** Ollama 模型信息 */
 export type OllamaModel = {
   name: string
@@ -50,18 +52,6 @@ function validateLoopbackUrl(url: string): void {
   if (!ALLOWED_HOSTS.includes(parsed.hostname)) {
     throw new Error(`仅允许本机地址（${ALLOWED_HOSTS.join('、')}），不允许连接远程服务器`)
   }
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string' && error) {
-    return error
-  }
-
-  return fallback
 }
 
 function createOllamaError(message: string, cause: unknown): Error {

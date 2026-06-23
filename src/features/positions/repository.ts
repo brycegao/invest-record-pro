@@ -12,6 +12,7 @@
 
 import { invoke } from '@tauri-apps/api/core'
 import type { Position, PositionCreatePayload, PositionItem } from '@/domain/types'
+import { createServiceError as createRepositoryError } from '@/shared/utils/error'
 
 type PositionItemCommandPayload = {
   asset_id: number
@@ -47,22 +48,6 @@ function toPositionCommandPayload(payload: PositionCreatePayload): PositionCreat
       unrealized_pnl: item.unrealizedPnl,
     })),
   }
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createRepositoryError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 export async function getPositions(): Promise<Position[]> {

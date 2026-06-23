@@ -12,8 +12,17 @@
 
 import { invoke } from '@tauri-apps/api/core'
 import dayjs from 'dayjs'
-import type { Asset, AssetType, Plan, Position, PositionItem, Trade, TradeSummary } from '@/domain/types'
+import type {
+  Asset,
+  AssetType,
+  Plan,
+  Position,
+  PositionItem,
+  Trade,
+  TradeSummary,
+} from '@/domain/types'
 import { ASSET_TYPE_LABELS } from '@/domain/types'
+import { createServiceError } from '@/shared/utils/error'
 
 /** 月度盈亏趋势数据点 */
 export type MonthlyPnlPoint = {
@@ -45,22 +54,6 @@ export type DashboardData = {
   // 列表数据
   recentTrades: Trade[]
   activePlans: Plan[]
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 // ---- Tauri 命令调用封装 ----
@@ -160,8 +153,14 @@ async function calculateTotalRealizedPnl(): Promise<number> {
  * 计算累计已实现盈亏和浮动盈亏。
  * 已实现盈亏来自交易汇总；浮动盈亏来自最新仓位快照。
  */
-async function calculatePnlStats(): Promise<{ totalRealizedPnl: number; totalUnrealizedPnl: number }> {
-  const [totalRealizedPnl, latest] = await Promise.all([calculateTotalRealizedPnl(), getLatestPosition()])
+async function calculatePnlStats(): Promise<{
+  totalRealizedPnl: number
+  totalUnrealizedPnl: number
+}> {
+  const [totalRealizedPnl, latest] = await Promise.all([
+    calculateTotalRealizedPnl(),
+    getLatestPosition(),
+  ])
 
   return {
     totalRealizedPnl,

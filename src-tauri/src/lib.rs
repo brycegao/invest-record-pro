@@ -13,6 +13,7 @@
 pub mod commands;
 pub mod common;
 pub mod db;
+pub mod market;
 pub mod models;
 
 use tauri::Manager;
@@ -57,6 +58,15 @@ pub fn run() {
             commands::update_review,
             commands::delete_review,
             commands::query_reviews,
+            commands::get_advisor_signals,
+            commands::create_advisor_signal,
+            commands::update_advisor_signal,
+            commands::delete_advisor_signal,
+            commands::get_follow_up,
+            commands::upsert_follow_up,
+            commands::delete_follow_up,
+            commands::refresh_advisor_market,
+            commands::get_strategy_stats,
             commands::get_market_observations,
             commands::create_market_observation,
             commands::update_market_observation,
