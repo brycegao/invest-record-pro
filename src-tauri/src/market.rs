@@ -9,7 +9,7 @@
  * 价格统一存「分」(×100)，与既有表精度约定一致。
  */
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use rusqlite::{params, Connection};
 use serde::Deserialize;
@@ -17,6 +17,21 @@ use serde::Deserialize;
 use crate::common::now_iso;
 
 const EASTMONEY_KLINE_URL: &str = "https://push2his.eastmoney.com/api/qt/stock/kline/get";
+
+/// 复用的 HTTP 客户端(建一次,线程安全)。东财接口偶发超时,client 复用可省去重复 TLS 握手。
+/// 存 `Result` 而非 `Client`,以避免在 get_or_init 闭包内 panic(clippy deny expect_used)。
+fn shared_client() -> Result<&'static reqwest::blocking::Client, String> {
+    static CLIENT: OnceLock<Result<reqwest::blocking::Client, String>> = OnceLock::new();
+    let init_err = |e: reqwest::Error| format!("构建 HTTP 客户端失败: {e}");
+    let stored: &Result<reqwest::blocking::Client, String> = CLIENT.get_or_init(|| {
+        reqwest::blocking::Client::builder()
+            .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
+            .timeout(std::time::Duration::from_secs(15))
+            .build()
+            .map_err(init_err)
+    });
+    stored.as_ref().map_err(|e| e.clone())
+}
 
 /// 东财接口返回结构（仅取需要的字段）
 #[derive(Debug, Deserialize)]
@@ -98,23 +113,34 @@ pub fn fetch_daily(market: &str, code: &str, beg: &str, end: &str) -> Result<Vec
         EASTMONEY_KLINE_URL, secid, beg, end
     );
 
-    let client = reqwest::blocking::Client::builder()
-        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")
-        .timeout(std::time::Duration::from_secs(15))
-        .build()
-        .map_err(|e| format!("构建 HTTP 客户端失败: {e}"))?;
-
-    let resp = client
-        .get(&url)
-        .send()
-        .map_err(|e| format!("请求东财接口失败: {e}"))?;
-    let body: KlineResponse = resp
-        .json()
-        .map_err(|e| format!("解析东财返回失败: {e}"))?;
-
-    let data = body.data.ok_or_else(|| "东财返回 data 为空".to_string())?;
-    let klines = data.klines.unwrap_or_default();
-    Ok(klines.iter().filter_map(|s| parse_kline(s)).collect())
+    // 东财接口偶发超时/连接失败,对这类网络错误重试(最多 3 次,间隔 500ms → 1000ms)。
+    // 解析错误/业务错误不重试(重试无意义)。
+    let backoff_ms = [0u64, 500, 1000];
+    let mut last_err: Option<String> = None;
+    for (attempt, wait_ms) in backoff_ms.iter().enumerate() {
+        if *wait_ms > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(*wait_ms));
+        }
+        let client = match shared_client() {
+            Ok(c) => c,
+            Err(e) => return Err(e),
+        };
+        let send_result = client.get(&url).send();
+        match send_result {
+            Ok(resp) => {
+                let body: KlineResponse = resp
+                    .json()
+                    .map_err(|e| format!("解析东财返回失败: {e}"))?;
+                let data = body.data.ok_or_else(|| "东财返回 data 为空".to_string())?;
+                let klines = data.klines.unwrap_or_default();
+                return Ok(klines.iter().filter_map(|s| parse_kline(s)).collect());
+            }
+            Err(e) => {
+                last_err = Some(format!("请求东财接口失败(第 {} 次): {e}", attempt + 1));
+            }
+        }
+    }
+    Err(last_err.unwrap_or_else(|| "请求东财接口失败:未知原因".to_string()))
 }
 
 /// 把日线 upsert 到 price_daily 表
