@@ -22,6 +22,7 @@ import type {
   TradeSummary,
 } from '@/domain/types'
 import { ASSET_TYPE_LABELS } from '@/domain/types'
+import { createServiceError } from '@/shared/utils/error'
 
 /** 月度盈亏趋势数据点 */
 export type MonthlyPnlPoint = {
@@ -53,22 +54,6 @@ export type DashboardData = {
   // 列表数据
   recentTrades: Trade[]
   activePlans: Plan[]
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 // ---- Tauri 命令调用封装 ----

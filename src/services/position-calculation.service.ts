@@ -13,6 +13,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import type { Asset } from '@/domain/types'
 import { getTradeSummaryByAsset } from './trade-query.service'
+import { createServiceError } from '@/shared/utils/error'
 
 export type HoldingInfo = {
   assetId: number
@@ -26,22 +27,6 @@ export type HoldingInfo = {
   totalSellAmount: number
   remainingCost: number
   realizedPnl: number
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  return '未知错误'
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  return Object.assign(new Error(`${message}: ${getErrorMessage(cause)}`), { cause })
 }
 
 async function getAllAssets(): Promise<Asset[]> {
