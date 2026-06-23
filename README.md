@@ -43,7 +43,7 @@
 | 可视化图表 | vue-echarts(ECharts) |
 | 本地数据库 | SQLite(rusqlite 内置打包) |
 | 离线AI能力 | Ollama HTTP Fetch |
-| 单元测试 | Vitest + @vue/test-utils（132个用例） |
+| 单元测试 | Vitest + @vue/test-utils（153个用例） |
 | E2E自动化 | Playwright（89个场景用例） |
 
 ## 🏗️ 项目架构
@@ -113,7 +113,7 @@ npm run dev              # Vite 开发服务器 (port 1420)
 npm run build            # vue-tsc + vite build
 npm run check            # lint + type-check + format:check
 npm run check:fix        # lint:fix + format
-npm run test             # Vitest 单元测试 (132 tests)
+npm run test             # Vitest 单元测试 (153 tests)
 npm run test:e2e         # Playwright E2E 测试 (89 tests)
 npm run test:e2e:ui      # Playwright UI 模式
 ```
