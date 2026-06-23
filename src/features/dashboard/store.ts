@@ -14,18 +14,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { DashboardData } from '@/services/dashboard-aggregation.service'
 import { getDashboardData } from '@/services/dashboard-aggregation.service'
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  if (typeof error === 'string' && error) {
-    return error
-  }
-
-  return fallback
-}
+import { getErrorMessage } from '@/shared/utils/error'
 
 /**
  * Dashboard 模块状态管理。

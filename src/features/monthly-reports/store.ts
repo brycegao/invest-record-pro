@@ -24,28 +24,7 @@ import {
   type MonthlyAggregation,
 } from '@/services/monthly-aggregation.service'
 import { buildMonthlyReviewPrompt, PROMPT_VERSION } from '@/services/prompt-template.service'
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  if (typeof error === 'string' && error) {
-    return error
-  }
-
-  return fallback
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  const msg =
-    cause instanceof Error && cause.message
-      ? `${message}: ${cause.message}`
-      : typeof cause === 'string' && cause
-        ? `${message}: ${cause}`
-        : message
-  return Object.assign(new Error(msg), { cause })
-}
+import { createServiceError, getErrorMessage } from '@/shared/utils/error'
 
 // ---- Repository ----
 
