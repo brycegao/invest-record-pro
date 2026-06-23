@@ -95,9 +95,7 @@ function buildUserPrompt(data: MonthlyReviewInput): string {
     for (const trade of data.recentTrades) {
       const typeLabel = trade.type === 'buy' ? '买入' : '卖出'
       const moodStr = trade.mood ? `（${MOOD_LABELS[trade.mood] ?? trade.mood}）` : ''
-      lines.push(
-        `- ${trade.code} ${typeLabel} ¥${fenToYuan(trade.amount).toFixed(2)}${moodStr}`,
-      )
+      lines.push(`- ${trade.code} ${typeLabel} ¥${fenToYuan(trade.amount).toFixed(2)}${moodStr}`)
     }
     lines.push('')
   }

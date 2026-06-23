@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 交易记录管理页面
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+交易记录管理页面 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See LICENSE
+file in the project root for full license information. */
 
 <template>
   <div class="trades-page">
@@ -90,15 +82,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
-import {
-  NButton,
-  NDatePicker,
-  NFormItem,
-  NInput,
-  NSelect,
-  NSpace,
-  useMessage,
-} from 'naive-ui'
+import { NButton, NDatePicker, NFormItem, NInput, NSelect, NSpace, useMessage } from 'naive-ui'
 import { BuyTradeForm, SellTradeForm, TradeTable } from '@/features/trades/components'
 import { useTradeStore } from '@/features/trades/store'
 import type { Mood, Trade, TradeCreatePayload, TradeFilter, TradeType } from '@/domain/types'

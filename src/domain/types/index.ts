@@ -10,6 +10,7 @@
  * See LICENSE file in the project root for full license information.
  */
 
+export * from './advisor'
 export * from './asset'
 export * from './common'
 export * from './constants'

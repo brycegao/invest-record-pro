@@ -13,9 +13,16 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/core'
-import type { MonthlyReport, MonthlyReportCreatePayload, MonthlyReportUpdatePayload } from '@/domain/types'
+import type {
+  MonthlyReport,
+  MonthlyReportCreatePayload,
+  MonthlyReportUpdatePayload,
+} from '@/domain/types'
 import { ollamaService } from '@/services/ollama.service'
-import { aggregateMonthlyData, type MonthlyAggregation } from '@/services/monthly-aggregation.service'
+import {
+  aggregateMonthlyData,
+  type MonthlyAggregation,
+} from '@/services/monthly-aggregation.service'
 import { buildMonthlyReviewPrompt, PROMPT_VERSION } from '@/services/prompt-template.service'
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -31,9 +38,12 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 function createServiceError(message: string, cause: unknown): Error {
-  const msg = cause instanceof Error && cause.message ? `${message}: ${cause.message}`
-    : typeof cause === 'string' && cause ? `${message}: ${cause}`
-    : message
+  const msg =
+    cause instanceof Error && cause.message
+      ? `${message}: ${cause.message}`
+      : typeof cause === 'string' && cause
+        ? `${message}: ${cause}`
+        : message
   return Object.assign(new Error(msg), { cause })
 }
 
@@ -261,7 +271,9 @@ function buildFallbackSummary(data: MonthlyAggregation): string {
   lines.push(`## ${data.tradeCount === 0 ? '本月无交易' : '月度数据概览'}\n`)
 
   if (data.tradeCount > 0) {
-    lines.push(`- **交易统计**：共 ${data.tradeCount} 笔（买入 ${data.buyCount}，卖出 ${data.sellCount}）`)
+    lines.push(
+      `- **交易统计**：共 ${data.tradeCount} 笔（买入 ${data.buyCount}，卖出 ${data.sellCount}）`,
+    )
     lines.push(`- **买入金额**：¥${(data.totalBuyAmount / 100).toFixed(2)}`)
     lines.push(`- **卖出金额**：¥${(data.totalSellAmount / 100).toFixed(2)}`)
     lines.push(`- **计划执行率**：${(data.planExecutionRate / 100).toFixed(1)}%`)
@@ -277,7 +289,9 @@ function buildFallbackSummary(data: MonthlyAggregation): string {
   }
 
   lines.push('')
-  lines.push('> ⚠️ 以上为规则引擎自动生成的摘要。如需 AI 深度分析，请确保 Ollama 服务已启动并下载模型。')
+  lines.push(
+    '> ⚠️ 以上为规则引擎自动生成的摘要。如需 AI 深度分析，请确保 Ollama 服务已启动并下载模型。',
+  )
 
   return lines.join('\n')
 }

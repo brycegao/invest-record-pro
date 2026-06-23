@@ -1,14 +1,6 @@
-/*
- * @Author: brycegao
- * @Github: https://github.com/brycegao
- * @Date: 2026/06/03
- * @Description: 交易计划新增/编辑表单
- *
- * Copyright (c) 2026 brycegao
- *
- * Licensed under the MIT License.
- * See LICENSE file in the project root for full license information.
- */
+/* * @Author: brycegao * @Github: https://github.com/brycegao * @Date: 2026/06/03 * @Description:
+交易计划新增/编辑表单 * * Copyright (c) 2026 brycegao * * Licensed under the MIT License. * See
+LICENSE file in the project root for full license information. */
 
 <template>
   <NDrawer

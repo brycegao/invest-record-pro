@@ -80,6 +80,8 @@ opencode.jsonc
 *.tmp
 *.backup
 
-# ---------- Private docs (keep only README.md in git) ----------
-*.md
-!README.md
+# ---------- Private docs ----------
+# 只忽略真正私密的内部文档,放行 CHANGELOG / docs / 公开说明
+docs/private/
+*.private.md
+*.internal.md

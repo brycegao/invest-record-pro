@@ -12,11 +12,10 @@
 
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Setting, SettingUpsertPayload, ThemeOption } from '@/domain/types'
+import type { SettingUpsertPayload, ThemeOption } from '@/domain/types'
 import { SETTING_KEYS } from '@/domain/types'
 import { ollamaService } from '@/services/ollama.service'
 import {
-  getSetting,
   upsertSetting as upsertSettingRepo,
   getAllSettingsFull,
   getDbPath,
@@ -34,13 +33,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
   }
 
   return fallback
-}
-
-function createServiceError(message: string, cause: unknown): Error {
-  const msg = cause instanceof Error && cause.message ? `${message}: ${cause.message}`
-    : typeof cause === 'string' && cause ? `${message}: ${cause}`
-    : message
-  return Object.assign(new Error(msg), { cause })
 }
 
 // ---- Store ----
